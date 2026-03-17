@@ -40,6 +40,7 @@ export type ButtonVariants = VariantProps<typeof buttonVariants>;
 @Directive({
   selector: 'button[hlmBtn], a[hlmBtn]',
   exportAs: 'hlmBtn',
+  standalone: true,
   hostDirectives: [{ directive: BrnButton, inputs: ['disabled'] }],
   host: {
     'data-slot': 'button',

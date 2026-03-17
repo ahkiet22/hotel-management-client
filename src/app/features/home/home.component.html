@@ -1,35 +1,8 @@
-<!-- HEADER -->
-<header class="sticky top-0 z-50 bg-[#FAFAFA]/95 backdrop-blur border-b border-black/5">
-  <div class="mx-auto max-w-[1272px] px-6 md:px-10 h-[120px] flex items-center justify-between">
-    <button class="w-9 h-9 grid place-items-center rounded-full hover:bg-black/5" aria-label="Menu">
-      <span class="sr-only">Menu</span>
-      <span class="w-5 h-4 flex flex-col justify-between">
-        <span class="h-[2px] bg-black/70 rounded"></span>
-        <span class="h-[2px] bg-black/70 rounded"></span>
-        <span class="h-[2px] bg-black/70 rounded"></span>
-      </span>
-    </button>
-
-    <nav class="hidden md:flex items-center gap-10 text-[15px] font-medium text-black">
-      <a href="#" class="text-[#7C6A46] font-bold">Home</a>
-      <a routerLink="/explore" class="hover:text-black">Explore</a>
-      <a href="#" class="hover:text-black">Rooms</a>
-      <a href="#" class="hover:text-black">About</a>
-      <a href="#" class="hover:text-black">Contact</a>
-    </nav>
-
-    <button class="bg-[#7C6A46] text-white px-5 py-2.5 rounded-md text-sm font-semibold shadow-sm">
-      Book now
-    </button>
-  </div>
-</header>
-
-<!-- MAIN -->
 <main class="font-sans text-black/80">
   <!-- HERO -->
   <section class="relative bg-[#FAFAFA]">
-    <div class="mx-auto max-w-[1512px]">
-      <div class="mx-auto max-w-[1272px] px-6 md:px-10 pt-12 pb-24 grid md:grid-cols-2 gap-12 items-start">
+    <div class="mx-auto max-w-378">
+      <div class="mx-auto max-w-318 px-6 md:px-10 pt-12 pb-24 grid md:grid-cols-2 gap-12 items-start">
         <div class="pt-6 space-y-7">
           <p class="font-fancy text-[#7C6A46] text-[50px] leading-none">Paradise View</p>
 
@@ -45,12 +18,12 @@
           </p>
 
         <div class="flex items-center gap-5">
-          <button class="bg-[#7C6A46] text-white w-[165px] h-[55px] rounded-full text-[20px] font-medium shadow-md">
+          <button class="bg-[#7C6A46] text-white w-41.25 h-13.75 rounded-full text-[20px] font-medium shadow-md">
             Book now
           </button>
 
           <button class="flex items-center gap-3 text-[20px] font-medium text-[#1C1C1C]">
-            <span class="w-[55px] h-[55px] bg-[#00A699] text-white rounded-full grid place-items-center shadow-sm">
+            <span class="w-13.75 h-13.75 bg-[#00A699] text-white rounded-full grid place-items-center shadow-sm">
               <lucide-icon [img]="icons.Play" class="w-5 h-5"></lucide-icon>
             </span>
             Take a tour
@@ -59,16 +32,16 @@
         </div>
 
         <div class="rounded-none md:rounded-none overflow-hidden">
-          <img [src]="'assets/images/pic-1.jpg'" class="w-full h-[420px] md:h-[700px] object-cover" alt="Hotel" />
+          <img [src]="'assets/images/pic-1.jpg'" class="w-full h-105 md:h-175 object-cover" alt="Hotel" />
         </div>
       </div>
     </div>
 
     <!-- SEARCH BOX -->
     <div class="-mt-14 pb-12">
-      <div class="mx-auto max-w-[1272px] px-6 md:px-10">
+      <div class="mx-auto max-w-318 px-6 md:px-10">
         <div
-          class="bg-white shadow-xl rounded-none md:rounded-none border border-black/5 h-[120px] px-6 grid grid-cols-2 md:grid-cols-6 gap-4 items-center"
+          class="bg-white shadow-xl rounded-none md:rounded-none border border-black/5 h-30 px-6 grid grid-cols-2 md:grid-cols-6 gap-4 items-center"
         >
           <div class="space-y-1">
             <p class="text-[15px] font-medium text-[#1C1C1C] flex items-center gap-2">
@@ -112,7 +85,7 @@
             <p class="font-medium text-[12px] text-black/60">13 mar 2023</p>
           </div>
 
-          <button class="bg-[#7C6A46] text-white h-[65px] rounded-[5px] text-[15px] font-medium shadow-sm">
+          <button class="bg-[#7C6A46] text-white h-16.25 rounded-[5px] text-[15px] font-medium shadow-sm">
             Book Now
           </button>
         </div>
@@ -122,56 +95,56 @@
 
   <!-- FACILITIES -->
   <section class="bg-white">
-    <div class="mx-auto max-w-[1272px] px-6 md:px-10 py-16 text-center">
+    <div class="mx-auto max-w-318 px-6 md:px-10 py-16 text-center">
       <h2 class="text-[40px] font-heading font-bold text-[#1C1C1C]">Our Facilities</h2>
       <p class="text-[15px] font-heading font-medium text-black/60 mt-2 mb-10">
         We offer modern (5 star) hotel facilities for your comfort.
       </p>
 
       <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-        <div class="bg-[#FAFAFA] rounded-[5px] h-[250px] grid place-items-center">
+        <div class="bg-[#FAFAFA] rounded-[5px] h-62.5 grid place-items-center">
           <div class="text-center">
             <lucide-icon [img]="icons.Waves" class="w-10 h-10 mx-auto mb-5 text-[#7C6A46]"></lucide-icon>
             <p class="text-[20px] font-medium text-[#7C6A46]">Swimming Pool</p>
           </div>
         </div>
 
-        <div class="bg-[#FAFAFA] rounded-[5px] h-[250px] grid place-items-center">
+        <div class="bg-[#FAFAFA] rounded-[5px] h-62.5 grid place-items-center">
           <div class="text-center">
             <lucide-icon [img]="icons.Wifi" class="w-10 h-10 mx-auto mb-5 text-[#7C6A46]"></lucide-icon>
             <p class="text-[20px] font-medium text-[#7C6A46]">Wifi</p>
           </div>
         </div>
 
-        <div class="bg-[#FAFAFA] rounded-[5px] h-[250px] grid place-items-center">
+        <div class="bg-[#FAFAFA] rounded-[5px] h-62.5 grid place-items-center">
           <div class="text-center">
             <lucide-icon [img]="icons.Coffee" class="w-10 h-10 mx-auto mb-5 text-[#7C6A46]"></lucide-icon>
             <p class="text-[20px] font-medium text-[#7C6A46]">Breakfast</p>
           </div>
         </div>
 
-        <div class="bg-[#FAFAFA] rounded-[5px] h-[250px] grid place-items-center">
+        <div class="bg-[#FAFAFA] rounded-[5px] h-62.5 grid place-items-center">
           <div class="text-center">
             <lucide-icon [img]="icons.Dumbbell" class="w-10 h-10 mx-auto mb-5 text-[#7C6A46]"></lucide-icon>
             <p class="text-[20px] font-medium text-[#7C6A46]">Gym</p>
           </div>
         </div>
 
-        <div class="bg-[#FAFAFA] rounded-[5px] h-[250px] grid place-items-center">
+        <div class="bg-[#FAFAFA] rounded-[5px] h-62.5 grid place-items-center">
           <div class="text-center">
             <lucide-icon [img]="icons.Gamepad2" class="w-10 h-10 mx-auto mb-5 text-[#7C6A46]"></lucide-icon>
             <p class="text-[20px] font-medium text-[#7C6A46]">Game center</p>
           </div>
         </div>
 
-        <div class="bg-[#FAFAFA] rounded-[5px] h-[250px] grid place-items-center">
+        <div class="bg-[#FAFAFA] rounded-[5px] h-62.5 grid place-items-center">
           <div class="text-center">
             <lucide-icon [img]="icons.Lightbulb" class="w-10 h-10 mx-auto mb-5 text-[#7C6A46]"></lucide-icon>
             <p class="text-[20px] font-medium text-[#7C6A46]">24/7 Light</p>
           </div>
         </div>
 
-        <div class="bg-[#FAFAFA] rounded-[5px] h-[250px] grid place-items-center">
+        <div class="bg-[#FAFAFA] rounded-[5px] h-62.5 grid place-items-center">
           <div class="text-center">
             <lucide-icon
               [img]="icons.WashingMachine"
@@ -181,7 +154,7 @@
           </div>
         </div>
 
-        <div class="bg-[#FAFAFA] rounded-[5px] h-[250px] grid place-items-center">
+        <div class="bg-[#FAFAFA] rounded-[5px] h-62.5 grid place-items-center">
           <div class="text-center">
             <lucide-icon [img]="icons.Car" class="w-10 h-10 mx-auto mb-5 text-[#7C6A46]"></lucide-icon>
             <p class="text-[20px] font-medium text-[#7C6A46]">Parking space</p>
@@ -332,85 +305,3 @@
     </div>
   </section>
 </main>
-
-<!-- FOOTER -->
-<footer class="bg-[#8B7355] text-white px-10 md:px-24 py-16">
-  <div class="grid md:grid-cols-5 gap-10">
-    <!-- LOGO + DESC -->
-    <div class="space-y-4">
-      <h3 class="font-fancy italic text-xl">Paradise view</h3>
-      <p class="text-sm opacity-80 leading-relaxed">
-        The service at the Hotel Monteleone was exceptional. There was absolutely no issue that was
-        not addressed timely and with satisfactory results. We were particularly impressed with how
-        the hotel staff anticipated our needs.
-      </p>
-    </div>
-
-    <!-- QUICK LINKS -->
-    <div class="space-y-3">
-      <h4 class="font-semibold mb-4">Quick links</h4>
-      <p class="text-sm opacity-80 cursor-pointer hover:opacity-100">Room booking</p>
-      <p class="text-sm opacity-80 cursor-pointer hover:opacity-100">Rooms</p>
-      <p class="text-sm opacity-80 cursor-pointer hover:opacity-100">Contact</p>
-      <p class="text-sm opacity-80 cursor-pointer hover:opacity-100">Explore</p>
-    </div>
-
-    <!-- COMPANY -->
-    <div class="space-y-3">
-      <h4 class="font-semibold mb-4">Company</h4>
-      <p class="text-sm opacity-80 cursor-pointer hover:opacity-100">Privacy policy</p>
-      <p class="text-sm opacity-80 cursor-pointer hover:opacity-100">Refund policy</p>
-      <p class="text-sm opacity-80 cursor-pointer hover:opacity-100">F.A.Q</p>
-      <p class="text-sm opacity-80 cursor-pointer hover:opacity-100">About</p>
-    </div>
-
-    <!-- SOCIAL -->
-    <div class="space-y-3">
-      <h4 class="font-semibold mb-4">Social media</h4>
-
-      <div class="flex items-center gap-2 cursor-pointer hover:opacity-100 opacity-80">
-        <lucide-icon [img]="icons.Facebook" class="w-4 h-4"></lucide-icon>
-        <span class="text-sm">Facebook</span>
-      </div>
-
-      <div class="flex items-center gap-2 cursor-pointer hover:opacity-100 opacity-80">
-        <lucide-icon [img]="icons.Twitter" class="w-4 h-4"></lucide-icon>
-        <span class="text-sm">Twitter</span>
-      </div>
-
-      <div class="flex items-center gap-2 cursor-pointer hover:opacity-100 opacity-80">
-        <lucide-icon [img]="icons.Instagram" class="w-4 h-4"></lucide-icon>
-        <span class="text-sm">Instagram</span>
-      </div>
-
-      <div class="flex items-center gap-2 cursor-pointer hover:opacity-100 opacity-80">
-        <lucide-icon [img]="icons.Linkedin" class="w-4 h-4"></lucide-icon>
-        <span class="text-sm">LinkedIn</span>
-      </div>
-    </div>
-
-    <!-- NEWSLETTER -->
-    <div class="space-y-4">
-      <h4 class="font-semibold mb-4">Newsletter</h4>
-      <p class="text-sm opacity-80">
-        Kindly subscribe to our newsletter to get latest deals on our rooms and vacation discount.
-      </p>
-
-      <div class="flex mt-4">
-        <input
-          type="text"
-          placeholder="Enter your email"
-          class="px-4 py-2 w-full text-dark rounded-l outline-none"
-        />
-        <button class="bg-white text-dark px-4 rounded-r font-medium hover:bg-gray-200">
-          Subscribe
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- BOTTOM -->
-  <div class="border-t border-white/20 mt-12 pt-6 text-center text-sm opacity-80">
-    Paradise view 2023
-  </div>
-</footer>
