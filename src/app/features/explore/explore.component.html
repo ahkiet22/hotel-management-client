@@ -1,0 +1,172 @@
+<!-- NAVBAR -->
+<header class="sticky top-0 z-50 bg-[#FAFAFA]/95 backdrop-blur border-b border-black/5">
+  <div class="mx-auto max-w-[1272px] px-6 md:px-10 h-[120px] flex items-center justify-between">
+    <a routerLink="/" class="flex items-center" aria-label="Home">
+      <img [src]="assets.logo" class="h-8 w-auto" alt="Logo" />
+    </a>
+
+    <nav class="hidden md:flex items-center gap-10 text-[15px] font-medium text-black">
+      <a routerLink="/" class="hover:text-black">Home</a>
+      <a routerLink="/explore" class="text-[#7C6A46] font-bold">Explore</a>
+      <a href="#" class="hover:text-black">Rooms</a>
+      <a href="#" class="hover:text-black">About</a>
+      <a href="#" class="hover:text-black">Contact</a>
+    </nav>
+
+    <button hlmBtn class="bg-[#7C6A46] text-white rounded-[5px] w-41.25 h-13.75 text-[15px] font-medium">
+      Book now
+    </button>
+  </div>
+</header>
+
+<main class="bg-white">
+  <!-- HERO VIDEO -->
+  <section class="relative">
+    <div class="h-[700px] w-full">
+      <img [src]="assets.video" class="h-full w-full object-cover" alt="" />
+      <div class="absolute inset-0 bg-black/20"></div>
+      <button
+        type="button"
+        class="absolute left-1/2 top-[285px] -translate-x-1/2 w-32.5 h-32.5 grid place-items-center"
+        aria-label="Play video"
+      >
+        <img [src]="assets.playBtn" class="w-32.5 h-32.5" alt="" />
+      </button>
+    </div>
+  </section>
+
+  <!-- TITLE -->
+  <section class="py-14 text-center">
+    <h1 class="font-heading font-semibold text-[40px] text-[#1C1C1C]">Take a tour</h1>
+  </section>
+
+  <!-- ITEMS -->
+  <section class="pb-24">
+    <div class="mx-auto max-w-[1272px] px-6 md:px-10 space-y-14">
+      <!-- ITEM 1 -->
+      <article class="relative rounded-[40px] overflow-hidden">
+        <img [src]="assets.item1" class="w-full h-[570px] object-cover" alt="Luxurious rooms" />
+        <div class="absolute inset-0 bg-[#7C6A46]/10"></div>
+
+        <div class="absolute left-1/2 -translate-x-1/2 top-[403px] w-[790px]">
+          <div class="h-[20px] bg-[#7C6A46] rounded-tl-[20px] rounded-tr-[20px]"></div>
+          <div
+            class="bg-white h-[230px] rounded-bl-[20px] rounded-br-[20px] shadow-[0px_4px_30px_-5px_rgba(0,0,0,0.15)] px-10 pt-8 text-center"
+          >
+            <h2 class="font-heading font-semibold text-[24px] text-[#7C6A46]">Luxurious rooms</h2>
+            <p class="mt-4 font-heading font-medium text-[15px] text-black leading-6">
+              The elegant luxury bedrooms in this gallery showcase custom interior designs & decorating
+              ideas. View pictures and find your perfect luxury bedroom design.Luxurious bedrooms that
+              will make you never want to leave your room again. See more ideas about luxurious
+              bedrooms, bedroom design
+            </p>
+          </div>
+        </div>
+      </article>
+
+      <!-- ITEM 2 -->
+      <article class="relative rounded-[40px] overflow-hidden">
+        <img [src]="assets.item2" class="w-full h-[570px] object-cover" alt="Gym center" />
+        <div class="absolute inset-0 bg-[#7C6A46]/10"></div>
+
+        <div class="absolute left-1/2 -translate-x-1/2 top-[403px] w-[790px]">
+          <div class="h-[20px] bg-[#7C6A46] rounded-tl-[20px] rounded-tr-[20px]"></div>
+          <div
+            class="bg-white h-[230px] rounded-bl-[20px] rounded-br-[20px] shadow-[0px_4px_30px_-5px_rgba(0,0,0,0.15)] px-10 pt-8 text-center"
+          >
+            <h2 class="font-heading font-semibold text-[24px] text-[#7C6A46]">Gym center</h2>
+            <p class="mt-4 font-heading font-medium text-[15px] text-black leading-6">
+              The elegant luxury bedrooms in this gallery showcase custom interior designs & decorating
+              ideas. View pictures and find your perfect luxury bedroom design.Luxurious bedrooms that
+              will make you never want to leave your room again. See more ideas about luxurious
+              bedrooms, bedroom design
+            </p>
+          </div>
+        </div>
+      </article>
+
+      <!-- ITEM 3 -->
+      <article class="relative rounded-[40px] overflow-hidden">
+        <img [src]="assets.item3" class="w-full h-[570px] object-cover" alt="Restaurant" />
+        <div class="absolute inset-0 bg-[#7C6A46]/10"></div>
+
+        <div class="absolute left-1/2 -translate-x-1/2 top-[403px] w-[790px]">
+          <div class="h-[20px] bg-[#7C6A46] rounded-tl-[20px] rounded-tr-[20px]"></div>
+          <div
+            class="bg-white h-[230px] rounded-bl-[20px] rounded-br-[20px] shadow-[0px_4px_30px_-5px_rgba(0,0,0,0.15)] px-10 pt-8 text-center"
+          >
+            <h2 class="font-heading font-semibold text-[24px] text-[#7C6A46]">Restaurant</h2>
+            <p class="mt-4 font-heading font-medium text-[15px] text-black leading-6">
+              The elegant luxury bedrooms in this gallery showcase custom interior designs & decorating
+              ideas. View pictures and find your perfect luxury bedroom design.Luxurious bedrooms that
+              will make you never want to leave your room again. See more ideas about luxurious
+              bedrooms, bedroom design
+            </p>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="bg-[#7C6A46] text-white">
+    <div class="mx-auto max-w-[1272px] px-6 md:px-10 py-20 grid md:grid-cols-5 gap-10">
+      <div class="space-y-4 md:col-span-1">
+        <h3 class="font-fancy font-bold text-[30px]">Paradise view</h3>
+        <p class="font-heading font-bold text-[12px] leading-5 text-white/90">
+          The service at the Hotel Monteleone was exceptional. There was absolutely no issue that was
+          not addressed timely and with satisfactory results. We were particulary impressed with how
+          the hotel staff anticipated our needs (periodically coming by the Board Room to check with
+          us)
+        </p>
+      </div>
+
+      <div class="space-y-3">
+        <h4 class="font-heading font-bold text-[15px]">Quick links</h4>
+        <p class="font-heading font-bold text-[12px] text-white/90">Room booking</p>
+        <p class="font-heading font-bold text-[12px] text-white/90">Rooms</p>
+        <p class="font-heading font-bold text-[12px] text-white/90">Contact</p>
+        <p class="font-heading font-bold text-[12px] text-white/90">Explore</p>
+      </div>
+
+      <div class="space-y-3">
+        <h4 class="font-heading font-bold text-[15px]">Company</h4>
+        <p class="font-heading font-bold text-[12px] text-white/90">Privacy policy</p>
+        <p class="font-heading font-bold text-[12px] text-white/90">Refund policy</p>
+        <p class="font-heading font-bold text-[12px] text-white/90">F.A.Q</p>
+        <p class="font-heading font-bold text-[12px] text-white/90">About</p>
+      </div>
+
+      <div class="space-y-3">
+        <h4 class="font-heading font-bold text-[15px]">Social media</h4>
+        <p class="font-heading font-bold text-[12px] text-white/90">Facebook</p>
+        <p class="font-heading font-bold text-[12px] text-white/90">Twitter</p>
+        <p class="font-heading font-bold text-[12px] text-white/90">Instagram</p>
+        <p class="font-heading font-bold text-[12px] text-white/90">Linkedin</p>
+      </div>
+
+      <div class="space-y-4">
+        <h4 class="font-heading font-bold text-[15px]">Newsletter</h4>
+        <p class="font-heading font-bold text-[12px] text-white/90 leading-5">
+          Kindly subscribe to our newsletter to get<br />
+          latest deals on our rooms and vacation<br />
+          discount.
+        </p>
+
+        <div class="bg-white rounded-[5px] h-[50px] flex items-center overflow-hidden">
+          <input
+            class="h-full flex-1 px-4 text-[12px] text-black/60 outline-none"
+            placeholder="Enter your email"
+          />
+          <button class="h-[40px] mr-2 bg-[#7C6A46] text-white rounded-[2.5px] px-5 text-[13px] font-semibold">
+            Subscribe
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="h-px bg-white/30"></div>
+    <div class="py-10 text-center font-heading font-semibold text-[15px]">Paradise view 2023</div>
+  </footer>
+</main>
+

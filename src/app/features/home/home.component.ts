@@ -14,6 +14,12 @@ import {
   Instagram,
   Twitter,
   Linkedin,
+  Coffee,
+  Dumbbell,
+  Gamepad2,
+  Lightbulb,
+  WashingMachine,
+  Car,
 } from 'lucide-angular';
 
 @Component({
@@ -38,6 +44,12 @@ export class HomePageComponent implements OnInit {
     Instagram,
     Twitter,
     Linkedin,
+    Coffee,
+    Dumbbell,
+    Gamepad2,
+    Lightbulb,
+    WashingMachine,
+    Car,
   };
 
   constructor(
