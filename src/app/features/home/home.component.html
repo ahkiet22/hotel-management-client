@@ -1,0 +1,241 @@
+<!-- HEADER -->
+<header class="flex justify-between items-center px-10 py-6 sticky top-0 bg-white z-50 shadow-sm">
+  <div class="flex items-center gap-2">
+    <div class="w-8 h-8 bg-primary rounded-full"></div>
+    <span class="font-bold text-xl">Anna Hotel</span>
+  </div>
+
+  <nav class="hidden md:flex gap-8 font-medium">
+    <a href="#" class="text-primary border-b-2 border-primary">Home</a>
+    <a href="#">Explore</a>
+    <a href="#">Rooms</a>
+    <a href="#">About</a>
+    <a href="#">Contact</a>
+  </nav>
+
+  <button class="bg-primary text-white px-6 py-2 rounded">Book now</button>
+</header>
+
+<!-- MAIN -->
+<main class="font-sans text-dark">
+  <!-- HERO -->
+  <section class="relative px-10 md:px-24 pt-16 pb-32 grid md:grid-cols-2 gap-10 items-center">
+    <div class="space-y-6">
+      <p class="text-primary font-serif italic text-2xl">Anna View</p>
+
+      <h1 class="text-6xl md:text-7xl font-serif font-bold leading-tight">
+        Hotel for every moment rich in emotion
+      </h1>
+
+      <p class="text-gray-500 max-w-sm">Every moment feels like the first time in Anna Hotel.</p>
+
+      <div class="flex gap-6 items-center">
+        <button class="bg-primary text-white px-8 py-4 rounded font-bold shadow-lg">
+          Book now
+        </button>
+
+        <button class="flex items-center gap-2 font-bold">
+          <span
+            class="w-12 h-12 bg-secondary text-white rounded-full flex items-center justify-center"
+          >
+            <lucide-icon [img]="icons.Play" class="w-5 h-5"></lucide-icon>
+          </span>
+          Take a tour
+        </button>
+      </div>
+    </div>
+
+    <div>
+      <img
+        src="https://placehold.co/800x600?text=Luxury+Resort+View"
+        class="rounded-lg shadow-2xl object-cover h-125 w-full"
+      />
+    </div>
+
+    <!-- SEARCH BOX -->
+    <div
+      class="absolute -bottom-16 left-1/2 -translate-x-1/2 w-[90%] bg-white shadow-2xl rounded-lg p-8 grid grid-cols-2 md:grid-cols-6 gap-4 items-center border border-gray-100"
+    >
+      <div>
+        <p class="text-xs text-gray-400 uppercase">Location</p>
+        <p class="font-bold text-sm flex items-center gap-1">
+          Maya
+          <lucide-icon [img]="icons.MapPin" class="w-4 h-4 text-primary"></lucide-icon>
+        </p>
+      </div>
+
+      <div>
+        <p class="text-xs text-gray-400 uppercase">Room Type</p>
+        <p class="font-bold text-sm">Standard</p>
+      </div>
+
+      <div>
+        <p class="text-xs text-gray-400 uppercase">Person</p>
+        <p class="font-bold text-sm flex items-center gap-1">
+          01
+          <lucide-icon [img]="icons.Users" class="w-4 h-4 text-primary"></lucide-icon>
+        </p>
+      </div>
+
+      <div>
+        <p class="text-xs text-gray-400 uppercase">Check In</p>
+        <p class="font-bold text-sm flex items-center gap-1">
+          24 May 2026
+          <lucide-icon [img]="icons.Calendar" class="w-4 h-4 text-primary"></lucide-icon>
+        </p>
+      </div>
+
+      <div>
+        <p class="text-xs text-gray-400 uppercase">Check Out</p>
+        <p class="font-bold text-sm flex items-center gap-1">
+          25 May 2026
+          <lucide-icon [img]="icons.Calendar" class="w-4 h-4 text-primary"></lucide-icon>
+        </p>
+      </div>
+
+      <button class="bg-primary text-white py-4 rounded font-bold">Book Now</button>
+    </div>
+  </section>
+
+  <!-- FACILITIES -->
+  <section class="bg-lightGray pt-48 pb-24 px-10 text-center">
+    <h2 class="text-4xl font-serif font-bold mb-2">Our Facilities</h2>
+    <p class="text-gray-500 mb-12">We offer modern (5 star) hotel facilities for your comfort.</p>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-6xl mx-auto">
+      <div class="bg-white p-10 rounded-xl shadow-sm hover:shadow-md transition">
+        <lucide-icon [img]="icons.Waves" class="w-8 h-8 mx-auto mb-4 text-primary"></lucide-icon>
+        <p class="font-bold text-gray-400 uppercase text-xs">Swimming Pool</p>
+      </div>
+
+      <div class="bg-white p-10 rounded-xl shadow-sm hover:shadow-md transition">
+        <lucide-icon [img]="icons.Wifi" class="w-8 h-8 mx-auto mb-4 text-primary"></lucide-icon>
+        <p class="font-bold text-gray-400 uppercase text-xs">Wifi</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROOMS -->
+  <section class="py-24 px-10 bg-slate-900 text-white text-center">
+    <h2 class="text-4xl font-serif font-bold mb-2">Luxurious Rooms</h2>
+    <p class="text-gray-400 mb-12">All rooms are design for your comfort.</p>
+
+    <div class="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto">
+      <div *ngFor="let i of [1, 2, 3]" class="bg-white text-dark p-4 rounded-xl">
+        <img src="https://placehold.co/400x300" class="rounded-lg mb-4 w-full" />
+        <p class="text-xs text-gray-400 text-left">Television set, Extra sheets and Breakfast</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIAL -->
+  <section class="py-24 px-10 text-center bg-white">
+    <h2 class="text-4xl font-serif font-bold mb-16">Testimonies</h2>
+
+    <div class="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto">
+      <div *ngFor="let i of [1, 2, 3]" class="p-8 border rounded-xl shadow-sm text-left">
+        <div class="flex text-yellow-400 mb-4">
+          <lucide-icon
+            *ngFor="let i of [1, 2, 3, 4, 5]"
+            [img]="icons.Star"
+            class="w-4 h-4"
+          ></lucide-icon>
+        </div>
+
+        <p class="text-gray-500 italic mb-6">
+          "The service at Anna Hotel was exceptional. Every moment felt rich in emotion."
+        </p>
+
+        <div class="flex items-center gap-4">
+          <div class="w-10 h-10 rounded-full bg-gray-200"></div>
+          <div>
+            <p class="font-bold text-sm">Anthony J. Powell</p>
+            <p class="text-xs text-gray-400">Guest</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- FOOTER -->
+<footer class="bg-[#8B7355] text-white px-10 md:px-24 py-16">
+  <div class="grid md:grid-cols-5 gap-10">
+    <!-- LOGO + DESC -->
+    <div class="space-y-4">
+      <h3 class="font-serif italic text-xl">Paradise view</h3>
+      <p class="text-sm opacity-80 leading-relaxed">
+        The service at the Hotel Monteleone was exceptional. There was absolutely no issue that was
+        not addressed timely and with satisfactory results. We were particularly impressed with how
+        the hotel staff anticipated our needs.
+      </p>
+    </div>
+
+    <!-- QUICK LINKS -->
+    <div class="space-y-3">
+      <h4 class="font-semibold mb-4">Quick links</h4>
+      <p class="text-sm opacity-80 cursor-pointer hover:opacity-100">Room booking</p>
+      <p class="text-sm opacity-80 cursor-pointer hover:opacity-100">Rooms</p>
+      <p class="text-sm opacity-80 cursor-pointer hover:opacity-100">Contact</p>
+      <p class="text-sm opacity-80 cursor-pointer hover:opacity-100">Explore</p>
+    </div>
+
+    <!-- COMPANY -->
+    <div class="space-y-3">
+      <h4 class="font-semibold mb-4">Company</h4>
+      <p class="text-sm opacity-80 cursor-pointer hover:opacity-100">Privacy policy</p>
+      <p class="text-sm opacity-80 cursor-pointer hover:opacity-100">Refund policy</p>
+      <p class="text-sm opacity-80 cursor-pointer hover:opacity-100">F.A.Q</p>
+      <p class="text-sm opacity-80 cursor-pointer hover:opacity-100">About</p>
+    </div>
+
+    <!-- SOCIAL -->
+    <div class="space-y-3">
+      <h4 class="font-semibold mb-4">Social media</h4>
+
+      <div class="flex items-center gap-2 cursor-pointer hover:opacity-100 opacity-80">
+        <lucide-icon [img]="icons.Facebook" class="w-4 h-4"></lucide-icon>
+        <span class="text-sm">Facebook</span>
+      </div>
+
+      <div class="flex items-center gap-2 cursor-pointer hover:opacity-100 opacity-80">
+        <lucide-icon [img]="icons.Twitter" class="w-4 h-4"></lucide-icon>
+        <span class="text-sm">Twitter</span>
+      </div>
+
+      <div class="flex items-center gap-2 cursor-pointer hover:opacity-100 opacity-80">
+        <lucide-icon [img]="icons.Instagram" class="w-4 h-4"></lucide-icon>
+        <span class="text-sm">Instagram</span>
+      </div>
+
+      <div class="flex items-center gap-2 cursor-pointer hover:opacity-100 opacity-80">
+        <lucide-icon [img]="icons.Linkedin" class="w-4 h-4"></lucide-icon>
+        <span class="text-sm">LinkedIn</span>
+      </div>
+    </div>
+
+    <!-- NEWSLETTER -->
+    <div class="space-y-4">
+      <h4 class="font-semibold mb-4">Newsletter</h4>
+      <p class="text-sm opacity-80">
+        Kindly subscribe to our newsletter to get latest deals on our rooms and vacation discount.
+      </p>
+
+      <div class="flex mt-4">
+        <input
+          type="text"
+          placeholder="Enter your email"
+          class="px-4 py-2 w-full text-dark rounded-l outline-none"
+        />
+        <button class="bg-white text-dark px-4 rounded-r font-medium hover:bg-gray-200">
+          Subscribe
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM -->
+  <div class="border-t border-white/20 mt-12 pt-6 text-center text-sm opacity-80">
+    Paradise view 2023
+  </div>
+</footer>

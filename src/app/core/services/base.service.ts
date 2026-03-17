@@ -1,0 +1,51 @@
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { inject } from '@angular/core';
+import { Observable, catchError, retry, throwError } from 'rxjs';
+import { environment } from '@env/environment';
+
+export abstract class BaseService<T> {
+  protected http = inject(HttpClient);
+  protected abstract readonly endpoint: string;
+
+  private get fullUrl() {
+    return `${environment.apiUrl}${this.endpoint}`;
+  }
+
+  getAll(query?: any): Observable<T[]> {
+    let params = new HttpParams();
+
+    if (query) {
+      Object.keys(query).forEach((key) => {
+        const value = query[key];
+        if (value !== undefined && value !== null) {
+          params = params.append(key, value.toString());
+        }
+      });
+    }
+
+    return this.http
+      .get<T[]>(this.fullUrl, { params })
+      .pipe(retry(1), catchError(this.handleError));
+  }
+
+  getById(id: string | number): Observable<T> {
+    return this.http.get<T>(`${this.fullUrl}/${id}`).pipe(catchError(this.handleError));
+  }
+
+  create(item: T): Observable<T> {
+    return this.http.post<T>(this.fullUrl, item).pipe(catchError(this.handleError));
+  }
+
+  update(id: string | number, item: T): Observable<T> {
+    return this.http.put<T>(`${this.fullUrl}/${id}`, item).pipe(catchError(this.handleError));
+  }
+
+  delete(id: string | number): Observable<any> {
+    return this.http.delete(`${this.fullUrl}/${id}`).pipe(catchError(this.handleError));
+  }
+
+  protected handleError(error: any) {
+    console.error('API Error:', error);
+    return throwError(() => new Error('Something went wrong. Please try again later.'));
+  }
+}
