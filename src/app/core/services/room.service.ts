@@ -18,11 +18,11 @@ export class RoomService extends BaseService<Room> {
   protected override readonly endpoint = 'assets/mocks/rooms.json';
 
   override getAll(query?: any): Observable<Room[]> {
-    return this.http.get<Room[]>(this.endpoint).pipe(catchError(this.handleError.bind(this)));
+    return this.http.get<Room[]>(this.fullUrl).pipe(catchError(this.handleError.bind(this)));
   }
 
   override getById(id: string | number): Observable<Room> {
-    return this.http.get<Room[]>(this.endpoint).pipe(
+    return this.http.get<Room[]>(this.fullUrl).pipe(
       map(rooms => {
         const room = rooms.find(r => r.id === id);
         if (!room) throw new Error('Room not found');

@@ -21,11 +21,11 @@ export class UserService extends BaseService<User> {
   protected override readonly endpoint = 'assets/mocks/users.json';
 
   override getAll(query?: any): Observable<User[]> {
-    return this.http.get<User[]>(this.endpoint).pipe(catchError(this.handleError.bind(this)));
+    return this.http.get<User[]>(this.fullUrl).pipe(catchError(this.handleError.bind(this)));
   }
 
   override getById(id: string | number): Observable<User> {
-    return this.http.get<User[]>(this.endpoint).pipe(
+    return this.http.get<User[]>(this.fullUrl).pipe(
       map(users => {
         const user = users.find(u => u.id === id);
         if (!user) throw new Error('User not found');

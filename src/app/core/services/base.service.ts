@@ -7,8 +7,10 @@ export abstract class BaseService<T> {
   protected http = inject(HttpClient);
   protected abstract readonly endpoint: string;
 
-  private get fullUrl() {
-    return `${environment.apiUrl}${this.endpoint}`;
+  protected get fullUrl() {
+    const api = environment.apiUrl.endsWith('/') ? environment.apiUrl : `${environment.apiUrl}/`;
+    const endpoint = this.endpoint.startsWith('/') ? this.endpoint.slice(1) : this.endpoint;
+    return `${api}${endpoint}`;
   }
 
   getAll(query?: any): Observable<T[]> {
