@@ -1,0 +1,23 @@
+[
+  {
+    "id": "rt-1",
+    "name": "Standard",
+    "description": "Basic room with essential amenities",
+    "base_price": 50,
+    "capacity": 2
+  },
+  {
+    "id": "rt-2",
+    "name": "Deluxe",
+    "description": "Spacious room with a great view",
+    "base_price": 100,
+    "capacity": 3
+  },
+  {
+    "id": "rt-3",
+    "name": "Suite",
+    "description": "Luxury suite with a living area",
+    "base_price": 250,
+    "capacity": 4
+  }
+]

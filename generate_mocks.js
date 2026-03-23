@@ -1,0 +1,129 @@
+const fs = require('fs');
+const path = require('path');
+
+const mocksDir = path.join(__dirname, 'src', 'mocks');
+if (!fs.existsSync(mocksDir)) {
+  fs.mkdirSync(mocksDir, { recursive: true });
+}
+
+const data = {
+  roles: [
+    { id: "role-1", name: "Admin" },
+    { id: "role-2", name: "Staff" },
+    { id: "role-3", name: "Customer" }
+  ],
+  users: [
+    {
+      id: "user-1", role_id: "role-1", full_name: "John Admin", email: "admin@hotel.com",
+      password_hash: "$2b$10$hashed_password_example", refresh_token: "refresh_token_string",
+      phone: "0123456780", address: "123 Admin St", status: "Active",
+      created_at: "2024-01-01T00:00:00Z", updated_at: "2024-01-01T00:00:00Z"
+    },
+    {
+      id: "user-2", role_id: "role-2", full_name: "Jane Staff", email: "staff@hotel.com",
+      password_hash: "$2b$10$hashed_password_example", refresh_token: "refresh_token_string",
+      phone: "0123456781", address: "124 Staff St", status: "Active",
+      created_at: "2024-01-02T00:00:00Z", updated_at: "2024-01-02T00:00:00Z"
+    },
+    {
+      id: "user-3", role_id: "role-3", full_name: "Alice Customer", email: "alice@example.com",
+      password_hash: "$2b$10$hashed_password_example", refresh_token: "refresh_token_string",
+      phone: "0123456782", address: "125 Customer Ave", status: "Active",
+      created_at: "2024-02-01T00:00:00Z", updated_at: "2024-02-01T00:00:00Z"
+    },
+    {
+      id: "user-4", role_id: "role-3", full_name: "Bob Locked", email: "bob@example.com",
+      password_hash: "$2b$10$hashed_password_example", refresh_token: "refresh_token_string",
+      phone: "0123456783", address: "126 Disable St", status: "Locked",
+      created_at: "2024-02-05T00:00:00Z", updated_at: "2024-02-05T00:00:00Z"
+    }
+  ],
+  room_types: [
+    { id: "rt-1", name: "Standard", description: "Basic room with essential amenities", base_price: 50.00, capacity: 2 },
+    { id: "rt-2", name: "Deluxe", description: "Spacious room with a great view", base_price: 100.00, capacity: 3 },
+    { id: "rt-3", name: "Suite", description: "Luxury suite with a living area", base_price: 250.00, capacity: 4 }
+  ],
+  rooms: [
+    { id: "room-1", room_number: "101", room_type_id: "rt-1", status: "Vacant", created_at: "2024-01-01T00:00:00Z" },
+    { id: "room-2", room_number: "102", room_type_id: "rt-1", status: "Occupied", created_at: "2024-01-01T00:00:00Z" },
+    { id: "room-3", room_number: "201", room_type_id: "rt-2", status: "Reserved", created_at: "2024-01-01T00:00:00Z" },
+    { id: "room-4", room_number: "301", room_type_id: "rt-3", status: "Out_of_Order", created_at: "2024-01-01T00:00:00Z" }
+  ],
+  services: [
+    { id: "srv-1", name: "Breakfast", description: "Continental breakfast buffet", price: 15.00, status: "Active" },
+    { id: "srv-2", name: "Laundry", description: "Same-day laundry service", price: 10.00, status: "Active" },
+    { id: "srv-3", name: "Spa", description: "1-hour relaxing massage", price: 50.00, status: "Active" }
+  ],
+  bookings: [
+    {
+      id: "bk-1", short_id: "BK1001", customer_id: "user-3", staff_id: "user-2",
+      check_in_date: "2024-03-20", check_out_date: "2024-03-25",
+      actual_check_in: "2024-03-20T14:00:00Z", actual_check_out: null,
+      total_room_price: 250.00, total_service_price: 30.00, grand_total: 280.00,
+      status: "Checked-in", created_at: "2024-03-10T09:00:00Z", updated_at: "2024-03-20T14:00:00Z"
+    },
+    {
+      id: "bk-2", short_id: "BK1002", customer_id: "user-3", staff_id: "user-2",
+      check_in_date: "2024-04-10", check_out_date: "2024-04-12",
+      actual_check_in: null, actual_check_out: null,
+      total_room_price: 200.00, total_service_price: 0.00, grand_total: 200.00,
+      status: "Confirmed", created_at: "2024-03-15T10:00:00Z", updated_at: "2024-03-15T10:00:00Z"
+    }
+  ],
+  booking_rooms: [
+    { id: "bkr-1", booking_id: "bk-1", room_id: "room-2", price_per_night: 50.00 },
+    { id: "bkr-2", booking_id: "bk-2", room_id: "room-3", price_per_night: 100.00 }
+  ],
+  booking_services: [
+    { id: "bks-1", booking_id: "bk-1", service_id: "srv-1", quantity: 2, price: 30.00, used_at: "2024-03-21T07:30:00Z" }
+  ],
+  payments: [
+    {
+      id: "pay-1", booking_id: "bk-1", amount: 280.00, payment_method: "Credit Card",
+      payment_status: "Completed", transaction_id: "TXN123456789", created_at: "2024-03-20T14:05:00Z"
+    }
+  ],
+  receipts: [
+    {
+      id: "rcpt-1", booking_id: "bk-1", invoice_number: "INV-2024-001",
+      total_amount: 280.00, issued_date: "2024-03-20T14:10:00Z", issued_by: "user-2"
+    }
+  ],
+  reviews: [
+    {
+      id: "rev-1", booking_id: "bk-1", customer_id: "user-3", room_id: "room-2",
+      rating: 5, comment: "Excellent room and service!", created_at: "2024-03-25T10:00:00Z"
+    }
+  ],
+  notifications: [
+    {
+      id: "notif-1", user_id: "user-3", title: "Booking Confirmed",
+      message: "Your booking BK1002 has been confirmed successfully.", is_read: false, created_at: "2024-03-15T10:05:00Z"
+    }
+  ],
+  system_logs: [
+    {
+      id: "log-1", user_id: "user-2", action: "User Check-in",
+      description: "Checked in user Alice Customer for booking BK1001.", created_at: "2024-03-20T14:00:00Z"
+    }
+  ],
+  reports: {
+    bookings: { total: 150, checked_in: 20, checked_out: 110, cancelled: 10, pending: 10 },
+    occupancy: { rate: 75.5, available_rooms: 10, occupied_rooms: 30, out_of_order: 2 },
+    revenue: { daily: 1500.00, monthly: 45000.00, year_to_date: 120000.00 },
+    reviews: { average_rating: 4.5, total_reviews: 200, positive: 180, negative: 20 },
+    customers: [
+      { id: "user-3", full_name: "Alice Customer", total_bookings: 2, total_spent: 480.00 }
+    ]
+  }
+};
+
+// Write a single database file
+fs.writeFileSync(path.join(mocksDir, 'db.json'), JSON.stringify(data, null, 2));
+
+// Also write individual files for easier endpoint mock
+Object.keys(data).forEach(key => {
+  fs.writeFileSync(path.join(mocksDir, key + '.json'), JSON.stringify(data[key], null, 2));
+});
+
+console.log('Mocks generated directly in src/mocks/');

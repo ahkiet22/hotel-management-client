@@ -1,0 +1,10 @@
+[
+  {
+    "id": "bks-1",
+    "booking_id": "bk-1",
+    "service_id": "srv-1",
+    "quantity": 2,
+    "price": 30,
+    "used_at": "2024-03-21T07:30:00Z"
+  }
+]

@@ -1,0 +1,11 @@
+[
+  {
+    "id": "pay-1",
+    "booking_id": "bk-1",
+    "amount": 280,
+    "payment_method": "Credit Card",
+    "payment_status": "Completed",
+    "transaction_id": "TXN123456789",
+    "created_at": "2024-03-20T14:05:00Z"
+  }
+]

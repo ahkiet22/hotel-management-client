@@ -1,0 +1,23 @@
+[
+  {
+    "id": "srv-1",
+    "name": "Breakfast",
+    "description": "Continental breakfast buffet",
+    "price": 15,
+    "status": "Active"
+  },
+  {
+    "id": "srv-2",
+    "name": "Laundry",
+    "description": "Same-day laundry service",
+    "price": 10,
+    "status": "Active"
+  },
+  {
+    "id": "srv-3",
+    "name": "Spa",
+    "description": "1-hour relaxing massage",
+    "price": 50,
+    "status": "Active"
+  }
+]

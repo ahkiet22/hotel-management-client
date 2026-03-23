@@ -1,0 +1,9 @@
+[
+  {
+    "id": "log-1",
+    "user_id": "user-2",
+    "action": "User Check-in",
+    "description": "Checked in user Alice Customer for booking BK1001.",
+    "created_at": "2024-03-20T14:00:00Z"
+  }
+]

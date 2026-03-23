@@ -1,0 +1,34 @@
+{
+  "bookings": {
+    "total": 150,
+    "checked_in": 20,
+    "checked_out": 110,
+    "cancelled": 10,
+    "pending": 10
+  },
+  "occupancy": {
+    "rate": 75.5,
+    "available_rooms": 10,
+    "occupied_rooms": 30,
+    "out_of_order": 2
+  },
+  "revenue": {
+    "daily": 1500,
+    "monthly": 45000,
+    "year_to_date": 120000
+  },
+  "reviews": {
+    "average_rating": 4.5,
+    "total_reviews": 200,
+    "positive": 180,
+    "negative": 20
+  },
+  "customers": [
+    {
+      "id": "user-3",
+      "full_name": "Alice Customer",
+      "total_bookings": 2,
+      "total_spent": 480
+    }
+  ]
+}

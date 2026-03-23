@@ -1,0 +1,54 @@
+[
+  {
+    "id": "user-1",
+    "role_id": "role-1",
+    "full_name": "John Admin",
+    "email": "admin@hotel.com",
+    "password_hash": "$2b$10$hashed_password_example",
+    "refresh_token": "refresh_token_string",
+    "phone": "0123456780",
+    "address": "123 Admin St",
+    "status": "Active",
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z"
+  },
+  {
+    "id": "user-2",
+    "role_id": "role-2",
+    "full_name": "Jane Staff",
+    "email": "staff@hotel.com",
+    "password_hash": "$2b$10$hashed_password_example",
+    "refresh_token": "refresh_token_string",
+    "phone": "0123456781",
+    "address": "124 Staff St",
+    "status": "Active",
+    "created_at": "2024-01-02T00:00:00Z",
+    "updated_at": "2024-01-02T00:00:00Z"
+  },
+  {
+    "id": "user-3",
+    "role_id": "role-3",
+    "full_name": "Alice Customer",
+    "email": "alice@example.com",
+    "password_hash": "$2b$10$hashed_password_example",
+    "refresh_token": "refresh_token_string",
+    "phone": "0123456782",
+    "address": "125 Customer Ave",
+    "status": "Active",
+    "created_at": "2024-02-01T00:00:00Z",
+    "updated_at": "2024-02-01T00:00:00Z"
+  },
+  {
+    "id": "user-4",
+    "role_id": "role-3",
+    "full_name": "Bob Locked",
+    "email": "bob@example.com",
+    "password_hash": "$2b$10$hashed_password_example",
+    "refresh_token": "refresh_token_string",
+    "phone": "0123456783",
+    "address": "126 Disable St",
+    "status": "Locked",
+    "created_at": "2024-02-05T00:00:00Z",
+    "updated_at": "2024-02-05T00:00:00Z"
+  }
+]

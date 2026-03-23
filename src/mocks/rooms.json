@@ -1,0 +1,30 @@
+[
+  {
+    "id": "room-1",
+    "room_number": "101",
+    "room_type_id": "rt-1",
+    "status": "Vacant",
+    "created_at": "2024-01-01T00:00:00Z"
+  },
+  {
+    "id": "room-2",
+    "room_number": "102",
+    "room_type_id": "rt-1",
+    "status": "Occupied",
+    "created_at": "2024-01-01T00:00:00Z"
+  },
+  {
+    "id": "room-3",
+    "room_number": "201",
+    "room_type_id": "rt-2",
+    "status": "Reserved",
+    "created_at": "2024-01-01T00:00:00Z"
+  },
+  {
+    "id": "room-4",
+    "room_number": "301",
+    "room_type_id": "rt-3",
+    "status": "Out_of_Order",
+    "created_at": "2024-01-01T00:00:00Z"
+  }
+]

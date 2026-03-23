@@ -1,0 +1,14 @@
+[
+  {
+    "id": "bkr-1",
+    "booking_id": "bk-1",
+    "room_id": "room-2",
+    "price_per_night": 50
+  },
+  {
+    "id": "bkr-2",
+    "booking_id": "bk-2",
+    "room_id": "room-3",
+    "price_per_night": 100
+  }
+]

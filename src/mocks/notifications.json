@@ -1,0 +1,10 @@
+[
+  {
+    "id": "notif-1",
+    "user_id": "user-3",
+    "title": "Booking Confirmed",
+    "message": "Your booking BK1002 has been confirmed successfully.",
+    "is_read": false,
+    "created_at": "2024-03-15T10:05:00Z"
+  }
+]
