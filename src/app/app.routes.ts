@@ -8,44 +8,47 @@ import { ContactPageComponent } from './features/contact/contact.component';
 import { LoginComponent } from './features/login/login.component';
 import { RegisterComponent } from './features/register/register.component';
 import { ForgotPasswordComponent } from './features/forgot-password/forgot-password.component';
+import { publicGuard } from '@core/guards/public.guard';
 
 export const routes: Routes = [
   {
     path: '',
     component: MainLayoutComponent,
     children: [
+      { path: '', component: HomePageComponent },
+      { path: 'explore', component: ExplorePageComponent },
+      { path: 'rooms', component: RoomsPageComponent },
+      { path: 'about', component: AboutPageComponent },
+      { path: 'contact', component: ContactPageComponent },
+
       {
         path: '',
-        component: HomePageComponent,
+        canActivate: [publicGuard],
+        children: [
+          { path: 'login', component: LoginComponent },
+          { path: 'register', component: RegisterComponent },
+          { path: 'forgot-password', component: ForgotPasswordComponent },
+        ],
       },
+    ],
+  },
+  {
+    path: 'manager',
+    loadComponent: () =>
+      import('./layouts/manager-layout/manager-layout.component').then(
+        (m) => m.ManagerLayoutComponent,
+      ),
+    // canActivate: [authGuard],
+    children: [
       {
-        path: 'explore',
-        component: ExplorePageComponent,
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent),
       },
-      {
-        path: 'rooms',
-        component: RoomsPageComponent,
-      },
-      {
-        path: 'about',
-        component: AboutPageComponent,
-      },
-      {
-        path: 'contact',
-        component: ContactPageComponent,
-      },
-      {
-        path: 'login',
-        component: LoginComponent,
-      },
-      {
-        path: 'register',
-        component: RegisterComponent,
-      },
-      {
-        path: 'forgot-password',
-        component: ForgotPasswordComponent,
-      },
+      // { path: 'rooms', loadComponent: () => import('./pages/manager/rooms-mgt/rooms-mgt.component') },
+      // { path: 'bookings', loadComponent: () => import('./pages/manager/bookings/bookings.component') },
+      // { path: 'blockchain-logs', loadComponent: () => import('./pages/manager/corechain/logs.component') },
+      // { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ],
   },
 ];
