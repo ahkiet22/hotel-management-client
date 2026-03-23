@@ -45,10 +45,12 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent),
       },
-      // { path: 'rooms', loadComponent: () => import('./pages/manager/rooms-mgt/rooms-mgt.component') },
-      // { path: 'bookings', loadComponent: () => import('./pages/manager/bookings/bookings.component') },
-      // { path: 'blockchain-logs', loadComponent: () => import('./pages/manager/corechain/logs.component') },
-      // { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
+      {
+        path: 'users',
+        loadComponent: () =>
+          import('./features/manager/users/user-list.component').then((m) => m.UserListComponent),
+      },
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ],
   },
 ];

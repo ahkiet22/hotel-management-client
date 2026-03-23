@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { Observable, catchError, map, of } from 'rxjs';
+import { Observable, catchError, map, of, throwError } from 'rxjs';
 import { BaseService } from './base.service';
+import USERS_DATA from '@assets/mocks/users.json';
 
 export interface User {
   id: string;
@@ -14,36 +15,35 @@ export interface User {
   updated_at?: string;
 }
 
+const MOCK_USERS = USERS_DATA as unknown as User[];
+
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UserService extends BaseService<User> {
-  protected override readonly endpoint = 'assets/mocks/users.json';
+  protected override readonly endpoint = 'api/v1/users';
 
   override getAll(query?: any): Observable<User[]> {
-    return this.http.get<User[]>(this.fullUrl).pipe(catchError(this.handleError.bind(this)));
+    return of(MOCK_USERS);
   }
 
   override getById(id: string | number): Observable<User> {
-    return this.http.get<User[]>(this.fullUrl).pipe(
-      map(users => {
-        const user = users.find(u => u.id === id);
-        if (!user) throw new Error('User not found');
-        return user;
-      }),
-      catchError(this.handleError.bind(this))
-    );
+    const user = MOCK_USERS.find((u) => u.id === id);
+    if (!user) {
+      return throwError(() => new Error('User not found'));
+    }
+    return of(user);
   }
 
   override create(item: User): Observable<User> {
-    return of({ ...item, id: `mock-${Date.now()}` }).pipe(catchError(this.handleError.bind(this)));
+    return of({ ...item, id: `mock-${Date.now()}` });
   }
 
   override update(id: string | number, item: Partial<User>): Observable<User> {
-    return of({ id: String(id), ...item } as User).pipe(catchError(this.handleError.bind(this)));
+    return of({ id: String(id), ...item } as User);
   }
 
   override delete(id: string | number): Observable<any> {
-    return of({ success: true, message: 'User deleted' }).pipe(catchError(this.handleError.bind(this)));
+    return of({ success: true, message: 'User deleted' });
   }
 }

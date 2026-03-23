@@ -10,7 +10,7 @@
         perfect luxury bedroom design.
       </p>
       
-      <button class="bg-transparent border-2  border-white/60 text-white w-12 h-20 rounded-full inline-flex items-center justify-center cursor-pointer transition-all duration-300 hover:bg-white/20 hover:-translate-y-1" aria-label="Scroll down">
+      <button (click)="scrollToSection()" class="bg-transparent border-2  border-white/60 text-white w-12 h-20 rounded-full inline-flex items-center justify-center cursor-pointer transition-all duration-300 hover:bg-white/20 hover:-translate-y-1" aria-label="Scroll down">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <line x1="12" y1="5" x2="12" y2="19"></line>
           <polyline points="19 12 12 19 5 12"></polyline>
@@ -20,7 +20,7 @@
   </section>
 
   <!-- Rooms Grid Section -->
-  <section class="py-20 px-6 md:px-10 bg-gray-50 flex justify-center">
+  <section  class="py-20 px-6 md:px-10 bg-gray-50 flex justify-center">
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl w-full">
       
       <div class="bg-white rounded overflow-hidden shadow-[0_4px_12px_rgba(0,0,0,0.06)] transition-all duration-300 hover:shadow-[0_12px_24px_rgba(0,0,0,0.12)] hover:-translate-y-1 flex flex-col group" *ngFor="let room of rooms">

@@ -1,62 +1,58 @@
 import { Injectable } from '@angular/core';
-import { Observable, catchError, map, of } from 'rxjs';
+import { Observable, catchError, map, of, throwError } from 'rxjs';
 import { BaseService } from './base.service';
+import ROOMS_DATA from '@assets/mocks/rooms.json';
 
 export interface Room {
   id: string;
   room_number: string;
   room_type_id: string;
-  status: string; // 'Vacant' | 'Reserved' | 'Occupied' | 'Out_of_Order'
+  room_type_name?: string;
+  status: 'Vacant' | 'Reserved' | 'Occupied' | 'Out_of_Order';
+  price?: number;
   created_at?: string;
   updated_at?: string;
 }
 
+const MOCK_ROOMS = ROOMS_DATA as unknown as Room[];
+
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class RoomService extends BaseService<Room> {
-  protected override readonly endpoint = 'assets/mocks/rooms.json';
+  protected override readonly endpoint = 'api/v1/rooms';
 
   override getAll(query?: any): Observable<Room[]> {
-    return this.http.get<Room[]>(this.fullUrl).pipe(catchError(this.handleError.bind(this)));
+    return of(MOCK_ROOMS);
   }
 
   override getById(id: string | number): Observable<Room> {
-    return this.http.get<Room[]>(this.fullUrl).pipe(
-      map(rooms => {
-        const room = rooms.find(r => r.id === id);
-        if (!room) throw new Error('Room not found');
-        return room;
-      }),
-      catchError(this.handleError.bind(this))
-    );
+    const room = MOCK_ROOMS.find((r) => r.id === id || r.room_number === String(id));
+    if (!room) {
+      return throwError(() => new Error('Room not found'));
+    }
+    return of(room);
   }
 
   override create(item: Room): Observable<Room> {
-    return of({ ...item, id: `mock-${Date.now()}` }).pipe(catchError(this.handleError.bind(this)));
+    return of({ ...item, id: `mock-${Date.now()}` });
   }
 
   override update(id: string | number, item: Partial<Room>): Observable<Room> {
-    return of({ id: String(id), ...item } as Room).pipe(catchError(this.handleError.bind(this)));
+    return of({ id: String(id), ...item } as Room);
   }
 
   override delete(id: string | number): Observable<any> {
-    return of({ success: true, message: 'Room deleted' }).pipe(catchError(this.handleError.bind(this)));
+    return of({ success: true, message: 'Room deleted' });
   }
 
-  // --- Extra Endpoints according to API Design ---
+  // --- Extra Endpoints ---
 
   addService(roomId: string | number, serviceId: string | number): Observable<any> {
-    // Mock the PATCH api/v1/rooms/add-service/:id endpoint
-    return of({ success: true, message: `Service ${serviceId} added to room ${roomId}` }).pipe(
-      catchError(this.handleError.bind(this))
-    );
+    return of({ success: true, message: `Service ${serviceId} added to room ${roomId}` });
   }
 
   removeService(roomId: string | number, serviceId: string | number): Observable<any> {
-    // Mock the PATCH api/v1/rooms/remove-service/:id endpoint
-    return of({ success: true, message: `Service ${serviceId} removed from room ${roomId}` }).pipe(
-      catchError(this.handleError.bind(this))
-    );
+    return of({ success: true, message: `Service ${serviceId} removed from room ${roomId}` });
   }
 }

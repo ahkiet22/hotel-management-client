@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { RoomService, Room } from '@core/services/room.service';
 
 export interface RoomView {
@@ -16,6 +16,14 @@ export interface RoomView {
   templateUrl: './rooms.component.html',
 })
 export class RoomsPageComponent implements OnInit {
+
+  scrollToSection() {
+    window.scrollTo({
+    top: 700,
+    behavior: 'smooth',
+  });
+  }
+
   rooms: RoomView[] = [];
 
   constructor(private roomService: RoomService) {}

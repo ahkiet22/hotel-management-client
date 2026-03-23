@@ -12,11 +12,14 @@
     "importHelpers": true,
     "target": "ES2022",
     "module": "preserve",
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
     "baseUrl": "./",
     "paths": {
       "@core/*": ["src/app/core/*"],
       "@shared/*": ["src/app/shared/*"],
       "@env/*": ["src/environments/*"],
+      "@assets/*": ["src/assets/*"],
       "@spartan-ng/helm/alert-dialog": ["src/app/libs/ui/alert-dialog/src/index.ts"],
       "@spartan-ng/helm/utils": ["src/app/libs/ui/utils/src/index.ts"],
       "@spartan-ng/helm/button": ["src/app/libs/ui/button/src/index.ts"]
