@@ -1,0 +1,60 @@
+<div class="relative min-h-screen flex items-center justify-center bg-gray-50 overflow-hidden">
+  <!-- Decorative Background Elements -->
+  <div class="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-96 h-96 bg-blue-100 rounded-full blur-3xl opacity-50"></div>
+  <div class="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-96 h-96 bg-indigo-100 rounded-full blur-3xl opacity-50"></div>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
+    <div class="text-center">
+      <!-- Error Number / Icon -->
+      <div class="mb-8">
+        <h1 class="text-9xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 animate-pulse drop-shadow-sm select-none">
+          404
+        </h1>
+      </div>
+
+      <!-- Main Content -->
+      <div class="space-y-6 max-w-lg mx-auto">
+        <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+          Rất tiếc, trang bạn tìm kiếm không tồn tại
+        </h2>
+        <p class="text-lg text-gray-600">
+          Trang bạn đang truy cập có thể đã bị xóa, thay đổi tên hoặc không còn khả dụng lúc này.
+        </p>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10">
+          <a
+            routerLink="/"
+            class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-blue-600 hover:bg-blue-700 transition-all duration-200 shadow-lg shadow-blue-500/25 hover:scale-105 active:scale-95 gap-2"
+          >
+            <lucide-icon [img]="icons.Home" class="w-5 h-5"></lucide-icon>
+            Về Trang Chủ
+          </a>
+          <button
+            onclick="history.back()"
+            class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-base font-medium rounded-xl text-gray-700 bg-white hover:bg-gray-50 transition-all duration-200 shadow-sm hover:scale-105 active:scale-95 gap-2"
+          >
+            <lucide-icon [img]="icons.ArrowLeft" class="w-5 h-5"></lucide-icon>
+            Quay Lại
+          </button>
+        </div>
+      </div>
+
+      <!-- Helpful Links -->
+      <div class="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-8 text-sm">
+        <div class="p-6 bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-100 hover:shadow-md transition-shadow">
+          <h3 class="font-semibold text-gray-900 mb-2">Bạn đang tìm phòng?</h3>
+          <a routerLink="/rooms" class="text-blue-600 hover:text-blue-700 font-medium">Xem danh sách phòng →</a>
+        </div>
+        <div class="p-6 bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-100 hover:shadow-md transition-shadow">
+          <h3 class="font-semibold text-gray-900 mb-2">Cần hỗ trợ?</h3>
+          <a routerLink="/contact" class="text-blue-600 hover:text-blue-700 font-medium">Liên hệ với chúng tôi →</a>
+        </div>
+        <div class="p-6 bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-100 hover:shadow-md transition-shadow">
+          <h3 class="font-semibold text-gray-900 mb-2">Khu vực khám phá</h3>
+          <a routerLink="/explore" class="text-blue-600 hover:text-blue-700 font-medium">Tìm điểm đến tuyệt vời →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

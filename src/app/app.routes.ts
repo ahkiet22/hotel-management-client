@@ -10,6 +10,8 @@ import { RegisterComponent } from './features/register/register.component';
 import { ForgotPasswordComponent } from './features/forgot-password/forgot-password.component';
 import { publicGuard } from '@core/guards/public.guard';
 
+import { NotFoundComponent } from './features/not-found/not-found.component';
+
 export const routes: Routes = [
   {
     path: '',
@@ -18,6 +20,18 @@ export const routes: Routes = [
       { path: '', component: HomePageComponent },
       { path: 'explore', component: ExplorePageComponent },
       { path: 'rooms', component: RoomsPageComponent },
+      {
+        path: 'rooms/:id',
+        loadComponent: () =>
+          import('./features/rooms/room-detail/room-detail.component').then(
+            (m) => m.RoomDetailComponent,
+          ),
+      },
+      {
+        path: 'booking',
+        loadComponent: () =>
+          import('./features/booking/booking.component').then((m) => m.BookingPageComponent),
+      },
       { path: 'about', component: AboutPageComponent },
       { path: 'contact', component: ContactPageComponent },
 
@@ -30,6 +44,8 @@ export const routes: Routes = [
           { path: 'forgot-password', component: ForgotPasswordComponent },
         ],
       },
+      // 404 Page inside layout
+      { path: '404', component: NotFoundComponent },
     ],
   },
   {
@@ -50,7 +66,15 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/manager/users/user-list.component').then((m) => m.UserListComponent),
       },
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
+      {
+        path: 'rooms',
+        loadComponent: () =>
+          import('./features/manager/rooms/room-list.component').then((m) => m.RoomListComponent),
+      },
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: '**', component: NotFoundComponent },
     ],
   },
+  // Global wildcard
+  { path: '**', redirectTo: '404' },
 ];

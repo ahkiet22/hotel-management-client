@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, catchError, map, of, throwError } from 'rxjs';
 import { BaseService } from './base.service';
 import ROOMS_DATA from '@assets/mocks/rooms.json';
+import ROOM_TYPES_DATA from '@assets/mocks/room_types.json';
 
 export interface Room {
   id: string;
@@ -14,7 +15,15 @@ export interface Room {
   updated_at?: string;
 }
 
-const MOCK_ROOMS = ROOMS_DATA as unknown as Room[];
+const ROOM_TYPES = ROOM_TYPES_DATA as any[];
+const MOCK_ROOMS = (ROOMS_DATA as any[]).map(room => {
+  const type = ROOM_TYPES.find(t => t.id === room.room_type_id);
+  return {
+    ...room,
+    room_type_name: type?.name || 'Unknown',
+    price: type?.base_price || 0
+  } as Room;
+});
 
 @Injectable({
   providedIn: 'root',

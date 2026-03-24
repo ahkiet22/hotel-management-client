@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { RoomService, Room } from '@core/services/room.service';
 
 export interface RoomView {
@@ -12,7 +13,7 @@ export interface RoomView {
 
 @Component({
   selector: 'app-rooms-page',
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './rooms.component.html',
 })
 export class RoomsPageComponent implements OnInit {
