@@ -1,7 +1,7 @@
 import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, Router, NavigationEnd } from '@angular/router';
-import { AuthStore } from 'src/app/stores/auth.store';
+import { AuthStore } from '@core/stores/auth.store';
 import { SIDEBAR_ITEMS, SidebarItem } from '@core/constants/sidebar';
 import {
   LucideAngularModule,
