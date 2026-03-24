@@ -1,0 +1,56 @@
+<section class="space-y-6">
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Payment Transactions</h1>
+      <p class="text-sm text-slate-500 mt-1 font-medium">Monitoring all financial transactions</p>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-slate-50/50 border-b border-slate-100">
+            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest leading-none">Payment ID</th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest leading-none">Booking</th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest leading-none">Method</th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest leading-none">Amount</th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest leading-none">Status</th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest leading-none">Date</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-50">
+          <tr *ngFor="let pay of payments()" class="hover:bg-slate-50/50 transition-colors group">
+            <td class="px-6 py-5">
+              <p class="font-bold text-slate-900 text-xs">{{ pay.id }}</p>
+              <p class="text-xs text-slate-400 mt-1">TXN: {{ pay.transaction_id || 'N/A' }}</p>
+            </td>
+            <td class="px-6 py-5">
+              <span class="text-sm font-medium text-slate-600">{{ pay.booking_id }}</span>
+            </td>
+            <td class="px-6 py-5">
+              <div class="flex items-center gap-2 text-sm text-slate-700">
+                <lucide-icon [img]="icons.CreditCard" class="w-4 h-4 text-slate-400"></lucide-icon>
+                {{ pay.payment_method }}
+              </div>
+            </td>
+            <td class="px-6 py-5">
+              <span class="text-sm font-bold text-slate-900">${{ pay.amount }}</span>
+            </td>
+            <td class="px-6 py-5">
+              <span
+                class="px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider border leading-none"
+                [ngClass]="getStatusClass(pay.payment_status)"
+              >
+                {{ pay.payment_status }}
+              </span>
+            </td>
+            <td class="px-6 py-5 text-sm text-slate-500">
+              {{ pay.created_at | date:'medium' }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>

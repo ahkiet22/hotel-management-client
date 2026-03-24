@@ -1,0 +1,47 @@
+<section class="space-y-6">
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Guest Reviews</h1>
+      <p class="text-sm text-slate-500 mt-1 font-medium">Customer feedback and ratings</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div *ngFor="let rev of reviews()" class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+      <div class="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity">
+        <button class="text-slate-300 hover:text-red-500 transition-colors">
+          <lucide-icon [img]="icons.Trash2" class="w-4 h-4"></lucide-icon>
+        </button>
+      </div>
+
+      <div class="flex items-center gap-1 mb-4">
+        <lucide-icon *ngFor="let i of getStarArray(rev.rating)" [img]="icons.Star" class="w-4 h-4 text-amber-400 fill-amber-400"></lucide-icon>
+        <lucide-icon *ngFor="let i of [1,2,3,4,5].slice(rev.rating)" [img]="icons.Star" class="w-4 h-4 text-slate-200"></lucide-icon>
+      </div>
+
+      <p class="text-sm text-slate-700 font-medium leading-relaxed mb-6 italic">
+        "{{ rev.comment }}"
+      </p>
+
+      <div class="pt-6 border-t border-slate-50 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 text-xs font-bold">
+            {{ rev.customer_id.substring(0,2) | uppercase }}
+          </div>
+          <div>
+            <p class="text-xs font-bold text-slate-900">User: {{ rev.customer_id }}</p>
+            <p class="text-[10px] font-medium text-slate-400 mt-0.5">{{ rev.created_at | date:'mediumDate' }}</p>
+          </div>
+        </div>
+        <span class="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-1 rounded">
+          Room: {{ rev.room_id }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!isLoading() && reviews().length === 0" class="py-20 text-center">
+    <lucide-icon [img]="icons.MessageSquare" class="w-12 h-12 text-slate-200 mx-auto mb-4"></lucide-icon>
+    <h3 class="text-lg font-bold text-slate-800">No reviews yet</h3>
+  </div>
+</section>

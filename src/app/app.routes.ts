@@ -22,6 +22,7 @@ export const routes: Routes = [
       { path: 'rooms', component: RoomsPageComponent },
       {
         path: 'rooms/:id',
+
         loadComponent: () =>
           import('./features/rooms/room-detail/room-detail.component').then(
             (m) => m.RoomDetailComponent,
@@ -70,6 +71,48 @@ export const routes: Routes = [
         path: 'rooms',
         loadComponent: () =>
           import('./features/manager/rooms/room-list.component').then((m) => m.RoomListComponent),
+      },
+      {
+        path: 'services',
+        loadComponent: () =>
+          import('./features/manager/services/service-list.component').then(
+            (m) => m.ServiceListComponent,
+          ),
+      },
+      {
+        path: 'receipts',
+        loadComponent: () =>
+          import('./features/manager/receipts/receipt-list.component').then(
+            (m) => m.ReceiptListComponent,
+          ),
+      },
+      {
+        path: 'payments',
+        loadComponent: () =>
+          import('./features/manager/payments/payment-list.component').then(
+            (m) => m.PaymentListComponent,
+          ),
+      },
+      {
+        path: 'reviews',
+        loadComponent: () =>
+          import('./features/manager/reviews/review-list.component').then(
+            (m) => m.ReviewListComponent,
+          ),
+      },
+      {
+        path: 'settings/logs',
+        loadComponent: () =>
+          import('./features/manager/settings/logs/system-logs.component').then(
+            (m) => m.SystemLogsComponent,
+          ),
+      },
+      {
+        path: 'bookings',
+        loadComponent: () =>
+          import('./features/manager/bookings/booking-list.component').then(
+            (m) => m.BookingListComponent,
+          ),
       },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: '**', component: NotFoundComponent },
