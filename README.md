@@ -1,59 +1,60 @@
-# HotelManagementClient
+# 🏨 Hotel Management (Paradise Hotel) - Frontend Client
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.2.
+A modern, high-performance, and feature-rich hotel management dashboard built with **Angular 21+**. This project provides a comprehensive interface for managing hotel operations, including room bookings, customer services, billing, and staff management.
 
-## Development server
+## 🚀 Key Features
 
-To start a local development server, run:
+- **📊 Dashboard & Management**: Real-time overview of occupancy, recent bookings, and revenue.
+- **🛏️ Room Management**: Manage room types (Standard, Deluxe, Suite), status (Vacant, Occupied, Reserved), and pricing.
+- **📅 Booking System**: Streamlined check-in/check-in workflows, service tracking, and booking history.
+- **💳 Payment & Invoicing**: Automated invoice generation, payment status tracking, and SePay integration readiness.
+- **🛠️ Service Management**: Track and manage extra services like F&B, Laundry, Spa, and Transportation.
+- **🔔 Notifications & Logs**: Real-time system notifications and detailed activity logs for security and tracking.
+- **🔐 Secure Auth**: Role-based access control (Admin, Staff, Customer) with JWT and Refresh Token support.
 
-```bash
-ng serve
+## 🛠️ Technology Stack
+
+- **Core**: [Angular 21](https://angular.dev/) (Signal-based architecture)
+- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/) & [Lucide Icons](https://lucide.dev/guide/packages/lucide-angular)
+- **Frameworks**: [Spartan NG](https://www.spartan.ng/) (UI Components), [RxJS](https://rxjs.dev/)
+- **Testing**: [Vitest](https://vitest.dev/)
+- **Deployment**: [Angular SSR](https://angular.dev/guide/ssr) (Server-Side Rendering) for SEO and performance
+
+## 📂 Project Structure
+
+```text
+src/app/
+├── core/             # Centralized services, guards, interceptors, and interfaces
+│   ├── interfaces/   # Unified TypeScript interfaces based on backend schema
+│   ├── services/     # API services extending BaseService
+│   └── constants/    # Global configuration and endpoints
+├── features/         # Feature modules (Manager, Customer, Auth, etc.)
+│   ├── manager/      # Room, Booking, Payment management UI
+│   └── auth/         # Login, Register, Forgot Password flows
+├── stores/           # Global state management using Angular Signals
+├── shared/           # Reusable pipes, directives, and utility functions
+└── libs/ui/          # Custom and Spartan-based UI library components
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## ⚙️ Development Guide
 
-## Code scaffolding
+### Prerequisites
+- Node.js (Latest LTS)
+- Angular CLI (`npm install -g @angular/cli`)
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
+### Installation
 ```bash
-ng generate component component-name
+npm install
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
+### Start Local Server
 ```bash
-ng generate --help
+npm run start
 ```
+Navigate to `http://localhost:4200/`.
 
-## Building
-
-To build the project run:
-
+### Build for Production
 ```bash
-ng build
+npm run build
 ```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+---
