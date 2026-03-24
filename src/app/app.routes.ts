@@ -37,6 +37,26 @@ export const routes: Routes = [
       { path: 'contact', component: ContactPageComponent },
 
       {
+        path: 'account',
+        loadComponent: () =>
+          import('./features/account/account.component').then((m) => m.AccountComponent),
+        children: [
+          {
+            path: 'profile',
+            loadComponent: () =>
+              import('./features/account/profile/profile.component').then((m) => m.ProfileComponent),
+          },
+          {
+            path: 'history-booking',
+            loadComponent: () =>
+              import('./features/account/history-booking/history-booking.component').then(
+                (m) => m.HistoryBookingComponent,
+              ),
+          },
+          { path: '', redirectTo: 'profile', pathMatch: 'full' },
+        ],
+      },
+      {
         path: '',
         canActivate: [publicGuard],
         children: [

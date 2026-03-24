@@ -3,7 +3,16 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { RoomService, Room } from '@core/services/room.service';
-import { LucideAngularModule, Calendar, Users, Briefcase, ChevronRight, Info, CheckCircle2 } from 'lucide-angular';
+import {
+  LucideAngularModule,
+  Calendar,
+  Users,
+  Briefcase,
+  ChevronRight,
+  Info,
+  CheckCircle2,
+} from 'lucide-angular';
+import { Meta, Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-booking-page',
@@ -12,6 +21,10 @@ import { LucideAngularModule, Calendar, Users, Briefcase, ChevronRight, Info, Ch
   templateUrl: './booking.component.html',
 })
 export class BookingPageComponent implements OnInit {
+  constructor(
+    private title: Title,
+    private meta: Meta,
+  ) {}
   private roomService = inject(RoomService);
   private route = inject(ActivatedRoute);
 
@@ -27,9 +40,7 @@ export class BookingPageComponent implements OnInit {
   isLoading = signal(true);
 
   // Computed data
-  selectedRoom = computed(() => 
-    this.rooms().find(r => r.id === this.selectedRoomId()) || null
-  );
+  selectedRoom = computed(() => this.rooms().find((r) => r.id === this.selectedRoomId()) || null);
 
   totalNights = computed(() => {
     if (!this.checkIn() || !this.checkOut()) return 1;
@@ -52,24 +63,31 @@ export class BookingPageComponent implements OnInit {
     Briefcase,
     ChevronRight,
     Info,
-    CheckCircle2
+    CheckCircle2,
   };
 
   ngOnInit() {
+    this.title.setTitle('Book Your Stay | Paradise Hotel');
+
+    this.meta.updateTag({
+      name: 'description',
+      content:
+        'Complete your booking at Paradise Hotel. Secure your stay with the best rooms and services.',
+    });
     // Optionally get room id from queryParams if coming from room detail
-    this.route.queryParams.subscribe(params => {
+    this.route.queryParams.subscribe((params) => {
       if (params['roomId']) {
         this.selectedRoomId.set(params['roomId']);
       }
     });
 
     this.loadRooms();
-    
+
     // Default dates (today and tomorrow)
     const today = new Date();
     const tomorrow = new Date(today);
     tomorrow.setDate(today.getDate() + 1);
-    
+
     this.checkIn.set(today.toISOString().split('T')[0]);
     this.checkOut.set(tomorrow.toISOString().split('T')[0]);
   }
@@ -78,10 +96,10 @@ export class BookingPageComponent implements OnInit {
     this.isLoading.set(true);
     this.roomService.getAll().subscribe({
       next: (data) => {
-        this.rooms.set(data.filter(r => r.status === 'Vacant'));
+        this.rooms.set(data.filter((r) => r.status === 'Vacant'));
         this.isLoading.set(false);
       },
-      error: () => this.isLoading.set(false)
+      error: () => this.isLoading.set(false),
     });
   }
 

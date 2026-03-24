@@ -3,7 +3,7 @@ import { Component, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { LucideAngularModule, Pause, Play } from 'lucide-angular';
 import { HlmButton } from '@spartan-ng/helm/button';
-
+import { Meta, Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-explore-page',
@@ -12,6 +12,50 @@ import { HlmButton } from '@spartan-ng/helm/button';
   templateUrl: './explore.component.html',
 })
 export class ExplorePageComponent {
+  constructor(
+    private title: Title,
+    private meta: Meta,
+  ) {}
+  ngOnInit(): void {
+    this.title.setTitle('Explore Luxury Hotels & Experiences | Paradise Hotel');
+
+    this.meta.updateTag({
+      name: 'description',
+      content: 'Explore premium hotels, luxury rooms and unique experiences with Paradise Hotel.',
+    });
+
+    this.meta.updateTag({
+      name: 'keywords',
+      content: 'explore hotels, luxury experience, Paradise Hotel',
+    });
+
+    // Open Graph
+    this.meta.updateTag({
+      property: 'og:title',
+      content: 'Explore Luxury Hotels | Paradise Hotel',
+    });
+
+    this.meta.updateTag({
+      property: 'og:description',
+      content: 'Discover premium hotels and experiences with Paradise Hotel.',
+    });
+
+    this.meta.updateTag({
+      property: 'og:image',
+      content: this.assets.poster,
+    });
+
+    // Twitter
+    this.meta.updateTag({
+      name: 'twitter:title',
+      content: 'Explore Hotels | Paradise Hotel',
+    });
+
+    this.meta.updateTag({
+      name: 'twitter:description',
+      content: 'Discover luxury hotels and experiences.',
+    });
+  }
   assets = {
     video: 'assets/videos/4185240-hd_1920_1080_25fps.mp4',
     poster: 'assets/images/video.jpg',
