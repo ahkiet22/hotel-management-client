@@ -1,42 +1,44 @@
 <!-- HEADER -->
-<header class="sticky top-0 z-50 bg-[#FAFAFA]/95 backdrop-blur border-b border-black/5">
-  <div class="mx-auto max-w-318 px-6 md:px-10 h-25 flex items-center justify-between">
-    <button class="w-9 h-9 grid place-items-center rounded-full hover:bg-black/5" aria-label="Menu">
-      <span class="sr-only">Menu</span>
-      <span class="w-5 h-4 flex flex-col justify-between">
-        <span class="h-0.5 bg-black/70 rounded"></span>
-        <span class="h-0.5 bg-black/70 rounded"></span>
-        <span class="h-0.5 bg-black/70 rounded"></span>
-      </span>
-    </button>
-
-    <nav class="hidden md:flex items-center gap-10 text-[15px] font-medium text-black">
-      <a
-        routerLink="/"
-        routerLinkActive="text-[#7C6A46] font-bold"
-        [routerLinkActiveOptions]="{ exact: true }"
+<header class="sticky top-0 z-50 bg-[#FAFAFA] border-b border-black/5">
+  <div class="mx-auto max-w-7xl px-4 md:px-8 h-16 md:h-20 flex items-center justify-between relative z-50">
+    <div class="flex items-center gap-2 md:gap-4">
+      <button 
+        (click)="toggleMenu()" 
+        class="md:hidden w-10 h-10 flex items-center justify-center rounded-lg hover:bg-black/5 text-black shrink-0 transition-colors" 
+        [attr.aria-expanded]="isMenuOpen()"
+        aria-label="Toggle Menu"
       >
-        Home
+        <lucide-icon [img]="isMenuOpen() ? X : Menu" class="w-6 h-6"></lucide-icon>
+      </button>
+
+      <a routerLink="/" (click)="closeMenu()" class="text-lg md:text-2xl font-bold tracking-tight text-black flex items-center gap-2">
+        <span class="text-black">PARADISE</span> <span class="text-[#7C6A46]">VIEW</span>
       </a>
-      <a routerLink="/explore" routerLinkActive="text-[#7C6A46] font-bold">Explore</a>
-      <a routerLink="/rooms" routerLinkActive="text-[#7C6A46] font-bold">Rooms</a>
-      <a routerLink="/about" routerLinkActive="text-[#7C6A46] font-bold">About</a>
-      <a routerLink="/contact" routerLinkActive="text-[#7C6A46] font-bold">Contact</a>
+    </div>
+
+    <!-- Desktop Nav -->
+    <nav class="hidden md:flex items-center gap-8 text-[15px] font-semibold text-black">
+      <a routerLink="/" routerLinkActive="text-[#7C6A46] font-bold" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMenu()" class="hover:text-[#7C6A46] transition-colors">Home</a>
+      <a routerLink="/explore" routerLinkActive="text-[#7C6A46] font-bold" (click)="closeMenu()" class="hover:text-[#7C6A46] transition-colors">Explore</a>
+      <a routerLink="/rooms" routerLinkActive="text-[#7C6A46] font-bold" (click)="closeMenu()" class="hover:text-[#7C6A46] transition-colors">Rooms</a>
+      <a routerLink="/about" routerLinkActive="text-[#7C6A46] font-bold" (click)="closeMenu()" class="hover:text-[#7C6A46] transition-colors">About</a>
+      <a routerLink="/contact" routerLinkActive="text-[#7C6A46] font-bold" (click)="closeMenu()" class="hover:text-[#7C6A46] transition-colors">Contact</a>
     </nav>
-    <div class="flex gap-x-2 items-center">
+
+    <div class="flex items-center gap-2 md:gap-4">
       @if (!auth.isAuthenticated()) {
         <a
           routerLink="/login"
-          hlmBtn
-          class="text-[#7C6A46] border border-[#7C6A46] rounded-[5px] w-28 h-12 text-[15px] font-medium"
+          (click)="closeMenu()"
+          class="hidden sm:inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-[#7C6A46] border-2 border-[#7C6A46] rounded-lg hover:bg-[#7C6A46] hover:text-white transition-all font-heading"
         >
           Login
         </a>
       } @else {
         <a
           routerLink="/account/profile"
-          hlmBtn
-          class="flex items-center justify-center border border-[#7C6A46] rounded-full w-12 h-12"
+          (click)="closeMenu()"
+          class="flex items-center justify-center border-2 border-[#7C6A46] text-[#7C6A46] rounded-full w-10 h-10 hover:bg-[#7C6A46] hover:text-white transition-all shrink-0"
         >
           <lucide-icon [img]="User" class="w-5 h-5"></lucide-icon>
         </a>
@@ -44,112 +46,110 @@
 
       <a
         routerLink="/booking"
-        hlmBtn
-        class="bg-[#7C6A46] text-white rounded-[5px] w-38 h-12 text-[15px] font-medium"
+        (click)="closeMenu()"
+        class="hidden md:flex bg-[#7C6A46] hover:bg-[#635538] text-white px-6 h-11 items-center justify-center rounded-lg text-sm font-bold shadow-lg shadow-[#7C6A46]/20 transition-all font-heading"
       >
         Book now
       </a>
     </div>
   </div>
+
+  <!-- Mobile Menu Overlay -->
+  @if (isMenuOpen()) {
+    <div class="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 md:hidden animate-in fade-in duration-300" (click)="closeMenu()"></div>
+    
+    <div 
+      class="fixed right-0 top-0 h-full w-70 bg-white z-60 md:hidden shadow-2xl animate-in slide-in-from-right duration-300 flex flex-col pt-20 px-6"
+    >
+      <nav class="flex flex-col space-y-2">
+        <a routerLink="/" routerLinkActive="bg-[#7C6A46]/10 text-[#7C6A46]" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMenu()" class="px-5 py-4 text-lg font-heading font-black rounded-xl transition-all">Home</a>
+        <a routerLink="/explore" routerLinkActive="bg-[#7C6A46]/10 text-[#7C6A46]" (click)="closeMenu()" class="px-5 py-4 text-lg font-heading font-black rounded-xl transition-all">Explore</a>
+        <a routerLink="/rooms" routerLinkActive="bg-[#7C6A46]/10 text-[#7C6A46]" (click)="closeMenu()" class="px-5 py-4 text-lg font-heading font-black rounded-xl transition-all">Rooms</a>
+        <a routerLink="/about" routerLinkActive="bg-[#7C6A46]/10 text-[#7C6A46]" (click)="closeMenu()" class="px-5 py-4 text-lg font-heading font-black rounded-xl transition-all">About</a>
+        <a routerLink="/contact" routerLinkActive="bg-[#7C6A46]/10 text-[#7C6A46]" (click)="closeMenu()" class="px-5 py-4 text-lg font-heading font-black rounded-xl transition-all">Contact</a>
+      </nav>
+
+      <div class="mt-auto pb-10 flex flex-col gap-4 border-t border-black/5 pt-6">
+        @if (!auth.isAuthenticated()) {
+          <a routerLink="/login" (click)="closeMenu()" class="w-full h-14 rounded-2xl border-2 border-[#7C6A46] text-[#7C6A46] grid place-items-center text-lg font-bold">Login</a>
+        } @else {
+          <a routerLink="/account/history-booking" (click)="closeMenu()" class="w-full h-14 rounded-2xl bg-[#7C6A46]/5 text-[#7C6A46] flex items-center justify-between px-6 text-lg font-bold">
+            <span>My Bookings</span>
+            <lucide-icon [img]="Star" class="w-5 h-5"></lucide-icon>
+          </a>
+        }
+        <a routerLink="/booking" (click)="closeMenu()" class="w-full h-14 rounded-2xl bg-[#7C6A46] text-white grid place-items-center text-lg font-bold shadow-xl shadow-[#7C6A46]/30">Book Now</a>
+      </div>
+    </div>
+  }
 </header>
 
 <!-- PAGE -->
-<router-outlet />
+<main class="min-h-[calc(100vh-80px)]">
+  <router-outlet />
+</main>
 
 <!-- FOOTER -->
-<footer class="bg-[#7C6A46] text-white">
-  <div class="mx-auto max-w-318 px-4 md:px-8 py-16 grid md:grid-cols-5 gap-10">
-    <div class="space-y-4 md:col-span-1">
-      <h3 class="font-fancy font-bold text-[30px]">Paradise view</h3>
-      <p class="font-heading font-bold text-[12px] leading-5 text-white/90">
-        The service at the Hotel Monteleone was exceptional. There was absolutely no issue that was
-        not addressed timely and with satisfactory results. We were particulary impressed with how
-        the hotel staff anticipated our needs (periodically coming by the Board Room to check with
-        us)
+<footer class="bg-[#7C6A46] text-white overflow-hidden">
+  <div class="mx-auto max-w-7xl px-6 md:px-10 py-16 md:py-24 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-12 md:gap-16">
+    <div class="space-y-6 md:col-span-2 lg:col-span-1">
+      <h3 class="font-fancy font-bold text-4xl whitespace-nowrap">Paradise view</h3>
+      <p class="font-heading font-medium text-sm leading-relaxed text-white/70 max-w-xs">
+        Exceptional service at Paradise View. We anticipate your needs for an unforgettable stay.
       </p>
     </div>
 
-    <div class="space-y-3">
-      <h4 class="font-heading font-bold text-[15px]">Quick links</h4>
-      <a routerLink="#" class="block font-heading font-bold text-[12px] text-white/90"
-        >Room booking</a
-      >
-      <a routerLink="#" class="block font-heading font-bold text-[12px] text-white/90">Rooms</a>
-      <a routerLink="#" class="block font-heading font-bold text-[12px] text-white/90">Contact</a>
-      <a routerLink="/explore" class="block font-heading font-bold text-[12px] text-white/90"
-        >Explore</a
-      >
+    <div class="space-y-6">
+      <h4 class="font-heading font-bold text-lg uppercase tracking-widest text-white/50">Quick links</h4>
+      <div class="flex flex-col space-y-3 font-heading font-bold text-sm">
+        <a routerLink="#" class="hover:text-black/30 transition-colors">Room booking</a>
+        <a routerLink="/rooms" class="hover:text-black/30 transition-colors">Rooms</a>
+        <a routerLink="/contact" class="hover:text-black/30 transition-colors">Contact</a>
+        <a routerLink="/explore" class="hover:text-black/30 transition-colors">Explore</a>
+      </div>
     </div>
 
-    <div class="space-y-3">
-      <h4 class="font-heading font-bold text-[15px]">Company</h4>
-      <p class="font-heading font-bold text-[12px] text-white/90">Privacy policy</p>
-      <p class="font-heading font-bold text-[12px] text-white/90">Refund policy</p>
-      <p class="font-heading font-bold text-[12px] text-white/90">F.A.Q</p>
-      <p class="font-heading font-bold text-[12px] text-white/90">About</p>
+    <div class="space-y-6">
+      <h4 class="font-heading font-bold text-lg uppercase tracking-widest text-white/50">Company</h4>
+      <div class="flex flex-col space-y-3 font-heading font-bold text-sm">
+        <p class="hover:text-black/30 cursor-pointer transition-colors">Privacy policy</p>
+        <p class="hover:text-black/30 cursor-pointer transition-colors">Refund policy</p>
+        <p class="hover:text-black/30 cursor-pointer transition-colors">F.A.Q</p>
+        <a routerLink="/about" class="hover:text-black/30 transition-colors">About</a>
+      </div>
     </div>
 
-    <div class="space-y-3">
-      <h4 class="font-heading font-bold text-[15px]">Social media</h4>
-      <a
-        href="https://facebook.com"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="block font-heading font-bold text-[12px] text-white/90 hover:underline"
-      >
-        Facebook
-      </a>
-
-      <a
-        href="https://twitter.com"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="block font-heading font-bold text-[12px] text-white/90 hover:underline"
-      >
-        Twitter
-      </a>
-
-      <a
-        href="https://instagram.com"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="block font-heading font-bold text-[12px] text-white/90 hover:underline"
-      >
-        Instagram
-      </a>
-
-      <a
-        href="https://linkedin.com"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="block font-heading font-bold text-[12px] text-white/90 hover:underline"
-      >
-        Linkedin
-      </a>
+    <div class="space-y-6">
+      <h4 class="font-heading font-bold text-lg uppercase tracking-widest text-white/50">Social media</h4>
+      <div class="flex flex-col space-y-3 font-heading font-bold text-sm">
+        <a href="https://facebook.com" target="_blank" class="hover:text-black/30 transition-colors">Facebook</a>
+        <a href="https://twitter.com" target="_blank" class="hover:text-black/30 transition-colors">Twitter</a>
+        <a href="https://instagram.com" target="_blank" class="hover:text-black/30 transition-colors">Instagram</a>
+        <a href="https://linkedin.com" target="_blank" class="hover:text-black/30 transition-colors">LinkedIn</a>
+      </div>
     </div>
 
-    <div class="space-y-4">
-      <h4 class="font-heading font-bold text-[15px]">Newsletter</h4>
-      <p class="font-heading font-bold text-[12px] text-white/90 leading-5">
-        Kindly subscribe to our newsletter to get<br />
-        latest deals on our rooms and vacation<br />
-        discount.
+    <div class="space-y-6 md:col-span-2 lg:col-span-1">
+      <h4 class="font-heading font-bold text-lg uppercase tracking-widest text-white/50">Newsletter</h4>
+      <p class="font-heading font-medium text-sm text-white/70 leading-relaxed">
+        Subscribe to our newsletter to get latest deals and rewards.
       </p>
 
-      <div class="bg-white rounded-[5px] h-12.5 flex items-center overflow-hidden">
+      <div class="bg-white/10 rounded-2xl h-14 flex items-center overflow-hidden p-1 border border-white/10 focus-within:border-white/30 transition-all">
         <input
-          class="h-full flex-1 px-4 text-[12px] text-black/60 outline-none"
+          class="h-full flex-1 px-4 text-sm text-white placeholder:text-white/40 outline-none bg-transparent"
           placeholder="Enter your email"
         />
-        <!-- <button
-          class="h-10 mr-2 bg-[#7C6A46] text-white rounded-[2.5px] px-5 text-[13px] font-semibold"
-        >
-          Subscribe
-        </button> -->
+        <button class="w-12 h-12 rounded-xl bg-white text-[#7C6A46] grid place-items-center hover:bg-white/90 transition-all">
+          <lucide-icon [img]="Star" class="w-5 h-5 fill-current"></lucide-icon>
+        </button>
       </div>
     </div>
   </div>
 
-  <div class="h-px bg-white/30"></div>
-  <div class="py-10 text-center font-heading font-semibold text-[15px]">Paradise view 2023</div>
+  <div class="h-px bg-white/10 mx-auto max-w-7xl"></div>
+  <div class="py-10 text-center font-heading font-bold text-sm opacity-50 tracking-widest uppercase">
+    &copy; Paradise View 2023 - All rights reserved
+  </div>
 </footer>
+

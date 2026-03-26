@@ -1,92 +1,112 @@
-<main class="font-sans text-black/80">
+<main class="font-sans text-black/80 overflow-x-hidden">
   <!-- HERO -->
-  <section class="relative bg-[#FAFAFA]">
-    <div class="mx-auto max-w-378">
-      <div class="mx-auto max-w-318 px-6 md:px-10 pt-12 pb-24 grid md:grid-cols-2 gap-12 items-start">
-        <div class="pt-6 space-y-7">
-          <p class="font-fancy text-[#7C6A46] text-[50px] leading-none">Paradise View</p>
+  <section class="relative bg-[#FAFAFA] overflow-hidden">
+    <!-- Background Decoration -->
+    <div class="absolute -top-24 -left-24 w-96 h-96 bg-[#7C6A46]/5 rounded-full blur-3xl"></div>
+    <div class="absolute top-1/2 -right-24 w-64 h-64 bg-[#7C6A46]/5 rounded-full blur-3xl"></div>
 
-          <h1 class="font-heading font-bold text-[44px] md:text-[55px] leading-[1.05] text-[#1C1C1C]">
-            Hotel for every<br />
-            moment rich in<br />
-            emotion
-          </h1>
+    <div class="mx-auto max-w-7xl">
+      <div class="mx-auto px-6 md:px-10 pt-12 md:pt-20 pb-24 grid lg:grid-cols-2 gap-12 items-center">
+        <div class="space-y-8 text-center lg:text-left order-2 lg:order-1">
+          <div class="space-y-2">
+            <p class="font-fancy text-[#7C6A46] text-3xl md:text-5xl leading-none animate-in fade-in slide-in-from-left duration-700">Paradise View</p>
+            <h1 class="font-heading font-black text-4xl md:text-6xl lg:text-7xl leading-[1.1] text-[#1C1C1C]">
+              Hotel for every<br />
+              moment rich in<br />
+              <span class="text-[#7C6A46]">emotion</span>
+            </h1>
+          </div>
 
-          <p class="font-heading font-medium text-[15px] leading-6 text-[#1C1C1C]">
-            Every moment feels like the first time<br />
-            in paradise view
+          <p class="font-heading font-medium text-base md:text-lg leading-relaxed text-[#1C1C1C]/70 max-w-xl mx-auto lg:mx-0">
+            Every moment feels like the first time in paradise view. Experience luxury and peace in our premium suites.
           </p>
 
-        <div class="flex items-center gap-5">
-          <button class="bg-[#7C6A46] text-white w-41.25 h-13.75 rounded-full text-[20px] font-medium shadow-md">
-            Book now
-          </button>
+          <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">
+            <button class="bg-[#7C6A46] hover:bg-[#635538] text-white w-full sm:w-48 h-14 rounded-full text-lg font-bold shadow-xl shadow-[#7C6A46]/20 transition-all hover:scale-105 active:scale-95">
+              Book now
+            </button>
 
-          <button class="flex items-center gap-3 text-[20px] font-medium text-[#1C1C1C]">
-            <span class="w-13.75 h-13.75 bg-[#00A699] text-white rounded-full grid place-items-center shadow-sm">
-              <lucide-icon [img]="icons.Play" class="w-5 h-5"></lucide-icon>
-            </span>
-            Take a tour
-          </button>
-        </div>
+            <button class="flex items-center justify-center gap-3 text-lg font-bold text-[#1C1C1C] group w-full sm:w-auto px-6 h-14 rounded-full hover:bg-black/5 transition-all">
+              <span class="w-12 h-12 bg-[#00A699] text-white rounded-full grid place-items-center shadow-lg group-hover:rotate-12 transition-transform">
+                <lucide-icon [img]="icons.Play" class="w-5 h-5 fill-current"></lucide-icon>
+              </span>
+              Take a tour
+            </button>
+          </div>
         </div>
 
-        <div class="rounded-none md:rounded-none overflow-hidden">
-          <img [src]="'assets/images/pic-1.jpg'" class="w-full h-105 md:h-175 object-cover" alt="Hotel" />
+        <div class="relative order-1 lg:order-2">
+          <div class="relative z-10 rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl border-8 border-white">
+            <img [src]="'assets/images/pic-1.jpg'" class="w-full h-[400px] md:h-[500px] lg:h-[600px] object-cover hover:scale-110 transition-transform duration-1000" alt="Hotel" />
+          </div>
+          <!-- Image decorative blobs -->
+          <div class="absolute -bottom-6 -right-6 w-32 h-32 bg-[#7C6A46] rounded-2xl -z-10 rotate-12 hidden md:block"></div>
+          <div class="absolute -top-6 -left-6 w-24 h-24 border-4 border-[#00A699] rounded-2xl -z-10 -rotate-12 hidden md:block"></div>
         </div>
       </div>
     </div>
 
     <!-- SEARCH BOX -->
-    <div class="-mt-14 pb-12">
-      <div class="mx-auto max-w-318 px-6 md:px-10">
-        <div
-          class="bg-white shadow-xl rounded-none md:rounded-none border border-black/5 h-30 px-6 grid grid-cols-2 md:grid-cols-6 gap-4 items-center"
-        >
-          <div class="space-y-1">
-            <p class="text-[15px] font-medium text-[#1C1C1C] flex items-center gap-2">
-              <lucide-icon [img]="icons.MapPin" class="w-4 h-4 text-[#1C1C1C]"></lucide-icon>
-              Location
-            </p>
-            <p class="font-medium text-[12px] text-black/60">
-              Maya
-            </p>
+    <div class="relative z-20 -mt-10 md:-mt-16 pb-16">
+      <div class="mx-auto max-w-7xl px-4 md:px-10">
+        <div class="bg-white p-3 md:p-4 rounded-2xl md:rounded-full shadow-2xl border border-black/5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.5fr_1.5fr_1fr_1.2fr_1.2fr_auto] gap-3 items-stretch">
+          
+          <div class="p-4 flex items-center gap-4 border-b sm:border-b-0 sm:border-r border-black/5">
+            <div class="w-10 h-10 rounded-full bg-[#7C6A46]/10 flex items-center justify-center shrink-0">
+              <lucide-icon [img]="icons.Calendar" class="w-5 h-5 text-[#7C6A46]"></lucide-icon>
+            </div>
+            <div class="flex-1">
+              <label class="text-[10px] font-black uppercase tracking-widest text-[#7C6A46] mb-1 block">Check-in</label>
+              <input type="date" [(ngModel)]="checkIn" (ngModelChange)="checkIn.set($event)" class="w-full font-bold text-sm text-black/80 outline-none bg-transparent">
+            </div>
           </div>
 
-          <div class="space-y-1">
-            <p class="text-[15px] font-medium text-[#1C1C1C] flex items-center gap-2">
-              <lucide-icon [img]="icons.Wifi" class="w-4 h-4 text-[#1C1C1C]"></lucide-icon>
-              Room type
-            </p>
-            <p class="font-medium text-[12px] text-black/60">Standard</p>
+          <div class="p-4 flex items-center gap-4 border-b sm:border-b-0 lg:border-r border-black/5">
+            <div class="w-10 h-10 rounded-full bg-[#7C6A46]/10 flex items-center justify-center shrink-0">
+              <lucide-icon [img]="icons.Calendar" class="w-5 h-5 text-[#7C6A46]"></lucide-icon>
+            </div>
+            <div class="flex-1">
+              <label class="text-[10px] font-black uppercase tracking-widest text-[#7C6A46] mb-1 block">Check-out</label>
+              <input type="date" [(ngModel)]="checkOut" (ngModelChange)="checkOut.set($event)" class="w-full font-bold text-sm text-black/80 outline-none bg-transparent">
+            </div>
           </div>
 
-          <div class="space-y-1">
-            <p class="text-[15px] font-medium text-[#1C1C1C] flex items-center gap-2">
-              <lucide-icon [img]="icons.Users" class="w-4 h-4 text-[#1C1C1C]"></lucide-icon>
-              Person
-            </p>
-            <p class="font-medium text-[12px] text-black/60">01</p>
+          <div class="p-4 flex items-center gap-4 border-b sm:border-b-0 sm:border-r border-black/5">
+            <div class="w-10 h-10 rounded-full bg-[#7C6A46]/10 flex items-center justify-center shrink-0">
+              <lucide-icon [img]="icons.Users" class="w-5 h-5 text-[#7C6A46]"></lucide-icon>
+            </div>
+            <div class="flex-1">
+              <label class="text-[10px] font-black uppercase tracking-widest text-[#7C6A46] mb-1 block">Adults</label>
+              <select [(ngModel)]="adults" (ngModelChange)="adults.set($event)" class="w-full font-bold text-sm text-black/80 outline-none bg-transparent appearance-none cursor-pointer">
+                <option *ngFor="let n of [1,2,3,4,5]" [value]="n">{{ n }} Adults</option>
+              </select>
+            </div>
           </div>
 
-          <div class="space-y-1">
-            <p class="text-[15px] font-medium text-[#1C1C1C] flex items-center gap-2">
-              <lucide-icon [img]="icons.Calendar" class="w-4 h-4 text-[#1C1C1C]"></lucide-icon>
-              Check in
-            </p>
-            <p class="font-medium text-[12px] text-black/60">09 mar 2023</p>
+          <div class="p-4 flex items-center gap-4 border-b sm:border-b-0 lg:border-r border-black/5">
+            <div class="w-10 h-10 rounded-full bg-[#7C6A46]/10 flex items-center justify-center shrink-0">
+              <lucide-icon [img]="icons.Users" class="w-5 h-5 text-[#7C6A46]"></lucide-icon>
+            </div>
+            <div class="flex-1">
+              <label class="text-[10px] font-black uppercase tracking-widest text-[#7C6A46] mb-1 block">Children</label>
+              <select [(ngModel)]="children" (ngModelChange)="children.set($event)" class="w-full font-bold text-sm text-black/80 outline-none bg-transparent appearance-none cursor-pointer">
+                <option *ngFor="let n of [0,1,2,3,4]" [value]="n">{{ n }} Children</option>
+              </select>
+            </div>
           </div>
 
-          <div class="space-y-1">
-            <p class="text-[15px] font-medium text-[#1C1C1C] flex items-center gap-2">
-              <lucide-icon [img]="icons.Calendar" class="w-4 h-4 text-[#1C1C1C]"></lucide-icon>
-              Check out
-            </p>
-            <p class="font-medium text-[12px] text-black/60">13 mar 2023</p>
+          <div class="p-4 flex items-center gap-4 sm:col-span-2 lg:col-span-1 border-b sm:border-b-0 lg:border-r border-black/5">
+            <div class="w-10 h-10 rounded-full bg-[#7C6A46]/10 flex items-center justify-center shrink-0">
+              <lucide-icon [img]="icons.Info" class="w-5 h-5 text-[#7C6A46]"></lucide-icon>
+            </div>
+            <div class="flex-1">
+              <label class="text-[10px] font-black uppercase tracking-widest text-[#7C6A46] mb-1 block">Property</label>
+              <p class="font-bold text-sm text-black/80 truncate">Paradise View Suite</p>
+            </div>
           </div>
 
-          <button class="bg-[#7C6A46] text-white h-16.25 rounded-[5px] text-[15px] font-medium shadow-sm">
-            Book Now
+          <button (click)="onSearch()" class="bg-[#7C6A46] hover:bg-[#635538] text-white px-10 py-4 lg:py-0 rounded-xl md:rounded-full text-lg font-bold transition-all shadow-xl shadow-[#7C6A46]/30 lg:ml-2">
+            Search
           </button>
         </div>
       </div>
@@ -94,136 +114,75 @@
   </section>
 
   <!-- FACILITIES -->
-  <section class="bg-white">
-    <div class="mx-auto max-w-318 px-6 md:px-10 py-16 text-center">
-      <h2 class="text-[40px] font-heading font-bold text-[#1C1C1C]">Our Facilities</h2>
-      <p class="text-[15px] font-heading font-medium text-black/60 mt-2 mb-10">
-        We offer modern (5 star) hotel facilities for your comfort.
-      </p>
+  <section class="bg-white py-20 md:py-32">
+    <div class="mx-auto max-w-7xl px-6 md:px-10">
+      <div class="text-center max-w-2xl mx-auto mb-16 md:mb-20">
+        <h2 class="text-4xl md:text-5xl font-heading font-black text-[#1C1C1C] mb-6">Our Facilities</h2>
+        <p class="text-base md:text-lg font-heading font-medium text-black/50 leading-relaxed">
+          We offer modern (5 star) hotel facilities for your comfort, ensuring an unforgettable stay.
+        </p>
+      </div>
 
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-        <div class="bg-[#FAFAFA] rounded-[5px] h-62.5 grid place-items-center">
-          <div class="text-center">
-            <lucide-icon [img]="icons.Waves" class="w-10 h-10 mx-auto mb-5 text-[#7C6A46]"></lucide-icon>
-            <p class="text-[20px] font-medium text-[#7C6A46]">Swimming Pool</p>
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
+        <div *ngFor="let fac of [
+          {img: icons.Waves, title: 'Swimming Pool'},
+          {img: icons.Wifi, title: 'Free Wifi'},
+          {img: icons.Coffee, title: 'Breakfast'},
+          {img: icons.Dumbbell, title: 'Gym Center'},
+          {img: icons.Gamepad2, title: 'Game Zone'},
+          {img: icons.Lightbulb, title: '24/7 Power'},
+          {img: icons.WashingMachine, title: 'Laundry'},
+          {img: icons.Car, title: 'Parking'}
+        ]" class="group bg-[#FAFAFA] hover:bg-white hover:shadow-2xl hover:shadow-black/5 rounded-3xl p-8 md:p-12 transition-all duration-300 border border-transparent hover:border-black/5 text-center">
+          <div class="w-16 h-16 md:w-20 md:h-20 bg-white shadow-sm rounded-2xl grid place-items-center mx-auto mb-6 group-hover:bg-[#7C6A46] group-hover:text-white transition-colors duration-500">
+            <lucide-icon [img]="fac.img" class="w-8 h-8 md:w-10 md:h-10"></lucide-icon>
           </div>
-        </div>
-
-        <div class="bg-[#FAFAFA] rounded-[5px] h-62.5 grid place-items-center">
-          <div class="text-center">
-            <lucide-icon [img]="icons.Wifi" class="w-10 h-10 mx-auto mb-5 text-[#7C6A46]"></lucide-icon>
-            <p class="text-[20px] font-medium text-[#7C6A46]">Wifi</p>
-          </div>
-        </div>
-
-        <div class="bg-[#FAFAFA] rounded-[5px] h-62.5 grid place-items-center">
-          <div class="text-center">
-            <lucide-icon [img]="icons.Coffee" class="w-10 h-10 mx-auto mb-5 text-[#7C6A46]"></lucide-icon>
-            <p class="text-[20px] font-medium text-[#7C6A46]">Breakfast</p>
-          </div>
-        </div>
-
-        <div class="bg-[#FAFAFA] rounded-[5px] h-62.5 grid place-items-center">
-          <div class="text-center">
-            <lucide-icon [img]="icons.Dumbbell" class="w-10 h-10 mx-auto mb-5 text-[#7C6A46]"></lucide-icon>
-            <p class="text-[20px] font-medium text-[#7C6A46]">Gym</p>
-          </div>
-        </div>
-
-        <div class="bg-[#FAFAFA] rounded-[5px] h-62.5 grid place-items-center">
-          <div class="text-center">
-            <lucide-icon [img]="icons.Gamepad2" class="w-10 h-10 mx-auto mb-5 text-[#7C6A46]"></lucide-icon>
-            <p class="text-[20px] font-medium text-[#7C6A46]">Game center</p>
-          </div>
-        </div>
-
-        <div class="bg-[#FAFAFA] rounded-[5px] h-62.5 grid place-items-center">
-          <div class="text-center">
-            <lucide-icon [img]="icons.Lightbulb" class="w-10 h-10 mx-auto mb-5 text-[#7C6A46]"></lucide-icon>
-            <p class="text-[20px] font-medium text-[#7C6A46]">24/7 Light</p>
-          </div>
-        </div>
-
-        <div class="bg-[#FAFAFA] rounded-[5px] h-62.5 grid place-items-center">
-          <div class="text-center">
-            <lucide-icon
-              [img]="icons.WashingMachine"
-              class="w-10 h-10 mx-auto mb-5 text-[#7C6A46]"
-            ></lucide-icon>
-            <p class="text-[20px] font-medium text-[#7C6A46]">Laundry</p>
-          </div>
-        </div>
-
-        <div class="bg-[#FAFAFA] rounded-[5px] h-62.5 grid place-items-center">
-          <div class="text-center">
-            <lucide-icon [img]="icons.Car" class="w-10 h-10 mx-auto mb-5 text-[#7C6A46]"></lucide-icon>
-            <p class="text-[20px] font-medium text-[#7C6A46]">Parking space</p>
-          </div>
+          <p class="text-lg md:text-xl font-bold text-[#1C1C1C] group-hover:text-[#7C6A46] transition-colors">{{ fac.title }}</p>
         </div>
       </div>
     </div>
   </section>
 
   <!-- ROOMS -->
-  <section class="relative overflow-hidden">
-    <div class="absolute inset-0">
-      <img [src]="'assets/images/pic-1.jpg'" class="w-full h-full object-cover opacity-35" alt="" />
-      <div class="absolute inset-0 bg-black/55"></div>
+  <section class="relative py-20 md:py-32 overflow-hidden bg-slate-900">
+    <div class="absolute inset-0 opacity-20">
+      <img [src]="'assets/images/pic-1.jpg'" class="w-full h-full object-cover scale-150 blur-sm" alt="" />
     </div>
+    <div class="absolute inset-0 bg-gradient-to-b from-slate-900/10 via-slate-900 to-slate-900"></div>
 
-    <div class="relative mx-auto max-w-6xl px-6 md:px-10 py-16 text-center text-white">
-      <h2 class="text-2xl md:text-3xl font-semibold">Luxurious Rooms</h2>
-      <p class="text-[12px] text-white/70 mt-2 mb-10">All rooms are design for your comfort.</p>
+    <div class="relative mx-auto max-w-7xl px-6 md:px-10">
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+        <div class="text-left">
+          <h2 class="text-4xl md:text-5xl font-heading font-black text-white">Luxurious Rooms</h2>
+          <p class="text-base md:text-lg text-white/60 mt-4 max-w-md">All rooms are designed for your comfort and ultimate relaxation experience.</p>
+        </div>
+        <a routerLink="/rooms" class="inline-flex items-center gap-2 text-white font-bold h-12 px-6 rounded-full border border-white/20 hover:bg-white hover:text-black transition-all">
+          View all rooms <lucide-icon [img]="icons.Star" class="w-4 h-4"></lucide-icon>
+        </a>
+      </div>
 
-      <div class="grid md:grid-cols-3 gap-6">
-        <article class="bg-white text-black/80 rounded-xl overflow-hidden shadow-lg border border-black/10">
-          <div class="relative">
-            <img [src]="'assets/images/pic-1.jpg'" class="w-full h-48 object-cover" alt="Room" />
-            <span
-              class="absolute top-3 left-3 bg-[#7C6A46] text-white text-[10px] px-2.5 py-1 rounded-full"
-            >
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <article *ngFor="let i of [1,2,3]" class="group bg-white rounded-3xl overflow-hidden shadow-2xl transition-all duration-500 hover:-translate-y-2">
+          <div class="relative h-64 md:h-72 overflow-hidden">
+            <img [src]="'assets/images/pic-1.jpg'" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="Room" />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+            <span class="absolute top-4 right-4 bg-[#7C6A46] text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg">
               From $250/night
             </span>
           </div>
-          <div class="p-4 text-left">
-            <p class="font-semibold text-sm text-black">Television set, Extra sheets and Breakfast</p>
-            <p class="text-[11px] text-black/45 mt-2 leading-5">
-              Comfortable stay with modern amenities and premium service.
+          <div class="p-8 text-left">
+            <div class="flex items-center gap-1 mb-3 text-[#E0B341]">
+              <lucide-icon *ngFor="let s of [1,2,3,4,5]" [img]="icons.Star" class="w-3.5 h-3.5 fill-current"></lucide-icon>
+            </div>
+            <h3 class="font-heading font-bold text-xl md:text-2xl text-[#1C1C1C] mb-3 leading-tight group-hover:text-[#7C6A46] transition-colors">
+              Deluxe Ocean View Suite
+            </h3>
+            <p class="text-sm md:text-base text-black/50 leading-relaxed mb-6">
+              Comfortable stay with modern amenities, king-size bed, and premium room service.
             </p>
-          </div>
-        </article>
-
-        <article class="bg-white text-black/80 rounded-xl overflow-hidden shadow-lg border border-black/10">
-          <div class="relative">
-            <img [src]="'assets/images/pic-1.jpg'" class="w-full h-48 object-cover" alt="Room" />
-            <span
-              class="absolute top-3 left-3 bg-[#7C6A46] text-white text-[10px] px-2.5 py-1 rounded-full"
-            >
-              From $250/night
-            </span>
-          </div>
-          <div class="p-4 text-left">
-            <p class="font-semibold text-sm text-black">Television set, Extra sheets and Breakfast</p>
-            <p class="text-[11px] text-black/45 mt-2 leading-5">
-              Designed for your comfort with elegant interiors.
-            </p>
-          </div>
-        </article>
-
-        <article class="bg-white text-black/80 rounded-xl overflow-hidden shadow-lg border border-black/10">
-          <div class="relative">
-            <img [src]="'assets/images/pic-1.jpg'" class="w-full h-48 object-cover" alt="Room" />
-            <span
-              class="absolute top-3 left-3 bg-[#7C6A46] text-white text-[10px] px-2.5 py-1 rounded-full"
-            >
-              From $250/night
-            </span>
-          </div>
-          <div class="p-4 text-left">
-            <p class="font-semibold text-sm text-black">Television set, Extra sheets and Breakfast</p>
-            <p class="text-[11px] text-black/45 mt-2 leading-5">
-              Enjoy a luxury experience with thoughtful details.
-            </p>
+            <button routerLink="/booking" class="w-full h-12 rounded-xl bg-[#FAFAFA] border border-black/5 font-bold text-[#7C6A46] hover:bg-[#7C6A46] hover:text-white transition-all">
+              Book this room
+            </button>
           </div>
         </article>
       </div>
@@ -231,73 +190,32 @@
   </section>
 
   <!-- TESTIMONIAL -->
-  <section class="bg-white">
-    <div class="mx-auto max-w-6xl px-6 md:px-10 py-16 text-center">
-      <h2 class="text-2xl md:text-3xl font-semibold text-black">Testimonies</h2>
+  <section class="bg-[#FAFAFA] py-20 md:py-32">
+    <div class="mx-auto max-w-7xl px-6 md:px-10">
+      <h2 class="text-4xl md:text-5xl font-heading font-black text-center text-[#1C1C1C] mb-16 md:mb-24">What Guests Say</h2>
 
-      <div class="mt-10 grid md:grid-cols-3 gap-6 text-left">
-        <article class="bg-white border border-black/10 rounded-xl p-6 shadow-sm">
-          <div class="flex items-center justify-between">
-            <p class="text-[11px] font-semibold text-black/60">Alya</p>
-            <div class="flex text-[#E0B341]">
-              <lucide-icon *ngFor="let i of [1, 2, 3, 4, 5]" [img]="icons.Star" class="w-3.5 h-3.5"></lucide-icon>
+      <div class="grid lg:grid-cols-3 gap-8 text-left">
+        <article *ngFor="let text of [
+          'My stay at Paradise View was exceptional. The service and attention to detail made the trip unforgettable.',
+          'Everything was clean, cozy, and well-designed. Staff were friendly and the facilities were top-notch.',
+          'Perfect place for a relaxing weekend. The rooms were luxurious and the atmosphere was calm and elegant.'
+        ]" class="bg-white border border-black/5 rounded-[40px] p-8 md:p-12 shadow-xl shadow-black/[0.02] flex flex-col justify-between">
+          <div>
+            <div class="flex gap-1 text-[#E0B341] mb-8">
+              <lucide-icon *ngFor="let i of [1,2,3,4,5]" [img]="icons.Star" class="w-4 h-4 fill-current"></lucide-icon>
             </div>
+            <p class="text-lg md:text-xl italic font-medium leading-relaxed text-[#1C1C1C]/70">
+              "{{ text }}"
+            </p>
           </div>
 
-          <p class="mt-4 text-[11px] leading-6 text-black/55">
-            "My stay at the Hotel Monteleone was exceptional. The service and attention to detail made
-            the trip unforgettable."
-          </p>
-
-          <div class="mt-6 flex items-center gap-3">
-            <div class="w-9 h-9 rounded-full bg-black/10"></div>
+          <div class="mt-12 flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl bg-[#7C6A46]/10 grid place-items-center text-[#7C6A46]">
+              <lucide-icon [img]="icons.Users" class="w-6 h-6"></lucide-icon>
+            </div>
             <div>
-              <p class="text-[12px] font-semibold text-black/70">Anthony J. Powell</p>
-              <p class="text-[11px] text-black/40">Guest</p>
-            </div>
-          </div>
-        </article>
-
-        <article class="bg-white border border-black/10 rounded-xl p-6 shadow-sm">
-          <div class="flex items-center justify-between">
-            <p class="text-[11px] font-semibold text-black/60">Khanh</p>
-            <div class="flex text-[#E0B341]">
-              <lucide-icon *ngFor="let i of [1, 2, 3, 4, 5]" [img]="icons.Star" class="w-3.5 h-3.5"></lucide-icon>
-            </div>
-          </div>
-
-          <p class="mt-4 text-[11px] leading-6 text-black/55">
-            "Everything was clean, cozy, and well-designed. Staff were friendly and the facilities were
-            top-notch."
-          </p>
-
-          <div class="mt-6 flex items-center gap-3">
-            <div class="w-9 h-9 rounded-full bg-black/10"></div>
-            <div>
-              <p class="text-[12px] font-semibold text-black/70">Anthony J. Powell</p>
-              <p class="text-[11px] text-black/40">Guest</p>
-            </div>
-          </div>
-        </article>
-
-        <article class="bg-white border border-black/10 rounded-xl p-6 shadow-sm">
-          <div class="flex items-center justify-between">
-            <p class="text-[11px] font-semibold text-black/60">Ky_an</p>
-            <div class="flex text-[#E0B341]">
-              <lucide-icon *ngFor="let i of [1, 2, 3, 4, 5]" [img]="icons.Star" class="w-3.5 h-3.5"></lucide-icon>
-            </div>
-          </div>
-
-          <p class="mt-4 text-[11px] leading-6 text-black/55">
-            "Perfect place for a relaxing weekend. The rooms were luxurious and the atmosphere was
-            calm and elegant."
-          </p>
-
-          <div class="mt-6 flex items-center gap-3">
-            <div class="w-9 h-9 rounded-full bg-black/10"></div>
-            <div>
-              <p class="text-[12px] font-semibold text-black/70">Anthony J. Powell</p>
-              <p class="text-[11px] text-black/40">Guest</p>
+              <p class="text-lg font-bold text-[#1C1C1C]">Anthony J. Powell</p>
+              <p class="text-sm font-bold text-[#7C6A46] uppercase tracking-widest">Happy Guest</p>
             </div>
           </div>
         </article>

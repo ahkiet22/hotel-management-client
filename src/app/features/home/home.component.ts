@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import {
   LucideAngularModule,
   Play,
@@ -20,17 +22,23 @@ import {
   Lightbulb,
   WashingMachine,
   Car,
+  Info,
 } from 'lucide-angular';
 
 @Component({
   selector: 'app-home-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, FormsModule],
   templateUrl: './home.component.html',
 })
 export class HomePageComponent implements OnInit {
-  hotels: any[] = [];
-  categories: any[] = [];
+  private router = inject(Router);
+
+  // Booking signals
+  checkIn = signal<string>('');
+  checkOut = signal<string>('');
+  adults = signal<number>(1);
+  children = signal<number>(0);
 
   icons = {
     Play,
@@ -50,6 +58,7 @@ export class HomePageComponent implements OnInit {
     Lightbulb,
     WashingMachine,
     Car,
+    Info,
   };
 
   constructor(
@@ -59,6 +68,14 @@ export class HomePageComponent implements OnInit {
 
   ngOnInit(): void {
     this.title.setTitle('Paradise Hotel - Luxury Hotel Booking & Best Deals');
+
+    // Default dates (today and tomorrow)
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+
+    this.checkIn.set(today.toISOString().split('T')[0]);
+    this.checkOut.set(tomorrow.toISOString().split('T')[0]);
 
     this.meta.addTags([
       {
@@ -111,5 +128,16 @@ export class HomePageComponent implements OnInit {
         content: 'Book top hotels with the best prices at Paradise Hotel.',
       },
     ]);
+  }
+
+  onSearch() {
+    this.router.navigate(['/booking'], {
+      queryParams: {
+        checkIn: this.checkIn(),
+        checkOut: this.checkOut(),
+        adults: this.adults(),
+        children: this.children(),
+      },
+    });
   }
 }
