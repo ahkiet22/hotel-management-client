@@ -30,19 +30,19 @@ export abstract class BaseService<T> {
       .pipe(retry(1), catchError(this.handleError));
   }
 
-  getById(id: string | number): Observable<T> {
-    return this.http.get<T>(`${this.fullUrl}/${id}`).pipe(catchError(this.handleError));
+  getById(id: string | number): Observable<T | any> {
+    return this.http.get<T | any>(`${this.fullUrl}/${id}`).pipe(catchError(this.handleError));
   }
 
-  create(item: T): Observable<T> {
-    return this.http.post<T>(this.fullUrl, item).pipe(catchError(this.handleError));
+  create(item: T): Observable<T | any> {
+    return this.http.post<T | any>(this.fullUrl, item).pipe(catchError(this.handleError));
   }
 
-  update(id: string | number, item: T): Observable<T> {
-    return this.http.put<T>(`${this.fullUrl}/${id}`, item).pipe(catchError(this.handleError));
+  update(id: string | number, item: T): Observable<T | any> {
+    return this.http.put<T | any>(`${this.fullUrl}/${id}`, item).pipe(catchError(this.handleError));
   }
 
-  delete(id: string | number): Observable<any> {
+  delete(id: string | number): Observable<T | any> {
     return this.http.delete(`${this.fullUrl}/${id}`).pipe(catchError(this.handleError));
   }
 
