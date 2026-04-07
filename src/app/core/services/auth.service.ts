@@ -5,6 +5,7 @@ import { ApiResponse } from '@core/interfaces/api';
 import { IS_PUBLIC_ENABLED } from '@core/http/context.http';
 import { HttpContext } from '@angular/common/http';
 import { AuthStore, User } from '../stores/auth.store';
+import { StorageService } from './storage.service';
 
 interface LoginData {
   email: string;
@@ -22,6 +23,7 @@ export interface AuthTokens {
 export class AuthService extends BaseService<any> {
   protected override readonly endpoint = 'api/v1/auth';
   private authStore = inject(AuthStore);
+  private storageService = inject(StorageService);
 
   login(data: LoginData): Observable<ApiResponse<AuthTokens>> {
     return this.http
@@ -31,8 +33,8 @@ export class AuthService extends BaseService<any> {
       .pipe(
         tap((response) => {
           if (response.success) {
-            localStorage.setItem('accessToken', response.data.accessToken);
-            localStorage.setItem('refreshToken', response.data.refreshToken);
+            this.storageService.set('accessToken', response.data.accessToken);
+            this.storageService.set('refreshToken', response.data.refreshToken);
           }
         }),
         switchMap((response) => {
@@ -71,7 +73,7 @@ export class AuthService extends BaseService<any> {
   }
 
   refreshToken(): Observable<ApiResponse<AuthTokens>> {
-    const refreshToken = localStorage.getItem('refreshToken');
+    const refreshToken = this.storageService.get<string>('refreshToken');
     return this.http
       .post<ApiResponse<AuthTokens>>(
         `${this.fullUrl}/refresh`,
@@ -83,8 +85,8 @@ export class AuthService extends BaseService<any> {
       .pipe(
         tap((response) => {
           if (response.success) {
-            localStorage.setItem('accessToken', response.data.accessToken);
-            localStorage.setItem('refreshToken', response.data.refreshToken);
+            this.storageService.set('accessToken', response.data.accessToken);
+            this.storageService.set('refreshToken', response.data.refreshToken);
           }
         }),
         catchError(this.handleError),

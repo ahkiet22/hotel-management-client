@@ -4,6 +4,7 @@ export const buildEndpoint = (path: string) => `${API_PREFIX}${path}`;
 
 type Id = string | number;
 
+// Define all backend API endpoints
 export const API_ENDPOINT = {
   AUTH: {
     REGISTER: buildEndpoint('/auth/register'),

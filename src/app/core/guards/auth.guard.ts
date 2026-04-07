@@ -2,6 +2,7 @@ import { inject, PLATFORM_ID } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { AuthStore } from '@core/stores/auth.store';
 
+// This is a guard for routes that require authentication
 export const authGuard: CanActivateFn = (route, state) => {
   const auth = inject(AuthStore);
   const router = inject(Router);

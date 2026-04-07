@@ -7,6 +7,7 @@ import { SKIP_LOADING } from '@core/http/context.http';
 
 @Injectable()
 export class LoadingInterceptor implements HttpInterceptor {
+  // Golobally track active HTTP requests to manage loading state
   private activeRequests = 0;
 
   constructor(private loadingService: LoadingService) {}

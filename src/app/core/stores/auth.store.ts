@@ -1,4 +1,5 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
+import { StorageService } from '@core/services/storage.service';
 
 export interface User {
   id: number;
@@ -10,6 +11,7 @@ export interface User {
   providedIn: 'root',
 })
 export class AuthStore {
+  private storageService = inject(StorageService);
   private _user = signal<User | null>(null);
   private _token = signal<string | null>(null);
 
@@ -18,7 +20,7 @@ export class AuthStore {
   isAuthenticated = computed(() => !!this._token());
 
   initialize() {
-    const token = localStorage.getItem('accessToken');
+    const token = this.storageService.get<string>('accessToken');
     if (token) {
       this._token.set(token);
     }
@@ -27,7 +29,7 @@ export class AuthStore {
   setAuth(user: User, token: string) {
     this._user.set(user);
     this._token.set(token);
-    localStorage.setItem('accessToken', token);
+    this.storageService.set('accessToken', token);
   }
 
   setUser(user: User) {
@@ -37,7 +39,7 @@ export class AuthStore {
   clearAuth() {
     this._user.set(null);
     this._token.set(null);
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
+    this.storageService.remove('accessToken');
+    this.storageService.remove('refreshToken');
   }
 }

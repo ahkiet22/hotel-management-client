@@ -7,6 +7,7 @@ import {
 import { inject, Injectable } from '@angular/core';
 import { IS_PUBLIC_ENABLED } from '@core/http/context.http';
 import { AuthService } from '@core/services/auth.service';
+import { StorageService } from '@core/services/storage.service';
 import { BehaviorSubject, catchError, filter, switchMap, take, throwError } from 'rxjs';
 
 @Injectable()
@@ -14,6 +15,7 @@ export class AuthInterceptor implements HttpInterceptor {
   private isRefreshing = false;
   private refreshTokenSubject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
   private authService = inject(AuthService);
+  private storageService = inject(StorageService);
 
   intercept(req: HttpRequest<any>, next: HttpHandler) {
     // If IS_PUBLIC_ENABLED is true, do not add the Authorization header
@@ -21,7 +23,7 @@ export class AuthInterceptor implements HttpInterceptor {
       return next.handle(req);
     }
 
-    const token = localStorage.getItem('accessToken');
+    const token = this.storageService.get<string>('accessToken');
     let authReq = req;
 
     if (token) {
@@ -38,6 +40,7 @@ export class AuthInterceptor implements HttpInterceptor {
     );
   }
 
+  // Handle 401 errors by attempting to refresh the token
   private handle401Error(request: HttpRequest<any>, next: HttpHandler) {
     if (!this.isRefreshing) {
       this.isRefreshing = true;

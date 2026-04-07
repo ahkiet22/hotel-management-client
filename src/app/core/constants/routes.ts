@@ -1,3 +1,5 @@
+
+// Define all frontend routes
 export const ROUTES = {
   MANAGER: {
     ROOT: '/manager',
