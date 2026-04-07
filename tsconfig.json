@@ -22,7 +22,8 @@
       "@assets/*": ["src/assets/*"],
       "@spartan-ng/helm/alert-dialog": ["src/app/libs/ui/alert-dialog/src/index.ts"],
       "@spartan-ng/helm/utils": ["src/app/libs/ui/utils/src/index.ts"],
-      "@spartan-ng/helm/button": ["src/app/libs/ui/button/src/index.ts"]
+      "@spartan-ng/helm/button": ["src/app/libs/ui/button/src/index.ts"],
+      "@spartan-ng/helm/spinner": ["src/app/libs/ui/spinner/src/index.ts"]
     }
   },
   "angularCompilerOptions": {

@@ -3,6 +3,7 @@ import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor } from '@angular/c
 import { Observable } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { LoadingService } from '@core/services/loading.service';
+import { SKIP_LOADING } from '@core/http/context.http';
 
 @Injectable()
 export class LoadingInterceptor implements HttpInterceptor {
@@ -11,6 +12,9 @@ export class LoadingInterceptor implements HttpInterceptor {
   constructor(private loadingService: LoadingService) {}
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    if (request.context.get(SKIP_LOADING) === true) {
+      return next.handle(request);
+    }
     if (this.activeRequests === 0) {
       this.loadingService.show();
     }
