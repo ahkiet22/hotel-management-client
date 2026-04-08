@@ -1,7 +1,8 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { Observable, catchError, retry, throwError } from 'rxjs';
+import { Observable, catchError, map, retry, throwError } from 'rxjs';
 import { environment } from '@env/environment';
+import { ApiResponse, ListResponse } from '@core/interfaces/api';
 
 export abstract class BaseService<T> {
   protected http = inject(HttpClient);
@@ -13,9 +14,55 @@ export abstract class BaseService<T> {
     return `${api}${endpoint}`;
   }
 
-  getAll(query?: any): Observable<T[]> {
-    let params = new HttpParams();
+  getAll(query?: any): Observable<ListResponse<T>> {
+    const params = this.buildParams(query);
+    return this.http
+      .get<ApiResponse<ListResponse<T>>>(this.fullUrl, { params })
+      .pipe(
+        map((res) => res.data),
+        retry(1),
+        catchError(this.handleError)
+      );
+  }
 
+  getById(id: string | number): Observable<T> {
+    return this.http
+      .get<ApiResponse<T>>(`${this.fullUrl}/${id}`)
+      .pipe(
+        map((res) => res.data),
+        catchError(this.handleError)
+      );
+  }
+
+  create(item: Partial<T>): Observable<T> {
+    return this.http
+      .post<ApiResponse<T>>(this.fullUrl, item)
+      .pipe(
+        map((res) => res.data),
+        catchError(this.handleError)
+      );
+  }
+
+  update(id: string | number, item: Partial<T>): Observable<T> {
+    return this.http
+      .patch<ApiResponse<T>>(`${this.fullUrl}/${id}`, item)
+      .pipe(
+        map((res) => res.data),
+        catchError(this.handleError)
+      );
+  }
+
+  delete(id: string | number): Observable<any> {
+    return this.http
+      .delete<ApiResponse<any>>(`${this.fullUrl}/${id}`)
+      .pipe(
+        map((res) => res.data),
+        catchError(this.handleError)
+      );
+  }
+
+  protected buildParams(query?: any): HttpParams {
+    let params = new HttpParams();
     if (query) {
       Object.keys(query).forEach((key) => {
         const value = query[key];
@@ -24,30 +71,23 @@ export abstract class BaseService<T> {
         }
       });
     }
-
-    return this.http
-      .get<T[]>(this.fullUrl, { params })
-      .pipe(retry(1), catchError(this.handleError));
-  }
-
-  getById(id: string | number): Observable<T | any> {
-    return this.http.get<T | any>(`${this.fullUrl}/${id}`).pipe(catchError(this.handleError));
-  }
-
-  create(item: T): Observable<T | any> {
-    return this.http.post<T | any>(this.fullUrl, item).pipe(catchError(this.handleError));
-  }
-
-  update(id: string | number, item: T): Observable<T | any> {
-    return this.http.put<T | any>(`${this.fullUrl}/${id}`, item).pipe(catchError(this.handleError));
-  }
-
-  delete(id: string | number): Observable<T | any> {
-    return this.http.delete(`${this.fullUrl}/${id}`).pipe(catchError(this.handleError));
+    return params;
   }
 
   protected handleError(error: any) {
     console.error('API Error:', error);
-    return throwError(() => new Error('Something went wrong. Please try again later.'));
+    return throwError(() => error?.error || new Error('Something went wrong. Please try again later.'));
+  }
+  protected handleError404(error: any) {
+    if (error.status === 404) {
+      return throwError(() => new Error('Resource not found.'));
+    }
+    return this.handleError(error);
+  }
+  protected handleError401(error: any) {
+    if (error.status === 401) {
+      return throwError(() => new Error('Unauthorized.'));
+    }
+    return this.handleError(error);
   }
 }

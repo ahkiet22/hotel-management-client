@@ -7,3 +7,15 @@ export interface ApiResponse<T> {
   data: T;
   timestamp: string;
 }
+
+export interface Meta {
+  page: number;
+  limit: number;
+  totalPages: number;
+  totalItems: number;
+}
+
+export interface ListResponse<T> {
+  meta: Meta;
+  result: T[];
+}

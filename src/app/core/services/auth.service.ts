@@ -37,19 +37,19 @@ export class AuthService extends BaseService<any> {
             this.storageService.set('refreshToken', response.data.refreshToken);
           }
         }),
-        switchMap((response) => {
-          if (response.success) {
-            return this.getProfile().pipe(
-              map((profileRes) => {
-                if (profileRes.success) {
-                  this.authStore.setAuth(profileRes.data, response.data.accessToken);
-                }
-                return response;
-              }),
-            );
-          }
-          return of(response);
-        }),
+        // switchMap((response) => {
+        //   if (response.success) {
+        //     return this.getProfile().pipe(
+        //       map((profileRes) => {
+        //         if (profileRes.success) {
+        //           this.authStore.setAuth(profileRes.data, response.data.accessToken);
+        //         }
+        //         return response;
+        //       }),
+        //     );
+        //   }
+        //   return of(response);
+        // }),
         catchError(this.handleError),
       );
   }
