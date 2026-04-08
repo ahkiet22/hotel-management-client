@@ -121,7 +121,7 @@ export class HistoryBookingComponent implements OnInit {
 
   ngOnInit(): void {
     this.bookingService.getAll().subscribe(data => {
-      this.bookings = data;
+      this.bookings = data.result;
       this.applyFilters();
     });
   }

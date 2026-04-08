@@ -48,7 +48,7 @@ export class RoomsPageComponent implements OnInit {
     });
     this.roomService.getAll().subscribe({
       next: (data) => {
-        this.rooms = data.map((room) => ({
+        this.rooms = data.result.map((room) => ({
           id: room.id,
           title: 'The Royal Room',
           price: '₩190,000',

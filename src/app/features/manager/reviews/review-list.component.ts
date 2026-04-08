@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { ReviewService, Review } from '@core/services/review.service';
 import { LucideAngularModule, Star, MessageSquare, Trash2 } from 'lucide-angular';
 
+import { Meta } from '@core/interfaces/api';
+
 @Component({
   selector: 'app-review-list',
   standalone: true,
@@ -12,6 +14,7 @@ import { LucideAngularModule, Star, MessageSquare, Trash2 } from 'lucide-angular
 export class ReviewListComponent implements OnInit {
   private reviewService = inject(ReviewService);
   reviews = signal<Review[]>([]);
+  pagination = signal<Meta>({ page: 1, limit: 10, totalPages: 1, totalItems: 0 });
   isLoading = signal(true);
 
   icons = {
@@ -27,8 +30,9 @@ export class ReviewListComponent implements OnInit {
   loadReviews() {
     this.isLoading.set(true);
     this.reviewService.getAll().subscribe({
-      next: (data) => {
-        this.reviews.set(data);
+      next: (res) => {
+        this.reviews.set(res.result);
+        this.pagination.set(res.meta);
         this.isLoading.set(false);
       },
       error: () => this.isLoading.set(false)

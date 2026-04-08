@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { ReceiptService, Receipt } from '@core/services/receipt.service';
 import { LucideAngularModule, FileText, Download, Printer } from 'lucide-angular';
 
+import { Meta } from '@core/interfaces/api';
+
 @Component({
   selector: 'app-receipt-list',
   standalone: true,
@@ -12,6 +14,7 @@ import { LucideAngularModule, FileText, Download, Printer } from 'lucide-angular
 export class ReceiptListComponent implements OnInit {
   private receiptService = inject(ReceiptService);
   receipts = signal<Receipt[]>([]);
+  pagination = signal<Meta>({ page: 1, limit: 10, totalPages: 1, totalItems: 0 });
   isLoading = signal(true);
 
   icons = {
@@ -27,8 +30,9 @@ export class ReceiptListComponent implements OnInit {
   loadReceipts() {
     this.isLoading.set(true);
     this.receiptService.getAll().subscribe({
-      next: (data) => {
-        this.receipts.set(data);
+      next: (res) => {
+        this.receipts.set(res.result);
+        this.pagination.set(res.meta);
         this.isLoading.set(false);
       },
       error: () => this.isLoading.set(false)

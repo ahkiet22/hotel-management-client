@@ -153,10 +153,10 @@ export class ProfileComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // For demo purposes, we'll fetch the first user from mocks
-    this.userService.getAll().subscribe(users => {
-      if (users.length > 0) {
-        this.user = users[0];
+    // For demo purposes, we'll fetch the first user from the list
+    this.userService.getAll().subscribe((res) => {
+      if (res.result.length > 0) {
+        this.user = res.result[0];
         this.patchFormData();
       }
     });

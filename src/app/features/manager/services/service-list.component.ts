@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { HotelServiceService, HotelService } from '@core/services/hotel-service.service';
 import { LucideAngularModule, Search, Filter, MoreHorizontal, Plus, Briefcase, Check, X } from 'lucide-angular';
 
+import { Meta } from '@core/interfaces/api';
+
 @Component({
   selector: 'app-service-list',
   standalone: true,
@@ -12,6 +14,7 @@ import { LucideAngularModule, Search, Filter, MoreHorizontal, Plus, Briefcase, C
 export class ServiceListComponent implements OnInit {
   private serviceService = inject(HotelServiceService);
   services = signal<HotelService[]>([]);
+  pagination = signal<Meta>({ page: 1, limit: 10, totalPages: 1, totalItems: 0 });
   isLoading = signal(true);
 
   icons = {
@@ -31,8 +34,9 @@ export class ServiceListComponent implements OnInit {
   loadServices() {
     this.isLoading.set(true);
     this.serviceService.getAll().subscribe({
-      next: (data) => {
-        this.services.set(data);
+      next: (res) => {
+        this.services.set(res.result);
+        this.pagination.set(res.meta);
         this.isLoading.set(false);
       },
       error: () => this.isLoading.set(false)

@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { BookingService, Booking } from '@core/services/booking.service';
 import { LucideAngularModule, Search, Filter, MoreHorizontal, Plus, Calendar, User, CheckCircle, Clock } from 'lucide-angular';
 
+import { Meta } from '@core/interfaces/api';
+
 @Component({
   selector: 'app-booking-list',
   standalone: true,
@@ -12,6 +14,7 @@ import { LucideAngularModule, Search, Filter, MoreHorizontal, Plus, Calendar, Us
 export class BookingListComponent implements OnInit {
   private bookingService = inject(BookingService);
   bookings = signal<Booking[]>([]);
+  pagination = signal<Meta>({ page: 1, limit: 10, totalPages: 1, totalItems: 0 });
   isLoading = signal(true);
 
   icons = {
@@ -32,8 +35,9 @@ export class BookingListComponent implements OnInit {
   loadBookings() {
     this.isLoading.set(true);
     this.bookingService.getAll().subscribe({
-      next: (data) => {
-        this.bookings.set(data);
+      next: (res) => {
+        this.bookings.set(res.result);
+        this.pagination.set(res.meta);
         this.isLoading.set(false);
       },
       error: () => this.isLoading.set(false)

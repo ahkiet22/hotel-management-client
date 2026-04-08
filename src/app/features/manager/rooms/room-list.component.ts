@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { RoomService, Room } from '@core/services/room.service';
 import { LucideAngularModule, Search, Filter, MoreHorizontal, Plus, Home } from 'lucide-angular';
 
+import { Meta } from '@core/interfaces/api';
+
 @Component({
   selector: 'app-room-list',
   standalone: true,
@@ -12,6 +14,7 @@ import { LucideAngularModule, Search, Filter, MoreHorizontal, Plus, Home } from 
 export class RoomListComponent implements OnInit {
   private roomService = inject(RoomService);
   rooms = signal<Room[]>([]);
+  pagination = signal<Meta>({ page: 1, limit: 10, totalPages: 1, totalItems: 0 });
   isLoading = signal(true);
 
   icons = {
@@ -29,8 +32,9 @@ export class RoomListComponent implements OnInit {
   loadRooms() {
     this.isLoading.set(true);
     this.roomService.getAll().subscribe({
-      next: (data) => {
-        this.rooms.set(data);
+      next: (res) => {
+        this.rooms.set(res.result);
+        this.pagination.set(res.meta);
         this.isLoading.set(false);
       },
       error: () => this.isLoading.set(false)

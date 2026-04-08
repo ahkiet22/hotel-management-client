@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { PaymentService, Payment } from '@core/services/payment.service';
 import { LucideAngularModule, Search, Filter, MoreHorizontal, CreditCard, DollarSign } from 'lucide-angular';
 
+import { Meta } from '@core/interfaces/api';
+
 @Component({
   selector: 'app-payment-list',
   standalone: true,
@@ -12,6 +14,7 @@ import { LucideAngularModule, Search, Filter, MoreHorizontal, CreditCard, Dollar
 export class PaymentListComponent implements OnInit {
   private paymentService = inject(PaymentService);
   payments = signal<Payment[]>([]);
+  pagination = signal<Meta>({ page: 1, limit: 10, totalPages: 1, totalItems: 0 });
   isLoading = signal(true);
 
   icons = {
@@ -29,8 +32,9 @@ export class PaymentListComponent implements OnInit {
   loadPayments() {
     this.isLoading.set(true);
     this.paymentService.getAll().subscribe({
-      next: (data) => {
-        this.payments.set(data);
+      next: (res) => {
+        this.payments.set(res.result);
+        this.pagination.set(res.meta);
         this.isLoading.set(false);
       },
       error: () => this.isLoading.set(false)

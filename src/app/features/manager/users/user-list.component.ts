@@ -2,6 +2,7 @@ import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UserService, User } from '@core/services/user.service';
 import { LucideAngularModule, Search, Filter, MoreHorizontal, UserPlus } from 'lucide-angular';
+import { Meta } from '@core/interfaces/api';
 
 @Component({
   selector: 'app-user-list',
@@ -12,6 +13,7 @@ import { LucideAngularModule, Search, Filter, MoreHorizontal, UserPlus } from 'l
 export class UserListComponent implements OnInit {
   private userService = inject(UserService);
   users = signal<User[]>([]);
+  pagination = signal<Meta>({ page: 1, limit: 10, totalPages: 1, totalItems: 0 });
   isLoading = signal(true);
 
   icons = {
@@ -28,8 +30,10 @@ export class UserListComponent implements OnInit {
   loadUsers() {
     this.isLoading.set(true);
     this.userService.getAll().subscribe({
-      next: (data) => {
-        this.users.set(data);
+      next: (res) => {
+        console.log('Users loaded:', res);
+        this.users.set(res.result);
+        this.pagination.set(res.meta);
         this.isLoading.set(false);
       },
       error: () => this.isLoading.set(false)

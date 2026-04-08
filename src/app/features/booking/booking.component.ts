@@ -96,7 +96,7 @@ export class BookingPageComponent implements OnInit {
     this.isLoading.set(true);
     this.roomService.getAll().subscribe({
       next: (data) => {
-        this.rooms.set(data.filter((r) => r.status === 'Vacant'));
+        this.rooms.set(data.result.filter((r) => r.status === 'Vacant'));
         this.isLoading.set(false);
       },
       error: () => this.isLoading.set(false),

@@ -60,15 +60,21 @@ export class DashboardComponent implements OnInit {
       rooms: this.roomService.getAll(),
       users: this.userService.getAll()
     }).subscribe(({ rooms, users }) => {
-      const total = rooms.length;
-      const occupied = rooms.filter(r => r.status === 'Occupied').length;
-      const maintenance = rooms.filter(r => r.status === 'Out_of_Order').length;
-      const vacant = rooms.filter(r => r.status === 'Vacant').length;
+      // rooms is currently Room[] because it's still mocked
+      // users is ListResponse<User> because it's real
+      
+      const roomList = Array.isArray(rooms) ? rooms : (rooms as any).result || [];
+      const userCount = (users as any).meta?.totalItems ?? (users as any).length ?? 0;
+
+      const total = roomList.length;
+      const occupied = roomList.filter((r: any) => r.status === 'Occupied').length;
+      const maintenance = roomList.filter((r: any) => r.status === 'Out_of_Order').length;
+      const vacant = roomList.filter((r: any) => r.status === 'Vacant').length;
       
       this.stats.set({
         totalRooms: total,
         occupiedRooms: occupied,
-        totalUsers: users.length,
+        totalUsers: userCount,
         availableRooms: vacant,
         maintenanceRooms: maintenance,
         occupancyRate: total > 0 ? Math.round((occupied / total) * 100) : 0
