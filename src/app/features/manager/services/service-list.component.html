@@ -8,6 +8,7 @@
     </div>
 
     <button
+      (click)="openCreateForm()"
       class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg hover:shadow-blue-200"
     >
       <lucide-icon [img]="icons.Plus" class="w-4 h-4"></lucide-icon>
@@ -21,44 +22,108 @@
         <thead>
           <tr class="bg-slate-50/50 border-b border-slate-100">
             <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest leading-none">Service</th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest leading-none">Type</th>
             <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest leading-none">Description</th>
             <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest leading-none">Price</th>
             <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest leading-none">Status</th>
-            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest leading-none"></th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest leading-none text-right">Actions</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-50">
-          <tr *ngFor="let srv of services()" class="hover:bg-slate-50/50 transition-colors group">
-            <td class="px-6 py-5">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
-                  <lucide-icon [img]="icons.Briefcase" class="w-4 h-4"></lucide-icon>
+          @for (srv of services(); track srv.id) {
+            <tr class="hover:bg-slate-50/60 transition-colors group">
+              <td class="px-6 py-5">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold flex-shrink-0">
+                    <lucide-icon [img]="icons.Briefcase" class="w-4 h-4"></lucide-icon>
+                  </div>
+                  <span class="font-bold text-slate-900">{{ srv.name }}</span>
                 </div>
-                <span class="font-bold text-slate-900">{{ srv.name }}</span>
-              </div>
-            </td>
-            <td class="px-6 py-5">
-              <p class="text-sm text-slate-500">{{ srv.description }}</p>
-            </td>
-            <td class="px-6 py-5">
-              <span class="text-sm font-bold text-slate-900">${{ srv.price }}</span>
-            </td>
-            <td class="px-6 py-5">
-              <span
-                class="px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider border leading-none"
-                [ngClass]="getStatusClass(srv.status)"
-              >
-                {{ srv.status }}
-              </span>
-            </td>
-            <td class="px-6 py-5 text-right">
-              <button class="p-2 rounded-lg hover:bg-slate-100 text-slate-400 group-hover:text-slate-600">
-                <lucide-icon [img]="icons.MoreHorizontal" class="w-5 h-5"></lucide-icon>
-              </button>
-            </td>
-          </tr>
+              </td>
+              <td class="px-6 py-5">
+                <span class="text-sm font-medium text-slate-600 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">
+                  {{ srv.type }}
+                </span>
+              </td>
+              <td class="px-6 py-5">
+                <p class="text-sm text-slate-500 max-w-xs truncate">{{ srv.description || '—' }}</p>
+              </td>
+              <td class="px-6 py-5">
+                <span class="text-sm font-bold text-slate-900">${{ srv.price }}</span>
+              </td>
+              <td class="px-6 py-5">
+                <span
+                  class="px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider border leading-none"
+                  [ngClass]="getStatusClass(srv.status)"
+                >
+                  {{ srv.status }}
+                </span>
+              </td>
+              <td class="px-6 py-5 text-right">
+                <div class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    (click)="openEditForm(srv)"
+                    class="p-2 rounded-lg hover:bg-blue-50 text-slate-400 hover:text-blue-600 transition-colors"
+                    title="Edit service"
+                  >
+                    <lucide-icon [img]="icons.Pencil" class="w-4 h-4"></lucide-icon>
+                  </button>
+                  <button
+                    (click)="openDeleteConfirm(srv)"
+                    class="p-2 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-600 transition-colors"
+                    title="Delete service"
+                  >
+                    <lucide-icon [img]="icons.Trash2" class="w-4 h-4"></lucide-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
         </tbody>
       </table>
     </div>
+
+    @if (isLoading()) {
+      <div class="py-16 flex justify-center items-center">
+        <div class="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+      </div>
+    }
+
+    @if (!isLoading() && services().length === 0) {
+      <div class="py-20 flex flex-col items-center justify-center text-center">
+        <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-4 border-2 border-dashed border-slate-200">
+          <lucide-icon [img]="icons.Briefcase" class="w-8 h-8 text-slate-300"></lucide-icon>
+        </div>
+        <h3 class="text-lg font-bold text-slate-800 tracking-tight">No services found</h3>
+        <p class="text-slate-500 max-w-xs mx-auto text-sm mt-3 leading-relaxed font-medium">
+          Get started by creating your first hotel service.
+        </p>
+        <button
+          (click)="openCreateForm()"
+          class="mt-5 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-all shadow-md"
+        >
+          <lucide-icon [img]="icons.Plus" class="w-4 h-4"></lucide-icon>
+          New Service
+        </button>
+      </div>
+    }
   </div>
 </section>
+
+<!-- Create / Edit Modal -->
+<app-service-form
+  [isOpen]="isFormOpen()"
+  [service]="selectedService()"
+  (close)="closeForm()"
+  (save)="onSave($event)"
+></app-service-form>
+
+<!-- Delete Confirm -->
+<app-ui-confirm
+  [isOpen]="isConfirmOpen()"
+  title="Delete Service"
+  [message]="'Are you sure you want to delete &quot;' + (serviceToDelete()?.name ?? '') + '&quot;? This cannot be undone.'"
+  confirmText="Delete"
+  (confirmed)="onDeleteConfirmed()"
+  (cancelled)="onDeleteCancelled()"
+></app-ui-confirm>

@@ -8,6 +8,7 @@
     </div>
 
     <button
+      (click)="openCreateForm()"
       class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg hover:shadow-blue-200"
     >
       <lucide-icon [img]="icons.UserPlus" class="w-4 h-4"></lucide-icon>
@@ -16,11 +17,11 @@
   </div>
 
   <!-- FILTERS & SEARCH -->
-  <div class="bg-white p-4 flex flex-col md:flex-row gap-4 items-center">
+  <div class="bg-white p-4 flex flex-col md:flex-row gap-4 items-center rounded-2xl border border-slate-100 shadow-sm">
     <div class="relative flex-1 group">
       <lucide-icon
         [img]="icons.Search"
-        class="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 font-bold group-focus-within:text-blue-500 transition-colors"
+        class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-blue-500 transition-colors"
       ></lucide-icon>
       <input
         type="text"
@@ -29,9 +30,7 @@
       />
     </div>
     <div class="flex items-center gap-3">
-      <button
-        class="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-colors"
-      >
+      <button class="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-colors">
         <lucide-icon [img]="icons.Filter" class="w-4 h-4"></lucide-icon>
         Filters
       </button>
@@ -43,100 +42,107 @@
       <table class="w-full text-left border-collapse">
         <thead>
           <tr class="bg-slate-50/50 border-b border-slate-100">
-            <th
-              class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest leading-none"
-            >
-              User Info
-            </th>
-            <th
-              class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest leading-none"
-            >
-              Role
-            </th>
-            <th
-              class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest leading-none"
-            >
-              Status
-            </th>
-            <th
-              class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest leading-none"
-            >
-              Joined Date
-            </th>
-            <th
-              class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest leading-none"
-            ></th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest leading-none">User Info</th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest leading-none">Role</th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest leading-none">Status</th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest leading-none">Phone</th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest leading-none">Joined Date</th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest leading-none text-right">Actions</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-50">
-          <tr
-            *ngFor="let user of users(); let isLast = last"
-            class="hover:bg-slate-50/50 transition-colors group"
-            [ngClass]="{
-              'border-b-0': isLast,
-              'border-b border-slate-100': !isLast,
-            }"
-          >
-            <td class="px-6 py-5">
-              <div class="flex items-center gap-3">
-                <div
-                  class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-bold border-2 border-white shadow-sm overflow-hidden"
+          @for (user of users(); track user.id) {
+            <tr class="hover:bg-slate-50/60 transition-colors group">
+              <td class="px-6 py-5">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-bold border-2 border-white shadow-sm flex-shrink-0">
+                    <span class="text-sm">{{ user.full_name?.substring(0, 1)?.toUpperCase() }}</span>
+                  </div>
+                  <div>
+                    <p class="font-bold text-slate-900 text-[14.5px] leading-tight">{{ user.full_name }}</p>
+                    <p class="text-[12.5px] font-medium text-slate-500 mt-0.5">{{ user.email }}</p>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-5">
+                <span class="text-sm font-bold text-slate-600 bg-slate-50 px-3 py-1 rounded-lg border border-slate-100">
+                  {{ user.role_id || 'User' }}
+                </span>
+              </td>
+              <td class="px-6 py-5">
+                <span
+                  class="px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider border leading-none"
+                  [ngClass]="getStatusClass(user.status)"
                 >
-                  <span class="text-sm">{{ user.full_name?.substring(0, 1) }}</span>
+                  {{ user.status }}
+                </span>
+              </td>
+              <td class="px-6 py-5">
+                <span class="text-sm text-slate-500 font-medium">{{ user.phone || '—' }}</span>
+              </td>
+              <td class="px-6 py-5">
+                <span class="text-sm font-medium text-slate-500 italic">
+                  {{ user.created_at | date: 'mediumDate' }}
+                </span>
+              </td>
+              <td class="px-6 py-5 text-right">
+                <div class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    (click)="openEditForm(user)"
+                    class="p-2 rounded-lg hover:bg-blue-50 text-slate-400 hover:text-blue-600 transition-colors"
+                    title="Edit user"
+                  >
+                    <lucide-icon [img]="icons.Pencil" class="w-4 h-4"></lucide-icon>
+                  </button>
+                  <button
+                    (click)="openDeleteConfirm(user)"
+                    class="p-2 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-600 transition-colors"
+                    title="Delete user"
+                  >
+                    <lucide-icon [img]="icons.Trash2" class="w-4 h-4"></lucide-icon>
+                  </button>
                 </div>
-                <div>
-                  <p class="font-bold text-slate-900 text-[14.5px] leading-tight">
-                    {{ user.full_name }}
-                  </p>
-                  <p class="text-[12.5px] font-medium text-slate-500 mt-1">{{ user.email }}</p>
-                </div>
-              </div>
-            </td>
-            <td class="px-6 py-5">
-              <span
-                class="text-sm font-bold text-slate-600 bg-slate-50 px-3 py-1 rounded-lg border border-slate-100"
-              >
-                {{ user.role_id || 'User' }}
-              </span>
-            </td>
-            <td class="px-6 py-5">
-              <span
-                class="px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider border leading-none"
-                [ngClass]="getStatusClass(user.status)"
-              >
-                {{ user.status }}
-              </span>
-            </td>
-            <td class="px-6 py-5">
-              <span class="text-sm font-medium text-slate-500 italic">
-                {{ user.created_at | date: 'mediumDate' }}
-              </span>
-            </td>
-            <td class="px-6 py-5 text-right">
-              <button
-                class="p-2 rounded-lg hover:bg-slate-100 text-slate-400 group-hover:text-slate-600 transition-colors"
-              >
-                <lucide-icon [img]="icons.MoreHorizontal" class="w-5 h-5"></lucide-icon>
-              </button>
-            </td>
-          </tr>
+              </td>
+            </tr>
+          }
         </tbody>
       </table>
     </div>
 
-    <div
-      *ngIf="!isLoading() && users().length === 0"
-      class="py-20 flex flex-col items-center justify-center text-center"
-    >
-      <div
-        class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-4 border-2 border-dashed border-slate-200"
-      >
-        <lucide-icon [img]="icons.Search" class="w-8 h-8 text-slate-300"></lucide-icon>
+    @if (isLoading()) {
+      <div class="py-16 flex justify-center items-center">
+        <div class="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
       </div>
-      <h3 class="text-lg font-bold text-slate-800 tracking-tight">No Accounts found</h3>
-      <p class="text-slate-500 max-w-xs mx-auto text-sm mt-3 leading-relaxed font-medium">
-        We couldn't find any users matching your criteria. Try adjusting your search or filters.
-      </p>
-    </div>
+    }
+
+    @if (!isLoading() && users().length === 0) {
+      <div class="py-20 flex flex-col items-center justify-center text-center">
+        <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-4 border-2 border-dashed border-slate-200">
+          <lucide-icon [img]="icons.Search" class="w-8 h-8 text-slate-300"></lucide-icon>
+        </div>
+        <h3 class="text-lg font-bold text-slate-800 tracking-tight">No Accounts found</h3>
+        <p class="text-slate-500 max-w-xs mx-auto text-sm mt-3 leading-relaxed font-medium">
+          We couldn't find any users matching your criteria. Try adjusting your search or filters.
+        </p>
+      </div>
+    }
   </div>
 </section>
+
+<!-- Create / Edit Modal -->
+<app-user-form
+  [isOpen]="isFormOpen()"
+  [user]="selectedUser()"
+  (close)="closeForm()"
+  (save)="onSave($event)"
+></app-user-form>
+
+<!-- Delete Confirm -->
+<app-ui-confirm
+  [isOpen]="isConfirmOpen()"
+  title="Delete Account"
+  [message]="'Are you sure you want to delete &quot;' + (userToDelete()?.full_name ?? '') + '&quot;? This action cannot be undone.'"
+  confirmText="Delete"
+  (confirmed)="onDeleteConfirmed()"
+  (cancelled)="onDeleteCancelled()"
+></app-ui-confirm>

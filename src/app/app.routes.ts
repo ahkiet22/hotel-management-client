@@ -93,6 +93,13 @@ export const routes: Routes = [
           import('./features/manager/rooms/room-list.component').then((m) => m.RoomListComponent),
       },
       {
+        path: 'room-types',
+        loadComponent: () =>
+          import('./features/manager/room-types/room-type-list.component').then(
+            (m) => m.RoomTypeListComponent,
+          ),
+      },
+      {
         path: 'services',
         loadComponent: () =>
           import('./features/manager/services/service-list.component').then(

@@ -1,0 +1,86 @@
+<app-ui-modal 
+  [isOpen]="isOpen" 
+  [title]="isEdit() ? 'Edit Room Type' : 'Create New Room Type'"
+  (close)="close.emit()"
+>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-5">
+    <!-- Name -->
+    <div class="space-y-2">
+      <label hlmLabel>Room Type Name</label>
+      <input 
+        hlmInput
+        type="text" 
+        formControlName="name"
+        placeholder="e.g. Deluxe Suite"
+        class="w-full"
+        [error]="form.get('name')?.invalid && form.get('name')?.touched ? true : 'auto'"
+      />
+      <p *ngIf="form.get('name')?.invalid && form.get('name')?.touched" class="text-[11px] text-destructive font-bold ml-1">
+        Name is required and must be under 50 characters.
+      </p>
+    </div>
+
+    <!-- Description -->
+    <div class="space-y-2">
+      <label hlmLabel>Description</label>
+      <textarea 
+        hlmInput
+        formControlName="description"
+        placeholder="Describe the room type features..."
+        rows="3"
+        class="w-full h-auto min-h-[100px]"
+      ></textarea>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+      <!-- Base Price -->
+      <div class="space-y-2">
+        <label hlmLabel>Base Price ($)</label>
+        <input 
+          hlmInput
+          type="number" 
+          formControlName="basePrice"
+          class="w-full"
+          [error]="form.get('basePrice')?.invalid && form.get('basePrice')?.touched ? true : 'auto'"
+        />
+      </div>
+
+      <!-- Capacity -->
+      <div class="space-y-2">
+        <label hlmLabel>Capacity (Adults)</label>
+        <input 
+          hlmInput
+          type="number" 
+          formControlName="capacity"
+          class="w-full"
+          [error]="form.get('capacity')?.invalid && form.get('capacity')?.touched ? true : 'auto'"
+        />
+      </div>
+    </div>
+
+    <!-- Images -->
+    <div class="space-y-2">
+      <label hlmLabel>Image URLs (comma-separated)</label>
+      <input 
+        hlmInput
+        type="text" 
+        placeholder="https://example.com/image1.jpg, ..."
+        class="w-full"
+        (change)="onImagesChange($any($event.target).value)"
+      />
+    </div>
+
+    <!-- Hidden Submit for Enter key -->
+    <button type="submit" class="hidden"></button>
+  </form>
+
+  <div footer class="flex gap-3">
+    <button 
+      hlmBtn 
+      (click)="onSubmit()"
+      class="bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl px-6 py-2"
+    >
+      {{ isEdit() ? 'Update Room Type' : 'Create Room Type' }}
+    </button>
+  </div>
+</app-ui-modal>

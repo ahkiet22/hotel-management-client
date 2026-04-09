@@ -1,14 +1,15 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RoomService, Room } from '@core/services/room.service';
-import { LucideAngularModule, Search, Filter, MoreHorizontal, Plus, Home } from 'lucide-angular';
-
+import { LucideAngularModule, Search, Filter, MoreHorizontal, Plus, Home, Edit, Trash2 } from 'lucide-angular';
 import { Meta } from '@core/interfaces/api';
+import { CreateRoomDto } from '@core/interfaces/room.dto';
+import { RoomFormComponent } from './room-form.component';
 
 @Component({
   selector: 'app-room-list',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, RoomFormComponent],
   templateUrl: './room-list.component.html',
 })
 export class RoomListComponent implements OnInit {
@@ -17,12 +18,18 @@ export class RoomListComponent implements OnInit {
   pagination = signal<Meta>({ page: 1, limit: 10, totalPages: 1, totalItems: 0 });
   isLoading = signal(true);
 
+  // Form state
+  isFormOpen = signal(false);
+  selectedRoom = signal<Room | null>(null);
+
   icons = {
     Search,
     Filter,
     MoreHorizontal,
     Plus,
-    Home
+    Home,
+    Edit,
+    Trash2
   };
 
   ngOnInit() {
@@ -39,6 +46,44 @@ export class RoomListComponent implements OnInit {
       },
       error: () => this.isLoading.set(false)
     });
+  }
+
+  openCreateForm() {
+    this.selectedRoom.set(null);
+    this.isFormOpen.set(true);
+  }
+
+  openEditForm(room: Room) {
+    this.selectedRoom.set(room);
+    this.isFormOpen.set(true);
+  }
+
+  closeForm() {
+    this.isFormOpen.set(false);
+    this.selectedRoom.set(null);
+  }
+
+  onSave(data: CreateRoomDto) {
+    const obs = this.selectedRoom()
+      ? this.roomService.update(this.selectedRoom()!.id, data as any)
+      : this.roomService.create(data as any);
+
+    obs.subscribe({
+      next: () => {
+        this.closeForm();
+        this.loadRooms();
+      },
+      error: (err) => console.error('Error saving room:', err)
+    });
+  }
+
+  onDelete(id: string) {
+    if (confirm('Are you sure you want to delete this room?')) {
+      this.roomService.delete(id).subscribe({
+        next: () => this.loadRooms(),
+        error: (err) => console.error('Error deleting room:', err)
+      });
+    }
   }
 
   getStatusClass(status?: string) {

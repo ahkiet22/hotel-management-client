@@ -8,6 +8,7 @@
     </div>
 
     <button
+      (click)="openCreateForm()"
       class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg hover:shadow-blue-200"
     >
       <lucide-icon [img]="icons.Plus" class="w-4 h-4"></lucide-icon>
@@ -113,11 +114,22 @@
               </span>
             </td>
             <td class="px-6 py-5 text-right">
-              <button
-                class="p-2 rounded-lg hover:bg-slate-100 text-slate-400 group-hover:text-slate-600 transition-colors"
-              >
-                <lucide-icon [img]="icons.MoreHorizontal" class="w-5 h-5"></lucide-icon>
-              </button>
+              <div class="flex justify-end gap-2">
+                <button
+                  (click)="openEditForm(room)"
+                  class="p-2 rounded-lg hover:bg-blue-50 text-slate-400 hover:text-blue-600 transition-colors"
+                  title="Edit"
+                >
+                  <lucide-icon [img]="icons.Edit" class="w-4 h-4"></lucide-icon>
+                </button>
+                <button
+                  (click)="onDelete(room.id)"
+                  class="p-2 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-600 transition-colors"
+                  title="Delete"
+                >
+                  <lucide-icon [img]="icons.Trash2" class="w-4 h-4"></lucide-icon>
+                </button>
+              </div>
             </td>
           </tr>
         </tbody>
@@ -140,3 +152,11 @@
     </div>
   </div>
 </section>
+
+<!-- Form Modal -->
+<app-room-form
+  [isOpen]="isFormOpen()"
+  [room]="selectedRoom()"
+  (close)="closeForm()"
+  (save)="onSave($event)"
+></app-room-form>

@@ -1,17 +1,20 @@
 <section class="space-y-6">
+  <!-- Header -->
   <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
     <div>
       <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Booking Management</h1>
       <p class="text-sm text-slate-500 mt-1 font-medium">
-        Manage reservations and guest stays
+        Manage reservations, confirm stays and track guest activity
       </p>
     </div>
 
     <button
-      class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg hover:shadow-blue-200"
+      (click)="loadBookings()"
+      class="flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-colors shadow-sm"
+      title="Refresh"
     >
-      <lucide-icon [img]="icons.Plus" class="w-4 h-4"></lucide-icon>
-      New Booking
+      <lucide-icon [img]="icons.RefreshCw" class="w-4 h-4"></lucide-icon>
+      Refresh
     </button>
   </div>
 
@@ -29,77 +32,151 @@
       />
     </div>
     <div class="flex items-center gap-3">
-      <button
-        class="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-colors"
-      >
+      <button class="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-50 transition-colors">
         <lucide-icon [img]="icons.Filter" class="w-4 h-4"></lucide-icon>
         Filters
       </button>
     </div>
   </div>
 
+  <!-- Table -->
   <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
     <div class="overflow-x-auto">
       <table class="w-full text-left border-collapse">
         <thead>
           <tr class="bg-slate-50/50 border-b border-slate-100">
-            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widst leading-none">Booking Ref</th>
-            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widst leading-none">Dates</th>
-            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widst leading-none">Amount</th>
-            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widst leading-none">Status</th>
-            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widst leading-none"></th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest leading-none">Booking Ref</th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest leading-none">Dates</th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest leading-none">Check-in</th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest leading-none">Amount</th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest leading-none">Status</th>
+            <th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-widest leading-none text-right">Actions</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-50">
-          <tr *ngFor="let booking of bookings()" class="hover:bg-slate-50/50 transition-colors group">
-            <td class="px-6 py-5">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
-                  {{ booking.short_id.substring(0, 2) }}
+          @for (booking of bookings(); track booking.id) {
+            <tr class="hover:bg-slate-50/60 transition-colors group">
+              <!-- Booking Ref -->
+              <td class="px-6 py-5">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm flex-shrink-0">
+                    {{ booking.short_id?.substring(0, 2)?.toUpperCase() }}
+                  </div>
+                  <div>
+                    <p class="font-bold text-slate-900 text-[14.5px]">{{ booking.short_id }}</p>
+                    <p class="text-[11px] font-medium text-slate-400 font-mono mt-0.5">{{ booking.id | slice:0:16 }}…</p>
+                  </div>
                 </div>
-                <div>
-                  <p class="font-bold text-slate-900 text-[14.5px]">{{ booking.short_id }}</p>
-                  <p class="text-[12.5px] font-medium text-slate-500">ID: {{ booking.id }}</p>
+              </td>
+
+              <!-- Dates -->
+              <td class="px-6 py-5">
+                <div class="space-y-1">
+                  <div class="flex items-center gap-1.5 text-sm font-medium text-slate-700">
+                    <lucide-icon [img]="icons.Calendar" class="w-3.5 h-3.5 text-slate-400 flex-shrink-0"></lucide-icon>
+                    {{ booking.check_in_date | date:'dd MMM' }} → {{ booking.check_out_date | date:'dd MMM yyyy' }}
+                  </div>
+                  @if (booking.actual_check_out) {
+                    <div class="flex items-center gap-1.5 text-[11px] text-slate-400">
+                      <lucide-icon [img]="icons.CheckCircle" class="w-3 h-3"></lucide-icon>
+                      Checked-out: {{ booking.actual_check_out | date:'dd MMM, HH:mm' }}
+                    </div>
+                  }
                 </div>
-              </div>
-            </td>
-            <td class="px-6 py-5">
-              <div class="space-y-1">
-                <div class="flex items-center gap-2 text-sm font-medium text-slate-700">
-                  <lucide-icon [img]="icons.Calendar" class="w-3.5 h-3.5 text-slate-400"></lucide-icon>
-                  {{ booking.check_in_date }} - {{ booking.check_out_date }}
+              </td>
+
+              <!-- Check-in -->
+              <td class="px-6 py-5">
+                @if (booking.actual_check_in) {
+                  <div class="flex items-center gap-1.5 text-sm text-green-700 font-medium">
+                    <lucide-icon [img]="icons.CheckCircle" class="w-4 h-4 text-green-500"></lucide-icon>
+                    {{ booking.actual_check_in | date:'dd MMM, HH:mm' }}
+                  </div>
+                } @else {
+                  <div class="flex items-center gap-1.5 text-sm text-slate-400">
+                    <lucide-icon [img]="icons.Clock" class="w-4 h-4"></lucide-icon>
+                    Not yet
+                  </div>
+                }
+              </td>
+
+              <!-- Amount -->
+              <td class="px-6 py-5">
+                <p class="text-sm font-bold text-slate-900">${{ booking.grand_total | number:'1.2-2' }}</p>
+                <p class="text-[11px] text-slate-400 font-medium mt-0.5">
+                  Room: ${{ booking.total_room_price }} / Svc: ${{ booking.total_service_price }}
+                </p>
+              </td>
+
+              <!-- Status -->
+              <td class="px-6 py-5">
+                <span
+                  class="px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider border leading-none"
+                  [ngClass]="getStatusClass(booking.status)"
+                >
+                  {{ booking.status }}
+                </span>
+              </td>
+
+              <!-- Actions -->
+              <td class="px-6 py-5 text-right">
+                <div class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  @if (canConfirm(booking)) {
+                    <button
+                      (click)="confirmBooking(booking)"
+                      class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold transition-colors"
+                      title="Confirm booking"
+                    >
+                      <lucide-icon [img]="icons.CheckCircle" class="w-3.5 h-3.5"></lucide-icon>
+                      Confirm
+                    </button>
+                  }
+                  @if (canCancel(booking)) {
+                    <button
+                      (click)="openCancelConfirm(booking)"
+                      class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 text-xs font-bold transition-colors"
+                      title="Cancel booking"
+                    >
+                      <lucide-icon [img]="icons.X" class="w-3.5 h-3.5"></lucide-icon>
+                      Cancel
+                    </button>
+                  }
                 </div>
-                <div class="flex items-center gap-2 text-[12px] text-slate-400">
-                  <lucide-icon [img]="icons.Clock" class="w-3.5 h-3.5"></lucide-icon>
-                  Check-in: {{ booking.actual_check_in || 'N/A' }}
-                </div>
-              </div>
-            </td>
-            <td class="px-6 py-5">
-              <p class="text-sm font-bold text-slate-900">${{ booking.grand_total }}</p>
-              <p class="text-xs text-slate-400 font-medium">Services: ${{ booking.total_service_price }}</p>
-            </td>
-            <td class="px-6 py-5">
-              <span
-                class="px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider border leading-none"
-                [ngClass]="getStatusClass(booking.status)"
-              >
-                {{ booking.status }}
-              </span>
-            </td>
-            <td class="px-6 py-5 text-right">
-              <button class="p-2 rounded-lg hover:bg-slate-100 text-slate-400 group-hover:text-slate-600">
-                <lucide-icon [img]="icons.MoreHorizontal" class="w-5 h-5"></lucide-icon>
-              </button>
-            </td>
-          </tr>
+              </td>
+            </tr>
+          }
         </tbody>
       </table>
     </div>
 
-    <div *ngIf="!isLoading() && bookings().length === 0" class="py-20 text-center">
-      <lucide-icon [img]="icons.Search" class="w-12 h-12 text-slate-200 mx-auto mb-4"></lucide-icon>
-      <h3 class="text-lg font-bold text-slate-800">No bookings found</h3>
-    </div>
+    @if (isLoading()) {
+      <div class="py-16 flex justify-center items-center">
+        <div class="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+      </div>
+    }
+
+    @if (!isLoading() && bookings().length === 0) {
+      <div class="py-20 flex flex-col items-center justify-center text-center">
+        <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-4 border-2 border-dashed border-slate-200">
+          <lucide-icon [img]="icons.Calendar" class="w-8 h-8 text-slate-300"></lucide-icon>
+        </div>
+        <h3 class="text-lg font-bold text-slate-800">No bookings found</h3>
+        <p class="text-slate-500 max-w-xs mx-auto text-sm mt-2 leading-relaxed font-medium">
+          There are no reservations yet or none match your current filters.
+        </p>
+      </div>
+    }
   </div>
 </section>
+
+<!-- Cancel Confirm Dialog -->
+<app-ui-confirm
+  [isOpen]="isConfirmOpen()"
+  title="Cancel Booking"
+  [message]="'Are you sure you want to cancel booking &quot;' + (bookingToCancel()?.short_id ?? '') + '&quot;? This action cannot be undone.'"
+  confirmText="Cancel Booking"
+  cancelText="Keep Booking"
+  variant="warning"
+  (confirmed)="onCancelConfirmed()"
+  (cancelled)="onCancelDismissed()"
+></app-ui-confirm>

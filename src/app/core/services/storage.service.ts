@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { Injectable, PLATFORM_ID, Inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 
 @Injectable({
   providedIn: 'root',
@@ -6,6 +7,11 @@ import { Injectable } from '@angular/core';
 export class StorageService {
   // Map Cache (RAM)
   private cache = new Map<string, any>();
+  private readonly isBrowser: boolean;
+
+  constructor(@Inject(PLATFORM_ID) platformId: object) {
+    this.isBrowser = isPlatformBrowser(platformId);
+  }
 
   /**
    * Store: Update RAM và Disk
@@ -13,8 +19,10 @@ export class StorageService {
   set(key: string, value: any): void {
     try {
       this.cache.set(key, value); // Update RAM
-      const serializedValue = JSON.stringify(value);
-      localStorage.setItem(key, serializedValue); // Update Disk
+      if (this.isBrowser) {
+        const serializedValue = JSON.stringify(value);
+        localStorage.setItem(key, serializedValue); // Update Disk
+      }
     } catch (e) {
       console.error('Error saving to storage', e);
     }
@@ -27,6 +35,8 @@ export class StorageService {
     if (this.cache.has(key)) {
       return this.cache.get(key) as T;
     }
+
+    if (!this.isBrowser) return null;
 
     try {
       const data = localStorage.getItem(key);
@@ -47,7 +57,9 @@ export class StorageService {
    */
   remove(key: string): void {
     this.cache.delete(key);
-    localStorage.removeItem(key);
+    if (this.isBrowser) {
+      localStorage.removeItem(key);
+    }
   }
 
   /**
@@ -55,7 +67,9 @@ export class StorageService {
    */
   clear(): void {
     this.cache.clear();
-    localStorage.clear();
+    if (this.isBrowser) {
+      localStorage.clear();
+    }
   }
 
   /**

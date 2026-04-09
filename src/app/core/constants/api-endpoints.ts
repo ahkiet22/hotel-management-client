@@ -31,6 +31,7 @@ export const API_ENDPOINT = {
   ROOM_TYPES: {
     BASE: buildEndpoint('/room-types'),
     DETAIL: (id: Id) => buildEndpoint(`/room-types/${id}`),
+    AVAILABLE: buildEndpoint('/room-types/available'),
   },
 
   BOOKINGS: {

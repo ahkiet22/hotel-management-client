@@ -1,0 +1,99 @@
+<app-ui-modal
+  [isOpen]="isOpen"
+  [title]="isEdit() ? 'Edit Service' : 'New Service'"
+  [showFooter]="false"
+  (close)="close.emit()"
+>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-5">
+    <!-- Name -->
+    <div class="space-y-1.5">
+      <label hlmLabel for="svc-name">Service Name <span class="text-red-500">*</span></label>
+      <input
+        hlmInput
+        id="svc-name"
+        formControlName="name"
+        placeholder="e.g. Spa Treatment"
+        class="w-full"
+      />
+      @if (form.get('name')?.invalid && form.get('name')?.touched) {
+        <p class="text-xs text-red-500 font-medium">Service name is required.</p>
+      }
+    </div>
+
+    <!-- Type -->
+    <div class="space-y-1.5">
+      <label hlmLabel for="svc-type">Type <span class="text-red-500">*</span></label>
+      <select
+        id="svc-type"
+        formControlName="type"
+        class="w-full h-10 px-3 py-2 rounded-md border border-input bg-background text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+      >
+        <option value="" disabled>Select type</option>
+        @for (opt of typeOptions; track opt.value) {
+          <option [value]="opt.value">{{ opt.label }}</option>
+        }
+      </select>
+      @if (form.get('type')?.invalid && form.get('type')?.touched) {
+        <p class="text-xs text-red-500 font-medium">Type is required.</p>
+      }
+    </div>
+
+    <!-- Description -->
+    <div class="space-y-1.5">
+      <label hlmLabel for="svc-desc">Description</label>
+      <textarea
+        id="svc-desc"
+        formControlName="description"
+        rows="3"
+        placeholder="Brief description of this service..."
+        class="w-full px-3 py-2 rounded-md border border-input bg-background text-sm resize-none ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+      ></textarea>
+    </div>
+
+    <!-- Price & Status row -->
+    <div class="grid grid-cols-2 gap-4">
+      <div class="space-y-1.5">
+        <label hlmLabel for="svc-price">Price ($) <span class="text-red-500">*</span></label>
+        <input
+          hlmInput
+          id="svc-price"
+          type="number"
+          min="0"
+          formControlName="price"
+          placeholder="0.00"
+          class="w-full"
+        />
+        @if (form.get('price')?.invalid && form.get('price')?.touched) {
+          <p class="text-xs text-red-500 font-medium">Valid price required.</p>
+        }
+      </div>
+
+      <div class="space-y-1.5">
+        <label hlmLabel for="svc-status">Status <span class="text-red-500">*</span></label>
+        <select
+          id="svc-status"
+          formControlName="status"
+          class="w-full h-10 px-3 py-2 rounded-md border border-input bg-background text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        >
+          @for (opt of statusOptions; track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <!-- Footer actions -->
+    <div class="flex justify-end gap-3 pt-2 border-t border-slate-100">
+      <button hlmBtn type="button" variant="ghost" (click)="close.emit()" class="font-bold">
+        Cancel
+      </button>
+      <button
+        hlmBtn
+        type="submit"
+        class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2 rounded-xl"
+      >
+        {{ isEdit() ? 'Save Changes' : 'Create Service' }}
+      </button>
+    </div>
+  </form>
+</app-ui-modal>

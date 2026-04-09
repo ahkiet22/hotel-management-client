@@ -7,6 +7,7 @@ export interface HotelService {
   description: string;
   price: number;
   status: 'Active' | 'Inactive';
+  type: string;
 }
 
 @Injectable({

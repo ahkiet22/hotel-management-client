@@ -1,0 +1,82 @@
+<app-ui-modal 
+  [isOpen]="isOpen" 
+  [title]="isEdit() ? 'Edit Room' : 'Create New Room'"
+  (close)="close.emit()"
+>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-5">
+    <div class="grid grid-cols-2 gap-4">
+      <!-- Room Number -->
+      <div class="space-y-2">
+        <label hlmLabel>Room Number</label>
+        <input 
+          hlmInput
+          type="text" 
+          formControlName="roomNumber"
+          placeholder="e.g. 101"
+          class="w-full"
+          [error]="form.get('roomNumber')?.invalid && form.get('roomNumber')?.touched ? true : 'auto'"
+        />
+      </div>
+
+      <!-- Status -->
+      <div class="space-y-2">
+        <label hlmLabel>Status</label>
+        <select 
+          hlmInput
+          formControlName="status"
+          class="w-full appearance-none"
+        >
+          <option *ngFor="let option of statusOptions" [value]="option.value">{{ option.label }}</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Room Type -->
+    <div class="space-y-2">
+      <label hlmLabel>Room Type</label>
+      <select 
+        hlmInput
+        formControlName="roomTypeId"
+        class="w-full appearance-none"
+        [error]="form.get('roomTypeId')?.invalid && form.get('roomTypeId')?.touched ? true : 'auto'"
+      >
+        <option value="" disabled>Select room type...</option>
+        <option *ngFor="let type of roomTypes()" [value]="type.id">{{ type.name }}</option>
+      </select>
+    </div>
+
+    <!-- Description -->
+    <div class="space-y-2">
+      <label hlmLabel>Description (Optional)</label>
+      <textarea 
+        hlmInput
+        formControlName="description"
+        placeholder="Room details or notes..."
+        rows="2"
+        class="w-full h-auto min-h-[80px]"
+      ></textarea>
+    </div>
+
+    <!-- Is Public -->
+    <div class="flex items-center space-x-2 pt-1">
+      <hlm-checkbox 
+        id="isPublic"
+        formControlName="isPublic"
+      ></hlm-checkbox>
+      <label hlmLabel for="isPublic" class="text-slate-600 font-medium">Make this room public</label>
+    </div>
+
+    <!-- Hidden Submit -->
+    <button type="submit" class="hidden"></button>
+  </form>
+
+  <div footer class="flex gap-3">
+    <button 
+      hlmBtn 
+      (click)="onSubmit()"
+      class="bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl px-6 py-2"
+    >
+      {{ isEdit() ? 'Update Room' : 'Create Room' }}
+    </button>
+  </div>
+</app-ui-modal>

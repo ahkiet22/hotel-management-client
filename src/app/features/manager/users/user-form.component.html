@@ -1,0 +1,133 @@
+<app-ui-modal
+  [isOpen]="isOpen"
+  [title]="isEdit() ? 'Edit User' : 'Add Account'"
+  [showFooter]="false"
+  [size]="'lg'"
+  (close)="close.emit()"
+>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-5">
+    <!-- Full Name & Email -->
+    <div class="grid grid-cols-2 gap-4">
+      <div class="space-y-1.5">
+        <label hlmLabel for="usr-name">Full Name <span class="text-red-500">*</span></label>
+        <input
+          hlmInput
+          id="usr-name"
+          formControlName="fullName"
+          placeholder="e.g. John Doe"
+          class="w-full"
+        />
+        @if (form.get('fullName')?.invalid && form.get('fullName')?.touched) {
+          <p class="text-xs text-red-500 font-medium">Full name is required (max 100 chars).</p>
+        }
+      </div>
+
+      <div class="space-y-1.5">
+        <label hlmLabel for="usr-email">Email <span class="text-red-500">*</span></label>
+        <input
+          hlmInput
+          id="usr-email"
+          type="email"
+          formControlName="email"
+          placeholder="user@hotel.com"
+          class="w-full"
+        />
+        @if (form.get('email')?.invalid && form.get('email')?.touched) {
+          <p class="text-xs text-red-500 font-medium">Valid email required (max 100 chars).</p>
+        }
+      </div>
+    </div>
+
+    <!-- Password -->
+    <div class="space-y-1.5">
+      <label hlmLabel for="usr-password">
+        Password
+        @if (!isEdit()) { <span class="text-red-500">*</span> }
+        @if (isEdit()) { <span class="text-slate-400 font-normal text-xs">(leave blank to keep current)</span> }
+      </label>
+      <input
+        hlmInput
+        id="usr-password"
+        type="password"
+        formControlName="password"
+        placeholder="••••••••"
+        class="w-full"
+      />
+      @if (form.get('password')?.invalid && form.get('password')?.touched) {
+        <p class="text-xs text-red-500 font-medium">Password is required (max 255 chars).</p>
+      }
+    </div>
+
+    <!-- Role & Status -->
+    <div class="grid grid-cols-2 gap-4">
+      <div class="space-y-1.5">
+        <label hlmLabel for="usr-role">Role <span class="text-red-500">*</span></label>
+        <select
+          id="usr-role"
+          formControlName="roleId"
+          class="w-full h-10 px-3 py-2 rounded-md border border-input bg-background text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        >
+          <option value="" disabled>Select role</option>
+          @for (opt of roleOptions; track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+        @if (form.get('roleId')?.invalid && form.get('roleId')?.touched) {
+          <p class="text-xs text-red-500 font-medium">Role is required.</p>
+        }
+      </div>
+
+      <div class="space-y-1.5">
+        <label hlmLabel for="usr-status">Status <span class="text-red-500">*</span></label>
+        <select
+          id="usr-status"
+          formControlName="status"
+          class="w-full h-10 px-3 py-2 rounded-md border border-input bg-background text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        >
+          @for (opt of statusOptions; track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <!-- Phone & Address -->
+    <div class="grid grid-cols-2 gap-4">
+      <div class="space-y-1.5">
+        <label hlmLabel for="usr-phone">Phone</label>
+        <input
+          hlmInput
+          id="usr-phone"
+          formControlName="phone"
+          placeholder="+84 xxx xxx xxx"
+          class="w-full"
+        />
+      </div>
+
+      <div class="space-y-1.5">
+        <label hlmLabel for="usr-address">Address</label>
+        <input
+          hlmInput
+          id="usr-address"
+          formControlName="address"
+          placeholder="Street, City..."
+          class="w-full"
+        />
+      </div>
+    </div>
+
+    <!-- Footer actions -->
+    <div class="flex justify-end gap-3 pt-2 border-t border-slate-100">
+      <button hlmBtn type="button" variant="ghost" (click)="close.emit()" class="font-bold">
+        Cancel
+      </button>
+      <button
+        hlmBtn
+        type="submit"
+        class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2 rounded-xl"
+      >
+        {{ isEdit() ? 'Save Changes' : 'Create Account' }}
+      </button>
+    </div>
+  </form>
+</app-ui-modal>
