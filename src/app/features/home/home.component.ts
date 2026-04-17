@@ -3,6 +3,7 @@ import { Component, OnInit, signal, inject } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { RoomTypeService, RoomType, AvailableRoom } from '@core/services/room-type.service';
 import {
   LucideAngularModule,
   Play,
@@ -33,12 +34,16 @@ import {
 })
 export class HomePageComponent implements OnInit {
   private router = inject(Router);
+  private roomTypeService = inject(RoomTypeService);
 
   // Booking signals
   checkIn = signal<string>('');
   checkOut = signal<string>('');
   adults = signal<number>(1);
   children = signal<number>(0);
+  rooms = signal<AvailableRoom[]>([]);
+  roomTypes = signal<RoomType[]>([]);
+  selectedRoomTypeId = signal<string>('');
 
   icons = {
     Play,
@@ -128,6 +133,33 @@ export class HomePageComponent implements OnInit {
         content: 'Book top hotels with the best prices at Paradise Hotel.',
       },
     ]);
+
+    this.loadRoomTypes();
+    this.loadRooms();
+  }
+
+  loadRooms() {
+    const capacity = this.adults() + this.children();
+    
+    // Format dates with time for API
+    const checkInDate = this.checkIn() ? `${this.checkIn()}T14:00:00` : undefined;
+    const checkOutDate = this.checkOut() ? `${this.checkOut()}T12:00:00` : undefined;
+
+    this.roomTypeService
+      .getAvailableRoomTypes(undefined, checkInDate, checkOutDate, capacity)
+      .subscribe({
+        next: (res) => {
+          this.rooms.set(res.result.slice(0, 3)); // Show first 3 rooms
+        },
+      });
+  }
+
+  loadRoomTypes() {
+    this.roomTypeService.getAll().subscribe({
+      next: (res) => {
+        this.roomTypes.set(res.result);
+      },
+    });
   }
 
   onSearch() {
@@ -137,6 +169,20 @@ export class HomePageComponent implements OnInit {
         checkOut: this.checkOut(),
         adults: this.adults(),
         children: this.children(),
+        typeId: this.selectedRoomTypeId(),
+      },
+    });
+  }
+
+  bookRoom(roomId: string) {
+    this.router.navigate(['/booking'], {
+      queryParams: {
+        checkIn: this.checkIn(),
+        checkOut: this.checkOut(),
+        adults: this.adults(),
+        children: this.children(),
+        typeId: this.selectedRoomTypeId(),
+        roomId: roomId
       },
     });
   }

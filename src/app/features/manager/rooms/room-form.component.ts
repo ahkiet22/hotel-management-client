@@ -33,7 +33,7 @@ export class RoomFormComponent implements OnChanges, OnInit {
     { label: 'Vacant', value: 'Vacant' },
     { label: 'Reserved', value: 'Reserved' },
     { label: 'Occupied', value: 'Occupied' },
-    { label: 'Out of Order', value: 'Out_of_Order' }
+    { label: 'Out of Order', value: 'Out of Order' }
   ];
 
   constructor() {

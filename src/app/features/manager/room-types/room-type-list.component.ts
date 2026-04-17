@@ -40,18 +40,33 @@ export class RoomTypeListComponent implements OnInit {
   loadRoomTypes() {
     this.isLoading.set(true);
     
-    const obs = this.showOnlyAvailable() 
-      ? this.roomTypeService.getAvailableRoomTypes()
-      : this.roomTypeService.getAll();
-
-    obs.subscribe({
-      next: (res) => {
-        this.roomTypes.set(res.result);
-        this.pagination.set(res.meta);
-        this.isLoading.set(false);
-      },
-      error: () => this.isLoading.set(false)
-    });
+    if (this.showOnlyAvailable()) {
+      this.roomTypeService.getAvailableRoomTypes().subscribe({
+        next: (res) => {
+          // Map AvailableRoom to something that looks like RoomType for the list
+          const mapped: RoomType[] = res.result.map(r => ({
+            id: r.id,
+            name: `${r.roomTypeName} (Room ${r.roomNumber})`,
+            description: r.description || undefined,
+            base_price: Number(r.pricePerNight),
+            capacity: r.capacity
+          }));
+          this.roomTypes.set(mapped);
+          this.pagination.set(res.meta);
+          this.isLoading.set(false);
+        },
+        error: () => this.isLoading.set(false)
+      });
+    } else {
+      this.roomTypeService.getAll().subscribe({
+        next: (res) => {
+          this.roomTypes.set(res.result);
+          this.pagination.set(res.meta);
+          this.isLoading.set(false);
+        },
+        error: () => this.isLoading.set(false)
+      });
+    }
   }
 
   toggleAvailable() {

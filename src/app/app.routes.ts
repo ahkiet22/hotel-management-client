@@ -9,6 +9,8 @@ import { LoginComponent } from './features/login/login.component';
 import { RegisterComponent } from './features/register/register.component';
 import { ForgotPasswordComponent } from './features/forgot-password/forgot-password.component';
 import { publicGuard } from '@core/guards/public.guard';
+import { permissionGuard } from '@core/guards/permission.guard';
+import { PERMISSIONS } from '@core/constants/permissions';
 
 import { NotFoundComponent } from './features/not-found/not-found.component';
 
@@ -84,6 +86,8 @@ export const routes: Routes = [
       },
       {
         path: 'users',
+        canActivate: [permissionGuard],
+        data: { permission: PERMISSIONS.MANAGE_USERS.VIEW },
         loadComponent: () =>
           import('./features/manager/users/user-list.component').then((m) => m.UserListComponent),
       },
@@ -129,6 +133,8 @@ export const routes: Routes = [
       },
       {
         path: 'settings/logs',
+        canActivate: [permissionGuard],
+        data: { permission: PERMISSIONS.SYSTEM.LOGS },
         loadComponent: () =>
           import('./features/manager/settings/logs/system-logs.component').then(
             (m) => m.SystemLogsComponent,

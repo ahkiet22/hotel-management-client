@@ -68,7 +68,7 @@ export class DashboardComponent implements OnInit {
 
       const total = roomList.length;
       const occupied = roomList.filter((r: any) => r.status === 'Occupied').length;
-      const maintenance = roomList.filter((r: any) => r.status === 'Out_of_Order').length;
+      const maintenance = roomList.filter((r: any) => r.status === 'Out of Order').length;
       const vacant = roomList.filter((r: any) => r.status === 'Vacant').length;
       
       this.stats.set({

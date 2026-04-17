@@ -100,8 +100,11 @@
               <lucide-icon [img]="icons.Info" class="w-5 h-5 text-[#7C6A46]"></lucide-icon>
             </div>
             <div class="flex-1">
-              <label class="text-[10px] font-black uppercase tracking-widest text-[#7C6A46] mb-1 block">Property</label>
-              <p class="font-bold text-sm text-black/80 truncate">Paradise View Suite</p>
+              <label class="text-[10px] font-black uppercase tracking-widest text-[#7C6A46] mb-1 block">Room Type</label>
+              <select [(ngModel)]="selectedRoomTypeId" (ngModelChange)="selectedRoomTypeId.set($event)" class="w-full font-bold text-sm text-black/80 outline-none bg-transparent appearance-none cursor-pointer">
+                <option value="">All Types</option>
+                <option *ngFor="let type of roomTypes()" [value]="type.id">{{ type.name }}</option>
+              </select>
             </div>
           </div>
 
@@ -162,12 +165,12 @@
       </div>
 
       <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <article *ngFor="let i of [1,2,3]" class="group bg-white rounded-3xl overflow-hidden shadow-2xl transition-all duration-500 hover:-translate-y-2">
+        <article *ngFor="let room of rooms()" class="group bg-white rounded-3xl overflow-hidden shadow-2xl transition-all duration-500 hover:-translate-y-2">
           <div class="relative h-64 md:h-72 overflow-hidden">
             <img [src]="'assets/images/pic-1.jpg'" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="Room" />
             <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
             <span class="absolute top-4 right-4 bg-[#7C6A46] text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg">
-              From $250/night
+              ${{ room.pricePerNight }}/night
             </span>
           </div>
           <div class="p-8 text-left">
@@ -175,12 +178,12 @@
               <lucide-icon *ngFor="let s of [1,2,3,4,5]" [img]="icons.Star" class="w-3.5 h-3.5 fill-current"></lucide-icon>
             </div>
             <h3 class="font-heading font-bold text-xl md:text-2xl text-[#1C1C1C] mb-3 leading-tight group-hover:text-[#7C6A46] transition-colors">
-              Deluxe Ocean View Suite
+              {{ room.roomTypeName }} - Room {{ room.roomNumber }}
             </h3>
-            <p class="text-sm md:text-base text-black/50 leading-relaxed mb-6">
-              Comfortable stay with modern amenities, king-size bed, and premium room service.
+            <p class="text-sm md:text-base text-black/50 leading-relaxed mb-6 line-clamp-2">
+              {{ room.description || 'Experience comfort and luxury in our premium ' + room.roomTypeName + '. Perfect for a relaxing stay.' }}
             </p>
-            <button routerLink="/booking" class="w-full h-12 rounded-xl bg-[#FAFAFA] border border-black/5 font-bold text-[#7C6A46] hover:bg-[#7C6A46] hover:text-white transition-all">
+            <button (click)="bookRoom(room.id)" class="w-full h-12 rounded-xl bg-[#FAFAFA] border border-black/5 font-bold text-[#7C6A46] hover:bg-[#7C6A46] hover:text-white transition-all">
               Book this room
             </button>
           </div>

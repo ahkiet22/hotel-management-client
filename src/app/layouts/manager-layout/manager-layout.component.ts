@@ -2,6 +2,7 @@ import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, Router, NavigationEnd } from '@angular/router';
 import { AuthStore } from '@core/stores/auth.store';
+import { PermissionService } from '@core/services/permission.service';
 import { SIDEBAR_ITEMS, SidebarItem } from '@core/constants/sidebar';
 import {
   LucideAngularModule,
@@ -20,9 +21,10 @@ import { filter } from 'rxjs';
 })
 export class ManagerLayoutComponent {
   auth = inject(AuthStore);
+  permissionService = inject(PermissionService);
   isCollapsed = signal(false);
   toggleMap: Record<string, boolean> = {};
-  menuItems: SidebarItem[] = SIDEBAR_ITEMS;
+  menuItems: SidebarItem[] = [];
 
   icons = {
     ChevronDown,
@@ -32,6 +34,9 @@ export class ManagerLayoutComponent {
   };
 
   constructor(private router: Router) {
+    // Filter menu items based on permissions
+    this.menuItems = this.filterMenuItems(SIDEBAR_ITEMS);
+
     // Check current URL to expand active menus on load
     this.expandActiveMenus();
 
@@ -40,6 +45,20 @@ export class ManagerLayoutComponent {
     ).subscribe(() => {
       this.expandActiveMenus();
     });
+  }
+
+  private filterMenuItems(items: SidebarItem[]): SidebarItem[] {
+    return items
+      .filter(item => {
+        if (!item.permission) return true;
+        return Array.isArray(item.permission)
+          ? this.permissionService.hasAnyPermission(item.permission)
+          : this.permissionService.hasPermission(item.permission);
+      })
+      .map(item => ({
+        ...item,
+        children: item.children ? this.filterMenuItems(item.children) : undefined
+      }));
   }
 
   private expandActiveMenus() {

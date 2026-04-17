@@ -36,7 +36,7 @@ export interface RoomType {
 }
 
 // Room Interface
-export type RoomStatus = 'Vacant' | 'Reserved' | 'Occupied' | 'Out_of_Order';
+export type RoomStatus = 'Vacant' | 'Reserved' | 'Occupied' | 'Out of Order';
 
 export interface Room {
   id: string;

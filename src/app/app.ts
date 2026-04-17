@@ -17,16 +17,16 @@ export class App implements OnInit {
   ngOnInit() {
     this.authStore.initialize();
     if (this.authStore.isAuthenticated()) {
-      // this.authService.getProfile().subscribe({
-      //   next: (res) => {
-      //     if (res.success) {
-      //       this.authStore.setUser(res.data);
-      //     }
-      //   },
-      //   error: () => {
-      //     this.authStore.clearAuth();
-      //   },
-      // });
+      this.authService.getProfile().subscribe({
+        next: (res) => {
+          if (res.success) {
+            this.authStore.setUser(res.data);
+          }
+        },
+        error: () => {
+          this.authStore.clearAuth();
+        },
+      });
     }
   }
 }

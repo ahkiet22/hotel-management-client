@@ -1,4 +1,5 @@
 import { ROUTES } from './routes';
+import { PERMISSIONS, PermissionType } from './permissions';
 import {
   BarChart3,
   BedDouble,
@@ -16,7 +17,7 @@ export interface SidebarItem {
   href?: string;
   icon?: LucideIconData;
   children?: SidebarItem[];
-  roles?: string[];
+  permission?: PermissionType | PermissionType[];
 }
 
 export const SIDEBAR_ITEMS: SidebarItem[] = [
@@ -24,47 +25,55 @@ export const SIDEBAR_ITEMS: SidebarItem[] = [
     title: 'Dashboard',
     href: ROUTES.MANAGER.DASHBOARD,
     icon: LayoutDashboard,
+    permission: PERMISSIONS.DASHBOARD.VIEW,
   },
   {
     title: 'User Management',
     icon: Users,
+    permission: PERMISSIONS.MANAGE_USERS.VIEW,
     children: [
       {
         title: 'Users',
         href: ROUTES.MANAGER.USERS,
+        permission: PERMISSIONS.MANAGE_USERS.VIEW,
       },
     ],
   },
   {
     title: 'Room Management',
     icon: BedDouble,
+    permission: PERMISSIONS.MANAGE_ROOMS.VIEW,
     children: [
-      { title: 'Rooms', href: ROUTES.MANAGER.ROOMS },
-      { title: 'Room Types', href: ROUTES.MANAGER.ROOM_TYPES },
-      { title: 'Services', href: ROUTES.MANAGER.SERVICES },
+      { title: 'Rooms', href: ROUTES.MANAGER.ROOMS, permission: PERMISSIONS.MANAGE_ROOMS.VIEW },
+      { title: 'Room Types', href: ROUTES.MANAGER.ROOM_TYPES, permission: PERMISSIONS.MANAGE_ROOM_TYPES.VIEW },
+      { title: 'Services', href: ROUTES.MANAGER.SERVICES, permission: PERMISSIONS.MANAGE_SERVICES.VIEW },
     ],
   },
   {
     title: 'Booking',
     icon: CalendarCheck,
-    children: [{ title: 'Bookings', href: ROUTES.MANAGER.BOOKINGS }],
+    permission: PERMISSIONS.MANAGE_BOOKINGS.VIEW,
+    children: [{ title: 'Bookings', href: ROUTES.MANAGER.BOOKINGS, permission: PERMISSIONS.MANAGE_BOOKINGS.VIEW }],
   },
   {
     title: 'Finance',
     icon: CreditCard,
+    permission: PERMISSIONS.MANAGE_FINANCE.VIEW,
     children: [
-      { title: 'Payments', href: ROUTES.MANAGER.PAYMENTS },
-      { title: 'Receipts', href: ROUTES.MANAGER.RECEIPTS },
+      { title: 'Payments', href: ROUTES.MANAGER.PAYMENTS, permission: PERMISSIONS.MANAGE_FINANCE.VIEW },
+      { title: 'Receipts', href: ROUTES.MANAGER.RECEIPTS, permission: PERMISSIONS.MANAGE_FINANCE.VIEW },
     ],
   },
   {
     title: 'Reviews',
     icon: Star,
     href: ROUTES.MANAGER.REVIEWS,
+    permission: PERMISSIONS.MANAGE_REVIEWS.VIEW,
   },
   {
     title: 'Reports',
     icon: BarChart3,
+    permission: PERMISSIONS.REPORTS.VIEW,
     children: [
       { title: 'Booking Report', href: ROUTES.MANAGER.REPORTS.BOOKINGS },
       { title: 'Occupancy', href: ROUTES.MANAGER.REPORTS.OCCUPANCY },
@@ -76,6 +85,7 @@ export const SIDEBAR_ITEMS: SidebarItem[] = [
   {
     title: 'System',
     icon: Settings,
-    children: [{ title: 'Logs', href: ROUTES.MANAGER.SETTINGS.LOGS }],
+    permission: PERMISSIONS.SYSTEM.LOGS,
+    children: [{ title: 'Logs', href: ROUTES.MANAGER.SETTINGS.LOGS, permission: PERMISSIONS.SYSTEM.LOGS }],
   },
 ];

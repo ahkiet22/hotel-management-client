@@ -2,7 +2,7 @@ import { Component, OnInit, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { RoomService, Room } from '@core/services/room.service';
+import { RoomTypeService, AvailableRoom, RoomType } from '@core/services/room-type.service';
 import {
   LucideAngularModule,
   Calendar,
@@ -25,7 +25,7 @@ export class BookingPageComponent implements OnInit {
     private title: Title,
     private meta: Meta,
   ) {}
-  private roomService = inject(RoomService);
+  private roomTypeService = inject(RoomTypeService);
   private route = inject(ActivatedRoute);
 
   // Filters
@@ -33,9 +33,11 @@ export class BookingPageComponent implements OnInit {
   checkOut = signal<string>('');
   adults = signal<number>(1);
   children = signal<number>(0);
+  selectedRoomTypeId = signal<string>('');
+  roomTypes = signal<RoomType[]>([]);
 
   // Selection
-  rooms = signal<Room[]>([]);
+  rooms = signal<AvailableRoom[]>([]);
   selectedRoomId = signal<string | null>(null);
   isLoading = signal(true);
 
@@ -53,8 +55,8 @@ export class BookingPageComponent implements OnInit {
 
   totalPrice = computed(() => {
     const room = this.selectedRoom();
-    if (!room || !room.price) return 0;
-    return room.price * this.totalNights();
+    if (!room || !room.pricePerNight) return 0;
+    return Number(room.pricePerNight) * this.totalNights();
   });
 
   icons = {
@@ -74,36 +76,80 @@ export class BookingPageComponent implements OnInit {
       content:
         'Complete your booking at Paradise Hotel. Secure your stay with the best rooms and services.',
     });
-    // Optionally get room id from queryParams if coming from room detail
+
+    // Read query params
     this.route.queryParams.subscribe((params) => {
       if (params['roomId']) {
         this.selectedRoomId.set(params['roomId']);
       }
+      if (params['checkIn']) {
+        this.checkIn.set(params['checkIn']);
+      }
+      if (params['checkOut']) {
+        this.checkOut.set(params['checkOut']);
+      }
+      if (params['adults']) {
+        this.adults.set(Number(params['adults']));
+      }
+      if (params['children']) {
+        this.children.set(Number(params['children']));
+      }
+      if (params['typeId']) {
+        this.selectedRoomTypeId.set(params['typeId']);
+      }
+      
+      this.loadRooms();
     });
 
-    this.loadRooms();
+    this.loadRoomTypes();
 
-    // Default dates (today and tomorrow)
-    const today = new Date();
-    const tomorrow = new Date(today);
-    tomorrow.setDate(today.getDate() + 1);
-
-    this.checkIn.set(today.toISOString().split('T')[0]);
-    this.checkOut.set(tomorrow.toISOString().split('T')[0]);
+    // Default dates (today and tomorrow) if not set
+    if (!this.checkIn()) {
+      const today = new Date();
+      this.checkIn.set(today.toISOString().split('T')[0]);
+    }
+    if (!this.checkOut()) {
+      const today = new Date();
+      const tomorrow = new Date(today);
+      tomorrow.setDate(today.getDate() + 1);
+      this.checkOut.set(tomorrow.toISOString().split('T')[0]);
+    }
   }
 
   loadRooms() {
     this.isLoading.set(true);
-    this.roomService.getAll().subscribe({
-      next: (data) => {
-        this.rooms.set(data.result.filter((r) => r.status === 'Vacant'));
-        this.isLoading.set(false);
-      },
-      error: () => this.isLoading.set(false),
-    });
+    const capacity = Number(this.adults()) + Number(this.children());
+    const typeId = this.selectedRoomTypeId() || undefined;
+
+    // Format dates with time for API
+    const checkInDate = this.checkIn() ? `${this.checkIn()}T14:00:00` : undefined;
+    const checkOutDate = this.checkOut() ? `${this.checkOut()}T12:00:00` : undefined;
+
+    this.roomTypeService
+      .getAvailableRoomTypes(typeId, checkInDate, checkOutDate, capacity)
+      .subscribe({
+        next: (data) => {
+          this.rooms.set(data.result);
+          this.isLoading.set(false);
+          
+          // Reset selection if the current selected room is no longer in the list
+          if (this.selectedRoomId() && !data.result.find(r => r.id === this.selectedRoomId())) {
+            this.selectedRoomId.set(null);
+          }
+        },
+        error: () => this.isLoading.set(false),
+      });
   }
 
   onSelectRoom(id: string) {
     this.selectedRoomId.set(id);
+  }
+
+  loadRoomTypes() {
+    this.roomTypeService.getAll().subscribe({
+      next: (res) => {
+        this.roomTypes.set(res.result);
+      },
+    });
   }
 }

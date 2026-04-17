@@ -41,7 +41,7 @@ export class RoomDetailComponent implements OnInit {
 
   loadRoom(id: string) {
     this.isLoading.set(true);
-    this.roomService.getById(id).subscribe({
+    this.roomService.getPublicRoomById(id).subscribe({
       next: (data) => {
         this.room.set(data);
         this.isLoading.set(false);

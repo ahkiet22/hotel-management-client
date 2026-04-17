@@ -49,15 +49,18 @@
         </div>
       </div>
 
-      <div class="p-3 flex items-center gap-3 rounded-b-lg md:rounded-r-lg md:rounded-bl-none md:rounded-br-none border-b md:border-b-0 border-black/5">
+      <div class="p-3 flex items-center gap-3 border-b md:border-b-0 border-black/5">
         <lucide-icon [img]="icons.Info" class="w-5 h-5 text-[#7C6A46]"></lucide-icon>
         <div class="flex-1">
-          <p class="text-[10px] font-bold text-black/40 uppercase tracking-wider">Room Preference</p>
-          <p class="text-sm font-bold text-black/80">Best Available</p>
+          <p class="text-[10px] font-bold text-black/40 uppercase tracking-wider">Room Type</p>
+          <select [(ngModel)]="selectedRoomTypeId" (ngModelChange)="selectedRoomTypeId.set($event)" class="w-full font-bold text-sm text-black/80 outline-none bg-transparent appearance-none cursor-pointer">
+            <option value="">All Types</option>
+            <option *ngFor="let type of roomTypes()" [value]="type.id">{{ type.name }}</option>
+          </select>
         </div>
       </div>
 
-      <button class="bg-[#7C6A46] hover:bg-[#635538] text-white px-8 py-3 md:py-0 rounded-lg md:rounded-l-none md:rounded-r-lg text-sm font-bold transition-all shadow-lg m-1 md:m-0 uppercase tracking-widest">
+      <button (click)="loadRooms()" class="bg-[#7C6A46] hover:bg-[#635538] text-white px-8 py-3 md:py-0 rounded-lg md:rounded-l-none md:rounded-r-lg text-sm font-bold transition-all shadow-lg m-1 md:m-0 uppercase tracking-widest">
         Find Rooms
       </button>
     </div>
@@ -87,16 +90,16 @@
             <div class="absolute inset-0 bg-linear-to-t from-black/60 to-transparent"></div>
             <div class="absolute bottom-4 left-4 text-white">
               <span class="text-[10px] font-black uppercase tracking-widest opacity-80">Room No.</span>
-              <h3 class="font-black text-xl leading-none mt-1">{{ room.room_number }}</h3>
+              <h3 class="font-black text-xl leading-none mt-1">{{ room.roomNumber }}</h3>
             </div>
           </div>
 
           <div class="p-6">
             <div class="flex items-center justify-between mb-4">
               <span class="px-3 py-1 bg-slate-50 border border-slate-100 rounded-lg text-xs font-black uppercase text-slate-600">
-                {{ room.room_type_name }}
+                {{ room.roomTypeName }}
               </span>
-              <span class="text-lg font-black text-slate-900">${{ room.price }} <span class="text-[10px] text-slate-400 font-bold uppercase">/ Night</span></span>
+              <span class="text-lg font-black text-slate-900">${{ room.pricePerNight }} <span class="text-[10px] text-slate-400 font-bold uppercase">/ Night</span></span>
             </div>
 
             <ul class="space-y-2 mb-6 text-sm font-medium text-slate-500">
@@ -154,8 +157,8 @@
                    <lucide-icon [img]="icons.Briefcase" class="w-6 h-6 text-blue-400"></lucide-icon>
                  </div>
                  <div>
-                   <p class="font-black text-lg leading-none">{{ selectedRoom()?.room_type_name }}</p>
-                   <p class="text-[10px] font-bold text-blue-400 mt-1 uppercase tracking-widest">No. {{ selectedRoom()?.room_number }}</p>
+                   <p class="font-black text-lg leading-none">{{ selectedRoom()?.roomTypeName }}</p>
+                   <p class="text-[10px] font-bold text-blue-400 mt-1 uppercase tracking-widest">No. {{ selectedRoom()?.roomNumber }}</p>
                  </div>
               </div>
               <div *ngIf="!selectedRoom()" class="p-4 rounded-2xl bg-white/5 border border-dashed border-white/10 text-center">
@@ -166,7 +169,7 @@
             <!-- Calculation -->
             <div class="space-y-4 pt-2">
               <div class="flex justify-between text-sm">
-                <span class="text-slate-400 font-medium">{{ totalNights() }} Nights × ${{ selectedRoom()?.price || 0 }}</span>
+                <span class="text-slate-400 font-medium">{{ totalNights() }} Nights × ${{ selectedRoom()?.pricePerNight || 0 }}</span>
                 <span class="font-black">${{ totalPrice() }}</span>
               </div>
               <div class="flex justify-between text-sm">

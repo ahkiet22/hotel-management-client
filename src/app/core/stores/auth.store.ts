@@ -1,10 +1,12 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { StorageService } from '@core/services/storage.service';
+import { AppRole } from '@core/constants/permissions';
 
 export interface User {
   id: number;
   email: string;
   name: string;
+  role: AppRole;
 }
 
 @Injectable({

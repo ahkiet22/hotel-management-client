@@ -10,6 +10,8 @@ export interface RoomView {
   price: string;
   isAvailable: boolean;
   imageUrl: string;
+  description: string;
+  features: string[];
 }
 
 @Component({
@@ -34,35 +36,43 @@ export class RoomsPageComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.title.setTitle('Browse Luxury Rooms & Best Deals | Paradise Hotel');
+    this.title.setTitle('Luxury Rooms & Suites | Paradise Hotel Experience');
 
     this.meta.updateTag({
       name: 'description',
       content:
-        'Browse luxury rooms, suites and villas at Paradise Hotel. Find the best deals and book your stay.',
+        'Discover the epitome of luxury at Paradise Hotel. Explore our curated selection of premium rooms, executive suites, and private villas designed for ultimate comfort.',
     });
 
     this.meta.updateTag({
       name: 'keywords',
-      content: 'hotel rooms, luxury rooms, Paradise Hotel rooms',
+      content: 'luxury hotel rooms, boutique suites, paradise hotel booking, premium accommodation',
     });
-    this.roomService.getAll().subscribe({
+
+    this.roomService.getPublicRooms(1, 12).subscribe({
       next: (data) => {
-        this.rooms = data.result.map((room) => ({
+        // Handle both possible structures: { result: [...] } or straight array
+        const roomData = data.result || data;
+
+        console.log('Fetched rooms:', roomData);
+        
+        this.rooms = roomData.map((room: any) => ({
           id: room.id,
-          title: 'The Royal Room',
-          price: '₩190,000',
+          title: room.room_type_name || room.room_number || 'Luxury Room',
+          price: room.price ? new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' }).format(room.price) : '₩190,000',
           isAvailable: room.status === 'Vacant',
-          imageUrl: 'assets/images/pic-1.jpg', // Placeholder image
+          imageUrl: room.image || `https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80`,
+          description: room.description || 'Experience comfort and elegance in our meticulously designed space.',
+          features: room.room_type?.features || ['King Bed', 'Ocean View', 'Free Wi-Fi']
         }));
 
-        // For presentation purposes to match 6 cards in UI exactly:
-        if (this.rooms.length > 0 && this.rooms.length < 6) {
-          const additional = [];
-          while (this.rooms.length + additional.length < 6) {
-            additional.push({ ...this.rooms[0], id: `mock-${additional.length}` });
-          }
-          this.rooms = [...this.rooms, ...additional];
+        // Keep mock data for UI demo if needed, but only if real data is sparse
+        if (this.rooms.length > 0 && this.rooms.length < 3) {
+           const mockRooms = [
+             { id: 'm1', title: 'Executive Ocean Suite', price: '₩450,000', isAvailable: true, imageUrl: 'https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=800&q=80', description: 'Panoramic ocean views with private balcony.', features: ['King Bed', 'Balcony', 'Mini Bar'] },
+             { id: 'm2', title: 'Royal Garden Villa', price: '₩890,000', isAvailable: true, imageUrl: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80', description: 'Ultimate privacy with a private pool and garden.', features: ['Private Pool', 'Kitchen', '2 Bedrooms'] }
+           ];
+           this.rooms = [...this.rooms, ...mockRooms];
         }
       },
       error: (err) => {

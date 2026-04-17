@@ -59,8 +59,8 @@
               <!-- Booking Ref -->
               <td class="px-6 py-5">
                 <div class="flex items-center gap-3">
-                  <div class="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm flex-shrink-0">
-                    {{ booking.short_id?.substring(0, 2)?.toUpperCase() }}
+                  <div class="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm shrink-0">
+                    {{ booking.short_id.substring(0, 2).toUpperCase() }}
                   </div>
                   <div>
                     <p class="font-bold text-slate-900 text-[14.5px]">{{ booking.short_id }}</p>
@@ -73,7 +73,7 @@
               <td class="px-6 py-5">
                 <div class="space-y-1">
                   <div class="flex items-center gap-1.5 text-sm font-medium text-slate-700">
-                    <lucide-icon [img]="icons.Calendar" class="w-3.5 h-3.5 text-slate-400 flex-shrink-0"></lucide-icon>
+                    <lucide-icon [img]="icons.Calendar" class="w-3.5 h-3.5 text-slate-400 shrink-0"></lucide-icon>
                     {{ booking.check_in_date | date:'dd MMM' }} → {{ booking.check_out_date | date:'dd MMM yyyy' }}
                   </div>
                   @if (booking.actual_check_out) {
