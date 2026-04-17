@@ -1,9 +1,10 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { BookingService, Booking } from '@core/services/booking.service';
 import {
   LucideAngularModule, Search, Filter, Plus, Calendar,
-  CheckCircle, Clock, Eye, X, RefreshCw
+  CheckCircle, Clock, Eye, X, RefreshCw, QrCode, Ticket, Check, LogOut
 } from 'lucide-angular';
 import { Meta } from '@core/interfaces/api';
 import { UiConfirmComponent } from '@shared/components/ui-confirm/ui-confirm.component';
@@ -11,7 +12,7 @@ import { UiConfirmComponent } from '@shared/components/ui-confirm/ui-confirm.com
 @Component({
   selector: 'app-booking-list',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, UiConfirmComponent],
+  imports: [CommonModule, FormsModule, LucideAngularModule, UiConfirmComponent],
   templateUrl: './booking-list.component.html',
 })
 export class BookingListComponent implements OnInit {
@@ -21,11 +22,19 @@ export class BookingListComponent implements OnInit {
   pagination = signal<Meta>({ page: 1, limit: 10, totalPages: 1, totalItems: 0 });
   isLoading = signal(true);
 
-  // Confirm state for cancel booking
+  // QR & Coupon state
+  isQrModalOpen = signal(false);
+  qrImageUrl = signal<string | null>(null);
+  
+  isCouponModalOpen = signal(false);
+  couponCode = signal('');
+  activeBooking = signal<Booking | null>(null);
+  
+  // Cancel confirm state
   isConfirmOpen = signal(false);
   bookingToCancel = signal<Booking | null>(null);
 
-  icons = { Search, Filter, Plus, Calendar, CheckCircle, Clock, Eye, X, RefreshCw };
+  icons = { Search, Filter, Plus, Calendar, CheckCircle, Clock, Eye, X, RefreshCw, QrCode, Ticket, Check, LogOut };
 
   ngOnInit() {
     this.loadBookings();
@@ -75,8 +84,73 @@ export class BookingListComponent implements OnInit {
     this.bookingToCancel.set(null);
   }
 
+  /** QR Payment */
+  openQrModal(booking: Booking) {
+    this.bookingService.getPaymentQr(booking.grand_total, `Payment for ${booking.short_id}`).subscribe({
+      next: (res) => {
+        this.qrImageUrl.set(res.qrDataURL || res.qrCode || res); // Depends on exact server response
+        this.isQrModalOpen.set(true);
+      },
+      error: (err) => console.error('Error fetching QR:', err)
+    });
+  }
+
+  closeQrModal() {
+    this.isQrModalOpen.set(false);
+    this.qrImageUrl.set(null);
+  }
+
+  /** Coupon Application */
+  openCouponModal(booking: Booking) {
+    this.activeBooking.set(booking);
+    this.isCouponModalOpen.set(true);
+  }
+
+  closeCouponModal() {
+    this.isCouponModalOpen.set(false);
+    this.couponCode.set('');
+    this.activeBooking.set(null);
+  }
+
+  applyCoupon() {
+    const booking = this.activeBooking();
+    const code = this.couponCode();
+    if (!booking || !code) return;
+
+    this.bookingService.applyCoupon(booking.id, code).subscribe({
+      next: () => {
+        this.closeCouponModal();
+        this.loadBookings();
+      },
+      error: (err) => console.error('Error applying coupon:', err)
+    });
+  }
+
+  /** Status Transitions */
+  checkIn(booking: Booking) {
+    this.bookingService.update(booking.id, { status: 'Checked-in' }).subscribe({
+      next: () => this.loadBookings(),
+      error: (err) => console.error('Error checking in:', err)
+    });
+  }
+
+  checkOut(booking: Booking) {
+    this.bookingService.update(booking.id, { status: 'Checked-out' }).subscribe({
+      next: () => this.loadBookings(),
+      error: (err) => console.error('Error checking out:', err)
+    });
+  }
+
   canConfirm(booking: Booking) {
     return booking.status === 'Pending';
+  }
+
+  canCheckIn(booking: Booking) {
+    return booking.status === 'Confirmed';
+  }
+
+  canCheckOut(booking: Booking) {
+    return booking.status === 'Checked-in';
   }
 
   canCancel(booking: Booking) {

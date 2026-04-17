@@ -6,10 +6,12 @@ import { Meta } from '@core/interfaces/api';
 import { RoomTypeFormComponent } from './room-type-form.component';
 import { CreateRoomTypeDto } from '@core/interfaces/room-type.dto';
 
+import { UiConfirmComponent } from '@shared/components/ui-confirm/ui-confirm.component';
+
 @Component({
   selector: 'app-room-type-list',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, RoomTypeFormComponent],
+  imports: [CommonModule, LucideAngularModule, RoomTypeFormComponent, UiConfirmComponent],
   templateUrl: './room-type-list.component.html',
 })
 export class RoomTypeListComponent implements OnInit {
@@ -22,6 +24,10 @@ export class RoomTypeListComponent implements OnInit {
   // Form state
   isFormOpen = signal(false);
   selectedRoomType = signal<RoomType | null>(null);
+
+  // Delete confirm state
+  isConfirmOpen = signal(false);
+  itemToDelete = signal<RoomType | null>(null);
 
   icons = {
     Search,
@@ -103,12 +109,26 @@ export class RoomTypeListComponent implements OnInit {
     });
   }
 
-  onDelete(id: string) {
-    if (confirm('Are you sure you want to delete this room type?')) {
-      this.roomTypeService.delete(id).subscribe({
-        next: () => this.loadRoomTypes(),
-        error: (err) => console.error('Error deleting room type:', err)
-      });
-    }
+  openDeleteConfirm(roomType: RoomType) {
+    this.itemToDelete.set(roomType);
+    this.isConfirmOpen.set(true);
+  }
+
+  onDeleteConfirmed() {
+    const item = this.itemToDelete();
+    if (!item) return;
+    this.roomTypeService.delete(item.id).subscribe({
+      next: () => {
+        this.isConfirmOpen.set(false);
+        this.itemToDelete.set(null);
+        this.loadRoomTypes();
+      },
+      error: (err) => console.error('Error deleting room type:', err)
+    });
+  }
+
+  onDeleteCancelled() {
+    this.isConfirmOpen.set(false);
+    this.itemToDelete.set(null);
   }
 }

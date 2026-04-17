@@ -147,6 +147,31 @@ export const routes: Routes = [
             (m) => m.BookingListComponent,
           ),
       },
+      {
+        path: 'reports/bookings',
+        loadComponent: () =>
+          import('./features/manager/reports/reports.component').then((m) => m.ReportsComponent),
+      },
+      {
+        path: 'reports/occupancy',
+        loadComponent: () =>
+          import('./features/manager/reports/reports.component').then((m) => m.ReportsComponent),
+      },
+      {
+        path: 'reports/revenue',
+        loadComponent: () =>
+          import('./features/manager/reports/reports.component').then((m) => m.ReportsComponent),
+      },
+      {
+        path: 'reports/customers',
+        loadComponent: () =>
+          import('./features/manager/reports/reports.component').then((m) => m.ReportsComponent),
+      },
+      {
+        path: 'reports/reviews',
+        loadComponent: () =>
+          import('./features/manager/reports/reports.component').then((m) => m.ReportsComponent),
+      },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: '**', component: NotFoundComponent },
     ],

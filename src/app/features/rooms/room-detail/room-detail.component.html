@@ -58,7 +58,7 @@
       </div>
 
       <h1 class="text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-none mb-4">
-        {{ room()?.room_type_name }} Suite <span class="text-blue-600">No. {{ room()?.room_number }}</span>
+        {{ room()?.room_type?.name }} Suite <span class="text-blue-600">No. {{ room()?.room_number }}</span>
       </h1>
       <p class="text-slate-500 font-medium leading-relaxed mb-8">
         Experience unparalleled luxury with breathtaking city views, custom-designed furniture, and state-of-the-art technology integration for a seamless stay.
@@ -91,7 +91,7 @@
         <div class="flex items-end justify-between mb-8">
           <div>
             <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Starting from</p>
-            <h2 class="text-4xl font-black">${{ room()?.price }} <span class="text-lg font-bold text-slate-500">/ night</span></h2>
+            <h2 class="text-4xl font-black">${{ room()?.room_type?.base_price }} <span class="text-lg font-bold text-slate-500">/ night</span></h2>
           </div>
           <div class="bg-blue-600 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest">
             Best Price

@@ -1,17 +1,10 @@
 import { Injectable } from '@angular/core';
 import { BaseService } from './base.service';
-
-export interface User {
-  id: string;
-  role_id?: string;
-  full_name?: string;
-  email?: string;
-  phone?: string;
-  address?: string;
-  status?: string;
-  created_at?: string;
-  updated_at?: string;
-}
+import { Observable } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
+import { ApiResponse } from '@core/interfaces/api';
+import { User } from '../interfaces';
+export type { User };
 
 @Injectable({
   providedIn: 'root',
@@ -19,14 +12,21 @@ export interface User {
 export class UserService extends BaseService<User> {
   protected override readonly endpoint = 'api/v1/users';
 
-  // Specific user methods can be added here
-  // For example, if there's a search endpoint
-  // search(query: string): Observable<User[]> {
-  //   return this.getAll({ q: query });
-  // }
+  /**
+   * Public registration
+   */
+  register(data: any): Observable<User> {
+    return this.http
+      .post<ApiResponse<User>>(`${this.fullUrl}/register`, data)
+      .pipe(map((res) => res.data), catchError(this.handleError));
+  }
 
-  // // If we need to update status specifically
-  // updateStatus(id: string | number, status: string): Observable<User> {
-  //   return this.update(id, { status } as any);
-  // }
+  /**
+   * Change current user password
+   */
+  changePassword(data: any): Observable<any> {
+    return this.http
+      .patch<ApiResponse<any>>(`${this.fullUrl}/change-password`, data)
+      .pipe(map((res) => res.data), catchError(this.handleError));
+  }
 }

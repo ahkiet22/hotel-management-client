@@ -1,15 +1,17 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RoomService, Room } from '@core/services/room.service';
+import { RoomService } from '@core/services/room.service';
 import { LucideAngularModule, Search, Filter, MoreHorizontal, Plus, Home, Edit, Trash2 } from 'lucide-angular';
 import { Meta } from '@core/interfaces/api';
 import { CreateRoomDto } from '@core/interfaces/room.dto';
 import { RoomFormComponent } from './room-form.component';
+import { UiConfirmComponent } from '@shared/components/ui-confirm/ui-confirm.component';
+import { Room } from '@core/interfaces';
 
 @Component({
   selector: 'app-room-list',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, RoomFormComponent],
+  imports: [CommonModule, LucideAngularModule, RoomFormComponent, UiConfirmComponent],
   templateUrl: './room-list.component.html',
 })
 export class RoomListComponent implements OnInit {
@@ -21,6 +23,10 @@ export class RoomListComponent implements OnInit {
   // Form state
   isFormOpen = signal(false);
   selectedRoom = signal<Room | null>(null);
+
+  // Delete confirm state
+  isConfirmOpen = signal(false);
+  roomToDelete = signal<Room | null>(null);
 
   icons = {
     Search,
@@ -77,13 +83,27 @@ export class RoomListComponent implements OnInit {
     });
   }
 
-  onDelete(id: string) {
-    if (confirm('Are you sure you want to delete this room?')) {
-      this.roomService.delete(id).subscribe({
-        next: () => this.loadRooms(),
-        error: (err) => console.error('Error deleting room:', err)
-      });
-    }
+  openDeleteConfirm(room: Room) {
+    this.roomToDelete.set(room);
+    this.isConfirmOpen.set(true);
+  }
+
+  onDeleteConfirmed() {
+    const room = this.roomToDelete();
+    if (!room) return;
+    this.roomService.delete(room.id).subscribe({
+      next: () => {
+        this.isConfirmOpen.set(false);
+        this.roomToDelete.set(null);
+        this.loadRooms();
+      },
+      error: (err) => console.error('Error deleting room:', err)
+    });
+  }
+
+  onDeleteCancelled() {
+    this.isConfirmOpen.set(false);
+    this.roomToDelete.set(null);
   }
 
   getStatusClass(status?: string) {

@@ -5,10 +5,10 @@ import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmLabel } from '@spartan-ng/helm/label';
 import { HlmCheckbox } from '@spartan-ng/helm/checkbox';
-import { Room } from '@core/services/room.service';
 import { RoomTypeService, RoomType } from '@core/services/room-type.service';
 import { CreateRoomDto } from '@core/interfaces/room.dto';
 import { UiModalComponent } from '@shared/components/ui-modal/ui-modal.component';
+import { Room } from '@core/interfaces';
 
 @Component({
   selector: 'app-room-form',

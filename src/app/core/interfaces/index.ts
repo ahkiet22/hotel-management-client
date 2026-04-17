@@ -63,6 +63,9 @@ export interface Booking {
   total_service_price: number;
   grand_total: number;
   status: BookingStatus;
+  discount?: number;
+  coupon_code?: string;
+  notes?: string;
   created_at: string;
   updated_at: string;
   customer?: User;
@@ -90,6 +93,8 @@ export interface Service {
   description?: string;
   price: number;
   status: ServiceStatus;
+  created_at?: string;
+  updated_at?: string;
 }
 
 // Booking Service Interface (Join Table)

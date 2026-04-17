@@ -3,25 +3,15 @@ import { BaseService } from './base.service';
 import { Observable } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { ApiResponse } from '@core/interfaces/api';
+import { Booking } from '../interfaces';
+export type { Booking };
 
-export interface Booking {
+export interface Coupon {
   id: string;
-  short_id: string;
-  customer_id: string;
-  staff_id?: string;
-  check_in_date: string;
-  check_out_date: string;
-  actual_check_in?: string | null;
-  actual_check_out?: string | null;
-  total_room_price: number;
-  total_service_price: number;
-  grand_total: number;
-  status: 'Pending' | 'Confirmed' | 'Checked-in' | 'Checked-out' | 'Cancelled';
-  coupon_code?: string;
-  discount?: number;
-  notes?: string;
-  created_at?: string;
-  updated_at?: string;
+  code: string;
+  discountType: 'percentage' | 'fixed';
+  discountValue: number;
+  expiredAt?: string;
 }
 
 @Injectable({
@@ -41,6 +31,55 @@ export class BookingService extends BaseService<Booking> {
   findByCustomerId(customerId: string): Observable<Booking[]> {
     return this.http
       .get<ApiResponse<Booking[]>>(`${this.fullUrl}/customer/${customerId}`)
+      .pipe(map((res) => res.data), catchError(this.handleError));
+  }
+
+  /** GET /bookings/qr */
+  getPaymentQr(amount: number, description: string): Observable<any> {
+    return this.http
+      .get<ApiResponse<any>>(`${this.fullUrl}/qr`, {
+        params: { amount: amount.toString(), description },
+      })
+      .pipe(map((res) => res.data), catchError(this.handleError));
+  }
+
+  /** POST /bookings/by-customer */
+  createByCustomer(data: any): Observable<Booking> {
+    return this.http
+      .post<ApiResponse<Booking>>(`${this.fullUrl}/by-customer`, data)
+      .pipe(map((res) => res.data), catchError(this.handleError));
+  }
+
+  /** POST /bookings/served */
+  createServed(data: any): Observable<Booking> {
+    return this.http
+      .post<ApiResponse<Booking>>(`${this.fullUrl}/served`, data)
+      .pipe(map((res) => res.data), catchError(this.handleError));
+  }
+
+  /** Coupon Management */
+
+  createCoupon(data: any): Observable<Coupon> {
+    return this.http
+      .post<ApiResponse<Coupon>>(`${this.fullUrl}/coupon`, data)
+      .pipe(map((res) => res.data), catchError(this.handleError));
+  }
+
+  findAllCoupons(): Observable<Coupon[]> {
+    return this.http
+      .get<ApiResponse<Coupon[]>>(`${this.fullUrl}/coupons`)
+      .pipe(map((res) => res.data), catchError(this.handleError));
+  }
+
+  applyCoupon(bookingId: string, couponCode: string): Observable<Booking> {
+    return this.http
+      .post<ApiResponse<Booking>>(`${this.fullUrl}/coupon/use`, { bookingId, couponCode })
+      .pipe(map((res) => res.data), catchError(this.handleError));
+  }
+
+  deleteCoupon(id: string): Observable<any> {
+    return this.http
+      .delete<ApiResponse<any>>(`${this.fullUrl}/coupon/${id}`)
       .pipe(map((res) => res.data), catchError(this.handleError));
   }
 }

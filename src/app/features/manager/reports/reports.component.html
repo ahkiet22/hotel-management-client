@@ -1,0 +1,226 @@
+<div class="p-6 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
+  <!-- Header & Filters -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Analytics & Reports</h1>
+      <p class="text-slate-500 mt-1">Monitor your hotel performance and growth.</p>
+    </div>
+    
+    <div class="flex flex-wrap items-center gap-3 bg-white p-2 rounded-xl shadow-sm border border-slate-100">
+      <div class="flex items-center gap-2 px-3 py-1.5 border-r border-slate-100">
+        <lucide-icon [img]="icons.Calendar" class="w-4 h-4 text-slate-400"></lucide-icon>
+        <input type="date" [(ngModel)]="query().startDate" class="text-sm font-medium border-none focus:ring-0 p-0 w-32 bg-transparent">
+        <span class="text-slate-300">→</span>
+        <input type="date" [(ngModel)]="query().endDate" class="text-sm font-medium border-none focus:ring-0 p-0 w-32 bg-transparent">
+      </div>
+      
+      <select [(ngModel)]="query().type" class="text-sm font-medium border-none focus:ring-0 bg-transparent cursor-pointer hover:text-blue-600 transition-colors">
+        <option *ngFor="let type of reportTypes" [value]="type">{{ type | titlecase }}</option>
+      </select>
+
+      <button (click)="onFilter()" class="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-slate-800 transition-all active:scale-95 disabled:opacity-50" [disabled]="loading()">
+        <lucide-icon [img]="icons.Filter" class="w-4 h-4"></lucide-icon>
+        Apply
+      </button>
+
+      <button (click)="exportReport()" class="flex items-center gap-2 border border-slate-200 text-slate-700 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-slate-50 transition-all active:scale-95 disabled:opacity-50" [disabled]="exporting()">
+        <lucide-icon [img]="icons.Download" class="w-4 h-4"></lucide-icon>
+        Export
+      </button>
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <!-- Revenue -->
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow group">
+      <div class="flex items-center justify-between mb-4">
+        <div class="p-3 bg-blue-50 text-blue-600 rounded-xl group-hover:scale-110 transition-transform">
+          <lucide-icon [img]="icons.TrendingUp" class="w-6 h-6"></lucide-icon>
+        </div>
+        <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">+12.5%</span>
+      </div>
+      <h3 class="text-slate-500 text-sm font-medium">Total Revenue</h3>
+      <p class="text-2xl font-bold text-slate-900 mt-1">
+        {{ formatCurrency(summary()?.revenue?.totalRevenue) }}
+      </p>
+    </div>
+
+    <!-- Bookings -->
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow group">
+      <div class="flex items-center justify-between mb-4">
+        <div class="p-3 bg-indigo-50 text-indigo-600 rounded-xl group-hover:scale-110 transition-transform">
+          <lucide-icon [img]="icons.BarChart3" class="w-6 h-6"></lucide-icon>
+        </div>
+        <span class="text-xs font-bold text-slate-500 bg-slate-50 px-2 py-1 rounded-full">Bookings</span>
+      </div>
+      <h3 class="text-slate-500 text-sm font-medium">Total Bookings</h3>
+      <p class="text-2xl font-bold text-slate-900 mt-1">
+        {{ summary()?.rooms?.totalBookings || 0 }}
+      </p>
+    </div>
+
+    <!-- Active Customers -->
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow group">
+      <div class="flex items-center justify-between mb-4">
+        <div class="p-3 bg-purple-50 text-purple-600 rounded-xl group-hover:scale-110 transition-transform">
+          <lucide-icon [img]="icons.Users" class="w-6 h-6"></lucide-icon>
+        </div>
+        <span class="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded-full">Active</span>
+      </div>
+      <h3 class="text-slate-500 text-sm font-medium">Active Customers</h3>
+      <p class="text-2xl font-bold text-slate-900 mt-1">
+        {{ summary()?.customers?.active || 0 }}
+      </p>
+    </div>
+
+    <!-- New Customers -->
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow group">
+      <div class="flex items-center justify-between mb-4">
+        <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl group-hover:scale-110 transition-transform">
+          <lucide-icon [img]="icons.Users" class="w-6 h-6"></lucide-icon>
+        </div>
+        <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">New</span>
+      </div>
+      <h3 class="text-slate-500 text-sm font-medium">New Registrations</h3>
+      <p class="text-2xl font-bold text-slate-900 mt-1">
+        {{ summary()?.customers?.new || 0 }}
+      </p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- Revenue Timeline -->
+    <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
+      <div class="flex items-center justify-between mb-8">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900">Revenue Analysis</h2>
+          <p class="text-slate-500 text-sm">Revenue breakdown by period</p>
+        </div>
+      </div>
+      
+      <div class="space-y-6">
+        <div *ngFor="let item of revenueStats()?.timeline" class="relative">
+          <div class="flex justify-between text-sm font-medium mb-1">
+            <span class="text-slate-700 font-bold">{{ item.period }}</span>
+            <span class="text-slate-900 font-bold font-mono tracking-tight">{{ formatCurrency(item.totalRevenue) }}</span>
+          </div>
+          <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden flex">
+            <div [style.width.%]="getPercentage(item.roomRevenue, item.totalRevenue)" class="bg-blue-500 h-full hover:brightness-110 transition-all" [title]="'Rooms: ' + formatCurrency(item.roomRevenue)"></div>
+            <div [style.width.%]="getPercentage(item.serviceRevenue, item.totalRevenue)" class="bg-amber-400 h-full hover:brightness-110 transition-all" [title]="'Services: ' + formatCurrency(item.serviceRevenue)"></div>
+          </div>
+          <div class="flex gap-4 mt-2 text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+             <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span> Rooms</span>
+             <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span> Services</span>
+          </div>
+        </div>
+        
+        <div *ngIf="!revenueStats()?.timeline?.length" class="text-center py-12 text-slate-400 flex flex-col items-center gap-2">
+          <lucide-icon [img]="icons.BarChart3" class="w-12 h-12 opacity-10"></lucide-icon>
+          <span class="font-medium">No revenue data available for this range.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Room Distribution -->
+    <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
+      <div class="flex items-center justify-between mb-8">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900">Room Type Popularity</h2>
+          <p class="text-slate-500 text-sm">Most booked room categories</p>
+        </div>
+        <lucide-icon [img]="icons.BedDouble" class="w-6 h-6 text-slate-300"></lucide-icon>
+      </div>
+      
+      <div class="space-y-6">
+        <div *ngFor="let stat of roomStats()?.byRoomType" class="flex items-center justify-between group">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center font-bold text-slate-500 border border-slate-100 group-hover:bg-slate-900 group-hover:text-white transition-all duration-300">
+              {{ stat.roomTypeName[0] }}
+            </div>
+            <div>
+              <p class="font-bold text-slate-900">{{ stat.roomTypeName }}</p>
+              <p class="text-xs text-slate-500">{{ stat.totalBooked }} bookings in this period</p>
+            </div>
+          </div>
+          <div class="text-right">
+             <span class="text-sm font-black text-slate-900">{{ stat.totalBooked }}</span>
+             <div class="w-32 bg-slate-50 h-2 rounded-full mt-2 overflow-hidden border border-slate-100">
+                <div class="bg-slate-900 h-full rounded-full transition-all duration-700" [style.width.%]="getPercentage(stat.totalBooked, summary()?.rooms?.totalBookings)"></div>
+             </div>
+          </div>
+        </div>
+        
+        <div *ngIf="!roomStats()?.byRoomType?.length" class="text-center py-12 text-slate-400 flex flex-col items-center gap-2">
+          <lucide-icon [img]="icons.BedDouble" class="w-12 h-12 opacity-10"></lucide-icon>
+          <span class="font-medium">No room stats found.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top Customers -->
+  <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+    <div class="p-8 border-b border-slate-100 flex items-center justify-between">
+      <div>
+        <h2 class="text-xl font-bold text-slate-900">Valuable Customers</h2>
+        <p class="text-slate-500 text-sm mt-1">Customers with highest spending and booking frequency.</p>
+      </div>
+      <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
+        <lucide-icon [name]="icons.Users" class="w-6 h-6"></lucide-icon>
+      </div>
+    </div>
+    
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead>
+          <tr class="bg-slate-50/50">
+            <th class="px-8 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Customer Info</th>
+            <th class="px-8 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Frequency</th>
+            <th class="px-8 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Total Contribution</th>
+            <th class="px-8 py-4 text-right text-xs font-bold text-slate-400 uppercase tracking-wider">Badge</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <tr *ngFor="let customer of customerStats()?.topCustomers" class="hover:bg-slate-50/30 transition-colors group">
+            <td class="px-8 py-5 whitespace-nowrap">
+              <div class="flex items-center gap-4">
+                <div class="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center text-white font-bold text-sm">
+                  {{ customer.name[0] }}
+                </div>
+                <div>
+                  <div class="text-sm font-bold text-slate-900">{{ customer.name }}</div>
+                  <div class="text-xs text-slate-500 tabular-nums">{{ customer.email }}</div>
+                </div>
+              </div>
+            </td>
+            <td class="px-8 py-5 whitespace-nowrap">
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-1 rounded-md bg-indigo-50 text-indigo-700 text-[10px] font-black uppercase">
+                  {{ customer.totalBookings }} Bookings
+                </span>
+              </div>
+            </td>
+            <td class="px-8 py-5 whitespace-nowrap">
+              <span class="text-sm font-black text-slate-900 font-mono tracking-tight">{{ formatCurrency(customer.totalSpent) }}</span>
+            </td>
+            <td class="px-8 py-5 whitespace-nowrap text-right">
+              <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-black uppercase tracking-widest border border-emerald-200">
+                VIP ELITE
+              </span>
+            </td>
+          </tr>
+          
+          <tr *ngIf="!customerStats()?.topCustomers?.length">
+            <td colspan="4" class="px-8 py-16 text-center text-slate-400">
+               <div class="flex flex-col items-center gap-3">
+                 <lucide-icon [name]="icons.Users" class="w-12 h-12 opacity-10"></lucide-icon>
+                 <span class="font-medium">No customer insights available for this period.</span>
+               </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

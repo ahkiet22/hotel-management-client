@@ -122,34 +122,31 @@
                 >
                   <lucide-icon [img]="icons.Edit" class="w-4 h-4"></lucide-icon>
                 </button>
-                <button
-                  (click)="onDelete(room.id)"
-                  class="p-2 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-600 transition-colors"
-                  title="Delete"
-                >
-                  <lucide-icon [img]="icons.Trash2" class="w-4 h-4"></lucide-icon>
-                </button>
-              </div>
-            </td>
-          </tr>
+                  <button
+                    (click)="openDeleteConfirm(room)"
+                    class="p-2 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-600 transition-colors"
+                    title="Delete"
+                  >
+                    <lucide-icon [img]="icons.Trash2" class="w-4 h-4"></lucide-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
         </tbody>
       </table>
     </div>
 
-    <div
-      *ngIf="!isLoading() && rooms().length === 0"
-      class="py-20 flex flex-col items-center justify-center text-center"
-    >
-      <div
-        class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-4 border-2 border-dashed border-slate-200"
-      >
-        <lucide-icon [img]="icons.Search" class="w-8 h-8 text-slate-300"></lucide-icon>
+    @if (!isLoading() && rooms().length === 0) {
+      <div class="py-20 flex flex-col items-center justify-center text-center">
+        <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-4 border-2 border-dashed border-slate-200">
+          <lucide-icon [img]="icons.Search" class="w-8 h-8 text-slate-300"></lucide-icon>
+        </div>
+        <h3 class="text-lg font-bold text-slate-800 tracking-tight">No Rooms found</h3>
+        <p class="text-slate-500 max-w-xs mx-auto text-sm mt-3 leading-relaxed font-medium">
+          We couldn't find any rooms matching your criteria.
+        </p>
       </div>
-      <h3 class="text-lg font-bold text-slate-800 tracking-tight">No Rooms found</h3>
-      <p class="text-slate-500 max-w-xs mx-auto text-sm mt-3 leading-relaxed font-medium">
-        We couldn't find any rooms matching your criteria.
-      </p>
-    </div>
+    }
   </div>
 </section>
 
@@ -160,3 +157,14 @@
   (close)="closeForm()"
   (save)="onSave($event)"
 ></app-room-form>
+
+<!-- Delete Confirm Dialog -->
+<app-ui-confirm
+  [isOpen]="isConfirmOpen()"
+  title="Delete Room"
+  [message]="'Are you sure you want to delete room &quot;' + (roomToDelete()?.room_number ?? '') + '&quot;? This action cannot be undone and may affect active bookings.'"
+  confirmText="Delete Room"
+  variant="danger"
+  (confirmed)="onDeleteConfirmed()"
+  (cancelled)="onDeleteCancelled()"
+></app-ui-confirm>
