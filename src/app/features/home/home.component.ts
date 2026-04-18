@@ -3,7 +3,7 @@ import { Component, OnInit, signal, inject } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { RoomTypeService, RoomType, AvailableRoom } from '@core/services/room-type.service';
+import { RoomTypeService, AvailableRoom } from '@core/services/room-type.service';
 import {
   LucideAngularModule,
   Play,
@@ -25,6 +25,7 @@ import {
   Car,
   Info,
 } from 'lucide-angular';
+import { RoomType } from '@core/interfaces';
 
 @Component({
   selector: 'app-home-page',

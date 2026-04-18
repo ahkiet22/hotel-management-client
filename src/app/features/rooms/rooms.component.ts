@@ -58,12 +58,12 @@ export class RoomsPageComponent implements OnInit {
         
         this.rooms = roomData.map((room: any) => ({
           id: room.id,
-          title: room.room_type_name || room.room_number || 'Luxury Room',
-          price: room.price ? new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' }).format(room.price) : '₩190,000',
+          title: room.roomTypeName || room.roomNumber || 'Luxury Room',
+          price: room.basePrice ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(room.basePrice) : '₩190,000',
           isAvailable: room.status === 'Vacant',
-          imageUrl: room.image || `https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80`,
+          imageUrl: (room.images && room.images.length > 0) ? room.images[0] : (room.image || `https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80`),
           description: room.description || 'Experience comfort and elegance in our meticulously designed space.',
-          features: room.room_type?.features || ['King Bed', 'Ocean View', 'Free Wi-Fi']
+          features: room.roomType?.features || ['King Bed', 'Ocean View', 'Free Wi-Fi']
         }));
 
         // Keep mock data for UI demo if needed, but only if real data is sparse

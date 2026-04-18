@@ -14,6 +14,24 @@ export interface Coupon {
   expiredAt?: string;
 }
 
+export interface CreateBookingDto {
+  customerId: string;
+  staffId?: string;
+  checkIn: string;
+  checkOut: string;
+  roomTypeId: string;
+  roomIds: string[];
+  services?: { serviceId: string; quantity: number }[];
+  discount?: number;
+}
+
+export interface CreateCouponDto {
+  code: string;
+  discountType: 'percentage' | 'fixed';
+  discountValue: number;
+  expiredAt?: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -44,14 +62,14 @@ export class BookingService extends BaseService<Booking> {
   }
 
   /** POST /bookings/by-customer */
-  createByCustomer(data: any): Observable<Booking> {
+  createByCustomer(data: CreateBookingDto): Observable<Booking> {
     return this.http
       .post<ApiResponse<Booking>>(`${this.fullUrl}/by-customer`, data)
       .pipe(map((res) => res.data), catchError(this.handleError));
   }
 
   /** POST /bookings/served */
-  createServed(data: any): Observable<Booking> {
+  createServed(data: CreateBookingDto): Observable<Booking> {
     return this.http
       .post<ApiResponse<Booking>>(`${this.fullUrl}/served`, data)
       .pipe(map((res) => res.data), catchError(this.handleError));
@@ -59,7 +77,7 @@ export class BookingService extends BaseService<Booking> {
 
   /** Coupon Management */
 
-  createCoupon(data: any): Observable<Coupon> {
+  createCoupon(data: CreateCouponDto): Observable<Coupon> {
     return this.http
       .post<ApiResponse<Coupon>>(`${this.fullUrl}/coupon`, data)
       .pipe(map((res) => res.data), catchError(this.handleError));

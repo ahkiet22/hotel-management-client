@@ -55,18 +55,18 @@
             <tr class="hover:bg-slate-50/60 transition-colors group">
               <td class="px-6 py-5">
                 <div class="flex items-center gap-3">
-                  <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-bold border-2 border-white shadow-sm flex-shrink-0">
-                    <span class="text-sm">{{ user.full_name?.substring(0, 1)?.toUpperCase() }}</span>
+                  <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-bold border-2 border-white shadow-sm shrink-0">
+                    <span class="text-sm">{{ user?.fullName?.substring(0, 1)?.toUpperCase() }}</span>
                   </div>
                   <div>
-                    <p class="font-bold text-slate-900 text-[14.5px] leading-tight">{{ user.full_name }}</p>
+                    <p class="font-bold text-slate-900 text-[14.5px] leading-tight">{{ user.fullName }}</p>
                     <p class="text-[12.5px] font-medium text-slate-500 mt-0.5">{{ user.email }}</p>
                   </div>
                 </div>
               </td>
               <td class="px-6 py-5">
                 <span class="text-sm font-bold text-slate-600 bg-slate-50 px-3 py-1 rounded-lg border border-slate-100">
-                  {{ user.role_id || 'User' }}
+                  <!-- {{ user?.role_name || user.role_id || 'User' }} -->
                 </span>
               </td>
               <td class="px-6 py-5">
@@ -82,7 +82,7 @@
               </td>
               <td class="px-6 py-5">
                 <span class="text-sm font-medium text-slate-500 italic">
-                  {{ user.created_at | date: 'mediumDate' }}
+                  {{ user.createdAt| date: 'mediumDate' }}
                 </span>
               </td>
               <td class="px-6 py-5 text-right">
@@ -141,7 +141,7 @@
 <app-ui-confirm
   [isOpen]="isConfirmOpen()"
   title="Delete Account"
-  [message]="'Are you sure you want to delete &quot;' + (userToDelete()?.full_name ?? '') + '&quot;? This action cannot be undone.'"
+  [message]="'Are you sure you want to delete &quot;' + (userToDelete()?.fullName ?? '') + '&quot;? This action cannot be undone.'"
   confirmText="Delete"
   (confirmed)="onDeleteConfirmed()"
   (cancelled)="onDeleteCancelled()"

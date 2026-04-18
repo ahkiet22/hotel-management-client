@@ -65,24 +65,24 @@ import { BookingService, Booking } from '@core/services/booking.service';
             <!-- Details -->
             <div class="flex-1 space-y-1 min-w-0">
               <div class="flex items-center gap-2 mb-1">
-                <span class="text-xs font-bold text-blue-600 px-2 py-0.5 bg-blue-50 rounded-md">ID: {{booking.short_id}}</span>
+                <span class="text-xs font-bold text-blue-600 px-2 py-0.5 bg-blue-50 rounded-md">ID: {{booking.shortId}}</span>
                 <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md" [ngClass]="getStatusBadgeStyles(booking.status)">
                   {{booking.status}}
                 </span>
               </div>
               <h4 class="font-bold text-slate-900 truncate flex items-center gap-2">
-                Booking from {{booking.check_in_date | date:'mediumDate'}}
+                Booking from {{booking.checkIn | date:'mediumDate'}}
                 <lucide-icon [name]="ArrowRightIcon" class="w-3.5 h-3.5 text-slate-300"></lucide-icon>
-                {{booking.check_out_date | date:'mediumDate'}}
+                {{booking.checkOut | date:'mediumDate'}}
               </h4>
               <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
                 <span class="flex items-center gap-1.5 font-medium">
                   <lucide-icon [name]="CalendarIcon" class="w-3.5 h-3.5"></lucide-icon>
-                  Created on {{booking.created_at | date:'medium'}}
+                  Created on {{booking.createdAt | date:'medium'}}
                 </span>
                 <span class="flex items-center gap-1.5 font-bold text-slate-700">
                   <lucide-icon [name]="CreditCardIcon" class="w-3.5 h-3.5 text-blue-500"></lucide-icon>
-                  {{booking.grand_total | currency}}
+                  {{booking.grandTotal | currency}}
                 </span>
               </div>
             </div>
@@ -128,7 +128,7 @@ export class HistoryBookingComponent implements OnInit {
 
   applyFilters() {
     this.filteredBookings = this.bookings.filter(b => {
-      const matchesSearch = b.short_id.toLowerCase().includes(this.searchQuery.toLowerCase());
+      const matchesSearch = b.shortId.toLowerCase().includes(this.searchQuery.toLowerCase());
       const matchesStatus = this.statusFilter === 'All' || b.status === this.statusFilter;
       return matchesSearch && matchesStatus;
     });

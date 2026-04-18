@@ -3,10 +3,11 @@ import { StorageService } from '@core/services/storage.service';
 import { AppRole } from '@core/constants/permissions';
 
 export interface User {
-  id: number;
+  id: string;
   email: string;
-  name: string;
-  role: AppRole;
+  fullName: string;
+  roleName: string;
+  role_id: string;
 }
 
 @Injectable({

@@ -1,12 +1,13 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RoomTypeService, RoomType } from '@core/services/room-type.service';
+import { RoomTypeService } from '@core/services/room-type.service';
 import { LucideAngularModule, Search, Filter, MoreHorizontal, Plus, Layout, Edit, Trash2 } from 'lucide-angular';
 import { Meta } from '@core/interfaces/api';
 import { RoomTypeFormComponent } from './room-type-form.component';
 import { CreateRoomTypeDto } from '@core/interfaces/room-type.dto';
 
 import { UiConfirmComponent } from '@shared/components/ui-confirm/ui-confirm.component';
+import { RoomType } from '@core/interfaces';
 
 @Component({
   selector: 'app-room-type-list',
@@ -54,8 +55,9 @@ export class RoomTypeListComponent implements OnInit {
             id: r.id,
             name: `${r.roomTypeName} (Room ${r.roomNumber})`,
             description: r.description || undefined,
-            base_price: Number(r.pricePerNight),
+            basePrice: Number(r.pricePerNight),
             capacity: r.capacity
+
           }));
           this.roomTypes.set(mapped);
           this.pagination.set(res.meta);

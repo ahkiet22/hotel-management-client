@@ -2,16 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, catchError, map } from 'rxjs';
 import { BaseService } from './base.service';
 import { ApiResponse, ListResponse } from '@core/interfaces/api';
-
-export interface RoomType {
-  id: string;
-  name: string;
-  description?: string;
-  base_price: number;
-  capacity: number;
-  created_at?: string;
-  updated_at?: string;
-}
+import { RoomType } from '../interfaces';
 
 export interface AvailableRoom {
   id: string;

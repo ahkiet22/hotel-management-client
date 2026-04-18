@@ -15,8 +15,8 @@ export class PermissionService {
     const user = this.authStore.user();
     if (!user) return false;
 
-    const role = user.role;
-    const permissions = ROLE_PERMISSIONS[role];
+    const role = user.roleName;
+    const permissions = ROLE_PERMISSIONS[role as keyof typeof ROLE_PERMISSIONS] || [];
 
     // Admin has everything
     if (permissions.includes(PERMISSIONS.ADMIN)) return true;

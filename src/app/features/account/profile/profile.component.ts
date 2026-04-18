@@ -1,27 +1,43 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {
+  FormsModule,
+  ReactiveFormsModule,
+  FormBuilder,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
 import { LucideAngularModule, User, Mail, Phone, MapPin, Camera, Save } from 'lucide-angular';
 import { UserService, User as UserType } from '@core/services/user.service';
+import { AuthStore } from '@core/stores/auth.store';
+import { inject } from '@angular/core';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, LucideAngularModule],
   template: `
-    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div
+      class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500"
+    >
       <!-- Profile Header -->
       <div class="relative h-32 bg-linear-to-r from-blue-600 to-indigo-700">
         <div class="absolute -bottom-16 left-8">
           <div class="relative group">
-            <div class="w-32 h-32 rounded-3xl bg-white p-1 shadow-lg ring-4 ring-white/50 overflow-hidden">
+            <div
+              class="w-32 h-32 rounded-3xl bg-white p-1 shadow-lg ring-4 ring-white/50 overflow-hidden"
+            >
               <img
-                src="https://ui-avatars.com/api/?name={{userForm.value.full_name}}&background=0D8ABC&color=fff&size=128"
+                src="https://ui-avatars.com/api/?name={{
+                  userForm.value.fullName
+                }}&background=0D8ABC&color=fff&size=128"
                 class="w-full h-full object-cover rounded-4xl"
                 alt="Profile photo"
               />
             </div>
-            <button class="absolute bottom-2 right-2 p-2 bg-blue-600 text-white rounded-xl shadow-lg border-2 border-white hover:bg-blue-700 transition-all opacity-0 group-hover:opacity-100 cursor-pointer">
+            <button
+              class="absolute bottom-2 right-2 p-2 bg-blue-600 text-white rounded-xl shadow-lg border-2 border-white hover:bg-blue-700 transition-all opacity-0 group-hover:opacity-100 cursor-pointer"
+            >
               <lucide-icon [img]="CameraIcon" class="w-4 h-4"></lucide-icon>
             </button>
           </div>
@@ -32,11 +48,13 @@ import { UserService, User as UserType } from '@core/services/user.service';
       <div class="pt-20 px-8 pb-10">
         <div class="flex justify-between items-start mb-10">
           <div>
-            <h2 class="text-2xl font-bold text-slate-900">{{user?.full_name}}</h2>
+            <h2 class="text-2xl font-bold text-slate-900">{{ user?.fullName }}</h2>
             <p class="text-slate-500">Manage your profile and account settings.</p>
           </div>
-          <span class="px-3 py-1 bg-emerald-50 text-emerald-600 text-xs font-bold uppercase rounded-full tracking-wider border border-emerald-100">
-            {{user?.status || 'Active'}}
+          <span
+            class="px-3 py-1 bg-emerald-50 text-emerald-600 text-xs font-bold uppercase rounded-full tracking-wider border border-emerald-100"
+          >
+            {{ user?.status || 'Active' }}
           </span>
         </div>
 
@@ -50,7 +68,7 @@ import { UserService, User as UserType } from '@core/services/user.service';
               </label>
               <input
                 type="text"
-                formControlName="full_name"
+                formControlName="fullName"
                 class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-slate-50/30 font-medium"
                 placeholder="Ex: John Doe"
               />
@@ -121,11 +139,13 @@ import { UserService, User as UserType } from '@core/services/user.service';
       </div>
     </div>
   `,
-  styles: [`
-    :host {
-      display: block;
-    }
-  `]
+  styles: [
+    `
+      :host {
+        display: block;
+      }
+    `,
+  ],
 })
 export class ProfileComponent implements OnInit {
   // Lucide Icons
@@ -142,33 +162,33 @@ export class ProfileComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private userService: UserService
+    private userService: UserService,
   ) {
     this.userForm = this.fb.group({
-      full_name: ['', [Validators.required, Validators.minLength(2)]],
+      fullName: ['', [Validators.required, Validators.minLength(2)]],
       email: [{ value: '', disabled: true }, [Validators.required, Validators.email]],
       phone: ['', [Validators.required]],
-      address: ['', [Validators.required]]
+      address: ['', [Validators.required]],
     });
   }
 
+  authStore = inject(AuthStore);
+
   ngOnInit(): void {
-    // For demo purposes, we'll fetch the first user from the list
-    this.userService.getAll().subscribe((res) => {
-      if (res.result.length > 0) {
-        this.user = res.result[0];
-        this.patchFormData();
-      }
-    });
+    const currentUser = this.authStore.user();
+    if (currentUser) {
+      this.user = currentUser as UserType;
+      this.patchFormData();
+    }
   }
 
   patchFormData() {
     if (this.user) {
       this.userForm.patchValue({
-        full_name: this.user.full_name,
+        fullName: this.user.fullName,
         email: this.user.email,
         phone: this.user.phone,
-        address: this.user.address
+        address: this.user.address,
       });
     }
   }
@@ -181,7 +201,7 @@ export class ProfileComponent implements OnInit {
     if (this.userForm.valid && this.user) {
       this.isSubmitting = true;
       const updatedUser = { ...this.user, ...this.userForm.value };
-      
+
       this.userService.update(this.user.id, updatedUser).subscribe({
         next: (res) => {
           this.user = res;
@@ -192,7 +212,7 @@ export class ProfileComponent implements OnInit {
         error: (err) => {
           this.isSubmitting = false;
           console.error('Error updating profile', err);
-        }
+        },
       });
     }
   }

@@ -59,7 +59,7 @@ export class UserFormComponent implements OnChanges {
       this.form.get('password')?.updateValueAndValidity();
       this.form.patchValue({
         roleId: this.user.role_id ?? '',
-        fullName: this.user.full_name ?? '',
+        fullName: this.user.fullName ?? '',
         email: this.user.email ?? '',
         password: '',
         phone: this.user.phone ?? '',

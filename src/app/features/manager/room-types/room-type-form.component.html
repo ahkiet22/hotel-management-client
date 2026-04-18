@@ -59,15 +59,31 @@
     </div>
 
     <!-- Images -->
-    <div class="space-y-2">
-      <label hlmLabel>Image URLs (comma-separated)</label>
-      <input 
-        hlmInput
-        type="text" 
-        placeholder="https://example.com/image1.jpg, ..."
-        class="w-full"
-        (change)="onImagesChange($any($event.target).value)"
-      />
+    <div class="space-y-4">
+      <label hlmLabel>Room Type Images</label>
+      
+      <div class="grid grid-cols-4 gap-2">
+        <div *ngFor="let img of form.get('images')?.value; let i = index" class="relative group aspect-square rounded-xl overflow-hidden border border-slate-200">
+          <img [src]="img" class="w-full h-full object-cover">
+          <button (click)="removeImage(i)" class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        
+        <label *ngIf="!isUploading()" class="flex flex-col items-center justify-center aspect-square rounded-xl border-2 border-dashed border-slate-300 hover:border-blue-500 hover:bg-blue-50 cursor-pointer transition-all">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          <span class="text-[10px] font-bold text-slate-400 mt-1 uppercase">Upload</span>
+          <input type="file" multiple (change)="onFileSelected($event)" class="hidden" accept="image/*">
+        </label>
+
+        <div *ngIf="isUploading()" class="flex items-center justify-center aspect-square rounded-xl border-2 border-dashed border-slate-300">
+          <div class="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      </div>
     </div>
 
     <!-- Hidden Submit for Enter key -->

@@ -49,12 +49,12 @@ export class ManagerLayoutComponent {
 
   private filterMenuItems(items: SidebarItem[]): SidebarItem[] {
     return items
-      // .filter(item => {
-      //   if (!item.permission) return true;
-      //   return Array.isArray(item.permission)
-      //     ? this.permissionService.hasAnyPermission(item.permission)
-      //     : this.permissionService.hasPermission(item.permission);
-      // })
+      .filter(item => {
+        if (!item.permission) return true;
+        return Array.isArray(item.permission)
+          ? this.permissionService.hasAnyPermission(item.permission)
+          : this.permissionService.hasPermission(item.permission);
+      })
       .map(item => ({
         ...item,
         children: item.children ? this.filterMenuItems(item.children) : undefined

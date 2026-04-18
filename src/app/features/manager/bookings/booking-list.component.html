@@ -60,10 +60,10 @@
               <td class="px-6 py-5">
                 <div class="flex items-center gap-3">
                   <div class="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm shrink-0">
-                    {{ booking.short_id.substring(0, 2).toUpperCase() }}
+                    {{ booking.shortId.substring(0, 2).toUpperCase() }}
                   </div>
                   <div>
-                    <p class="font-bold text-slate-900 text-[14.5px]">{{ booking.short_id }}</p>
+                    <p class="font-bold text-slate-900 text-[14.5px]">{{ booking.shortId }}</p>
                     <p class="text-[11px] font-medium text-slate-400 font-mono mt-0.5">{{ booking.id | slice:0:16 }}…</p>
                   </div>
                 </div>
@@ -74,12 +74,12 @@
                 <div class="space-y-1">
                   <div class="flex items-center gap-1.5 text-sm font-medium text-slate-700">
                     <lucide-icon [img]="icons.Calendar" class="w-3.5 h-3.5 text-slate-400 shrink-0"></lucide-icon>
-                    {{ booking.check_in_date | date:'dd MMM' }} → {{ booking.check_out_date | date:'dd MMM yyyy' }}
+                    {{ booking.checkIn | date:'dd MMM' }} → {{ booking.checkOut | date:'dd MMM yyyy' }}
                   </div>
-                  @if (booking.actual_check_out) {
+                  @if (booking.actualCheckOut) {
                     <div class="flex items-center gap-1.5 text-[11px] text-slate-400">
                       <lucide-icon [img]="icons.CheckCircle" class="w-3 h-3"></lucide-icon>
-                      Checked-out: {{ booking.actual_check_out | date:'dd MMM, HH:mm' }}
+                      Checked-out: {{ booking.actualCheckOut | date:'dd MMM, HH:mm' }}
                     </div>
                   }
                 </div>
@@ -87,10 +87,10 @@
 
               <!-- Check-in -->
               <td class="px-6 py-5">
-                @if (booking.actual_check_in) {
+                @if (booking.actualCheckIn) {
                   <div class="flex items-center gap-1.5 text-sm text-green-700 font-medium">
                     <lucide-icon [img]="icons.CheckCircle" class="w-4 h-4 text-green-500"></lucide-icon>
-                    {{ booking.actual_check_in | date:'dd MMM, HH:mm' }}
+                    {{ booking.actualCheckIn | date:'dd MMM, HH:mm' }}
                   </div>
                 } @else {
                   <div class="flex items-center gap-1.5 text-sm text-slate-400">
@@ -102,9 +102,9 @@
 
               <!-- Amount -->
               <td class="px-6 py-5">
-                <p class="text-sm font-bold text-slate-900">${{ booking.grand_total | number:'1.2-2' }}</p>
+                <p class="text-sm font-bold text-slate-900">${{ booking.grandTotal | number:'1.2-2' }}</p>
                 <p class="text-[11px] text-slate-400 font-medium mt-0.5">
-                  Room: ${{ booking.total_room_price }} / Svc: ${{ booking.total_service_price }}
+                  Room: ${{ booking.totalRoomPrice }} / Svc: ${{ booking.totalServicePrice }}
                 </p>
               </td>
 
@@ -196,7 +196,7 @@
 <app-ui-confirm
   [isOpen]="isConfirmOpen()"
   title="Cancel Booking"
-  [message]="'Are you sure you want to cancel booking &quot;' + (bookingToCancel()?.short_id ?? '') + '&quot;? This action cannot be undone.'"
+  [message]="'Are you sure you want to cancel booking &quot;' + (bookingToCancel()?.shortId ?? '') + '&quot;? This action cannot be undone.'"
   confirmText="Cancel Booking"
   cancelText="Keep Booking"
   variant="warning"

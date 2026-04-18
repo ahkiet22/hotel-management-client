@@ -11,16 +11,15 @@ export type UserStatus = 'Active' | 'Locked';
 
 export interface User {
   id: string;
-  role_id: string;
-  full_name: string;
+  role_id: string; // From JSON: role_id
+  fullName: string; // From JSON: fullName
   email: string;
-  password_hash?: string; // Optional on frontend
-  refresh_token?: string;
-  phone?: string;
-  address?: string;
+  phone?: string | null;
+  address?: string | null;
   status: UserStatus;
-  created_at: string;
-  updated_at: string;
+  createdAt: string; // From JSON: createdAt
+  updatedAt: string; // From JSON: updatedAt
+  roleName?: RoleName; // From JSON: roleName
   role?: Role;
 }
 
@@ -31,8 +30,9 @@ export interface RoomType {
   id: string;
   name: RoomTypeName | string;
   description?: string;
-  base_price: number;
+  basePrice: number;
   capacity: number;
+  images?: string[];
 }
 
 // Room Interface
@@ -40,11 +40,12 @@ export type RoomStatus = 'Vacant' | 'Reserved' | 'Occupied' | 'Out of Order';
 
 export interface Room {
   id: string;
-  room_number: string;
-  room_type_id: string;
+  roomNumber: string;
+  roomTypeId: string;
   status: RoomStatus;
-  created_at: string;
-  room_type?: RoomType;
+  createdAt: string;
+  isPublic: boolean;
+  roomType?: RoomType;
 }
 
 // Booking Interface
@@ -52,35 +53,35 @@ export type BookingStatus = 'Pending' | 'Confirmed' | 'Checked-in' | 'Checked-ou
 
 export interface Booking {
   id: string;
-  short_id: string;
-  customer_id: string;
-  staff_id?: string;
-  check_in_date: string;
-  check_out_date: string;
-  actual_check_in?: string;
-  actual_check_out?: string;
-  total_room_price: number;
-  total_service_price: number;
-  grand_total: number;
+  shortId: string;
+  customerId: string;
+  staffId?: string;
+  checkIn: string;
+  checkOut: string;
+  actualCheckIn?: string;
+  actualCheckOut?: string;
+  totalRoomPrice: number;
+  totalServicePrice: number;
+  grandTotal: number;
   status: BookingStatus;
   discount?: number;
-  coupon_code?: string;
+  couponCode?: string;
   notes?: string;
-  created_at: string;
-  updated_at: string;
+  createdAt: string;
+  updatedAt: string;
   customer?: User;
   staff?: User;
-  booking_rooms?: BookingRoom[];
-  booking_services?: BookingService[];
+  bookingRooms?: BookingRoom[];
+  bookingServices?: BookingService[];
   payments?: Payment[];
 }
 
 // Booking Room Interface (Join Table)
 export interface BookingRoom {
   id: string;
-  booking_id: string;
-  room_id: string;
-  price_per_night: number;
+  bookingId: string;
+  roomId: string;
+  pricePerNight: number;
   room?: Room;
 }
 
@@ -93,18 +94,18 @@ export interface Service {
   description?: string;
   price: number;
   status: ServiceStatus;
-  created_at?: string;
-  updated_at?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 // Booking Service Interface (Join Table)
 export interface BookingService {
   id: string;
-  booking_id: string;
-  service_id: string;
+  bookingId: string;
+  serviceId: string;
   quantity: number;
   price: number;
-  used_at?: string;
+  usedAt?: string;
   service?: Service;
 }
 
@@ -114,22 +115,22 @@ export type PaymentStatus = 'Pending' | 'Completed' | 'Failed';
 
 export interface Payment {
   id: string;
-  booking_id: string;
+  bookingId: string;
   amount: number;
-  payment_method: PaymentMethod | string;
-  payment_status: PaymentStatus;
-  transaction_id?: string;
-  created_at: string;
+  paymentMethod: PaymentMethod | string;
+  paymentStatus: PaymentStatus;
+  transactionId?: string;
+  createdAt: string;
 }
 
 // Invoice Interface (Receipt)
 export interface Invoice {
   id: string;
-  booking_id: string;
-  invoice_number: string;
-  total_amount: number;
-  issued_date: string;
-  issued_by: string;
+  bookingId: string;
+  invoiceNumber: string;
+  totalAmount: number;
+  issuedDate: string;
+  issuedBy: string;
   booking?: Booking;
   staff?: User;
 }
@@ -140,19 +141,19 @@ export type Receipt = Invoice;
 // Notification Interface
 export interface Notification {
   id: string;
-  user_id: string;
+  userId: string;
   title: string;
   message: string;
-  is_read: boolean;
-  created_at: string;
+  isRead: boolean;
+  createdAt: string;
 }
 
 // System Log Interface
 export interface SystemLog {
   id: string;
-  user_id: string;
+  userId: string;
   action: string;
   description?: string;
-  created_at: string;
+  createdAt: string;
   user?: User;
 }

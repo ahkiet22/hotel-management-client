@@ -3,8 +3,9 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmLabel } from '@spartan-ng/helm/label';
-import { RoomType } from '@core/services/room-type.service';
+import { RoomType } from '@core/interfaces';
 import { CreateRoomTypeDto } from '@core/interfaces/room-type.dto';
+import { UploadService } from '@core/services/upload.service';
 
 import { UiModalComponent } from '@shared/components/ui-modal/ui-modal.component';
 import { HlmButton } from '@spartan-ng/helm/button';
@@ -22,8 +23,10 @@ export class RoomTypeFormComponent implements OnChanges {
   @Output() save = new EventEmitter<CreateRoomTypeDto>();
 
   private fb = inject(FormBuilder);
+  private uploadService = inject(UploadService);
   form: FormGroup;
   isEdit = signal(false);
+  isUploading = signal(false);
 
   constructor() {
     this.form = this.fb.group({
@@ -41,9 +44,9 @@ export class RoomTypeFormComponent implements OnChanges {
       this.form.patchValue({
         name: this.roomType.name,
         description: this.roomType.description,
-        basePrice: this.roomType.base_price,
+        basePrice: this.roomType.basePrice,
         capacity: this.roomType.capacity,
-        images: [], // Images would need handling if present
+        images: this.roomType.images || [],
       });
     } else if (changes['roomType'] && !this.roomType) {
       this.isEdit.set(false);
@@ -57,9 +60,29 @@ export class RoomTypeFormComponent implements OnChanges {
     }
   }
 
-  onImagesChange(value: string) {
-    const images = value.split(',').map(s => s.trim()).filter(s => !!s);
-    this.form.get('images')?.setValue(images);
+  onFileSelected(event: any) {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      this.isUploading.set(true);
+      this.uploadService.uploadImages(files).subscribe({
+        next: (urls) => {
+          const currentImages = this.form.get('images')?.value || [];
+          this.form.get('images')?.setValue([...currentImages, ...urls]);
+          this.isUploading.set(false);
+        },
+        error: (err) => {
+          console.error('Upload failed', err);
+          this.isUploading.set(false);
+          alert('Failed to upload images.');
+        }
+      });
+    }
+  }
+
+  removeImage(index: number) {
+    const images = this.form.get('images')?.value || [];
+    images.splice(index, 1);
+    this.form.get('images')?.setValue([...images]);
   }
 
   onSubmit() {

@@ -1,17 +1,18 @@
 <div class="min-h-screen bg-slate-50 font-sans pb-20">
-  <!-- Progress Bar (Moved from header) -->
+  <!-- Progress Bar -->
   <div class="bg-white border-b border-slate-200 py-4 shadow-sm mb-8">
     <div class="max-w-7xl mx-auto px-6 flex items-center justify-center gap-4 text-[10px] md:text-xs font-bold uppercase tracking-widest text-slate-400">
-      <span class="text-blue-600 border-b-2 border-blue-600 pb-1">1. Selection</span>
+      <span [class.text-blue-600]="step() === 'selection'" [class.border-b-2]="step() === 'selection'" class="pb-1 border-blue-600 cursor-pointer" (click)="goBack()">1. Selection</span>
       <lucide-icon [img]="icons.ChevronRight" class="w-4 h-4"></lucide-icon>
-      <span class="hover:text-slate-600 transition-colors">2. Personal Info</span>
+      <span [class.text-blue-600]="step() === 'personal'" [class.border-b-2]="step() === 'personal'" class="pb-1 border-blue-600">2. Personal Info</span>
       <lucide-icon [img]="icons.ChevronRight" class="w-4 h-4"></lucide-icon>
-      <span class="hover:text-slate-600 transition-colors">3. Payment</span>
+      <span [class.text-blue-600]="step() === 'payment'" [class.border-b-2]="step() === 'payment'" class="pb-1 border-blue-600">3. Payment</span>
     </div>
   </div>
 
-  <!-- Booking Search Bar (Consistent with Home Page) -->
-  <section class="max-w-7xl mx-auto px-4 md:px-6 mb-12">
+  <!-- Booking Search Bar (Only on selection step) -->
+  <section *ngIf="step() === 'selection'" class="max-w-7xl mx-auto px-4 md:px-6 mb-12">
+    <!-- ... search bar content ... -->
     <div class="bg-white p-2 rounded-xl shadow-lg border border-black/5 grid grid-cols-1 md:grid-cols-[1.5fr_1.5fr_1fr_1.2fr_1.2fr_auto] gap-2 items-stretch">
       <div class="p-3 flex items-center gap-3 rounded-t-lg md:rounded-l-lg md:rounded-tr-none border-b md:border-b-0 md:border-r border-black/5">
         <lucide-icon [img]="icons.Calendar" class="w-5 h-5 text-[#7C6A46]"></lucide-icon>
@@ -66,137 +67,196 @@
     </div>
   </section>
 
-  <main class="max-w-7xl mx-auto px-6 py-20 flex flex-col lg:grid lg:grid-cols-12 lg:gap-12">
-    <!-- LEFT SIDE: Choice of Rooms -->
-    <div class="lg:col-span-8 space-y-8">
-      <div>
-        <h2 class="text-3xl font-black text-slate-900 tracking-tight leading-none mb-4">Choose Your Suite</h2>
-        <p class="text-slate-500 font-medium">Please select a room to see the total booking price and details.</p>
-      </div>
+  <main class="max-w-7xl mx-auto px-6 py-10">
+    <div class="lg:grid lg:grid-cols-12 lg:gap-12" *ngIf="step() !== 'success'">
+      <!-- LEFT SIDE -->
+      <div class="lg:col-span-8 space-y-8">
+        
+        <!-- STEP 1: ROOM SELECTION -->
+        <div *ngIf="step() === 'selection'">
+          <h2 class="text-3xl font-black text-slate-900 tracking-tight leading-none mb-4">Choose Your Suite</h2>
+          <p class="text-slate-500 font-medium mb-8">Please select a room to see the total booking price and details.</p>
 
-      <div *ngIf="isLoading()" class="flex flex-col items-center py-20 gap-4">
-        <div class="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-        <p class="font-bold text-slate-400">Finding available rooms...</p>
-      </div>
-
-      <div *ngIf="!isLoading()" class="grid md:grid-cols-2 gap-8">
-        <div *ngFor="let room of rooms()" 
-             (click)="onSelectRoom(room.id)"
-             [ngClass]="{'ring-4 ring-blue-500 ring-offset-4': selectedRoomId() === room.id}"
-             class="bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl transition-all cursor-pointer group relative">
-          
-          <div class="h-48 overflow-hidden relative">
-            <img src="assets/images/pic-1.jpg" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="Preview">
-            <div class="absolute inset-0 bg-linear-to-t from-black/60 to-transparent"></div>
-            <div class="absolute bottom-4 left-4 text-white">
-              <span class="text-[10px] font-black uppercase tracking-widest opacity-80">Room No.</span>
-              <h3 class="font-black text-xl leading-none mt-1">{{ room.roomNumber }}</h3>
-            </div>
+          <div *ngIf="isLoading()" class="flex flex-col items-center py-20 gap-4">
+            <div class="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+            <p class="font-bold text-slate-400">Finding available rooms...</p>
           </div>
 
-          <div class="p-6">
-            <div class="flex items-center justify-between mb-4">
-              <span class="px-3 py-1 bg-slate-50 border border-slate-100 rounded-lg text-xs font-black uppercase text-slate-600">
-                {{ room.roomTypeName }}
-              </span>
-              <span class="text-lg font-black text-slate-900">${{ room.pricePerNight }} <span class="text-[10px] text-slate-400 font-bold uppercase">/ Night</span></span>
-            </div>
-
-            <ul class="space-y-2 mb-6 text-sm font-medium text-slate-500">
-              <li class="flex items-center gap-2"><lucide-icon [img]="icons.CheckCircle2" class="w-4 h-4 text-green-500"></lucide-icon> King Size Bed</li>
-              <li class="flex items-center gap-2"><lucide-icon [img]="icons.CheckCircle2" class="w-4 h-4 text-green-500"></lucide-icon> Ocean View</li>
-            </ul>
-
-            <button [ngClass]="selectedRoomId() === room.id ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'bg-slate-50 text-slate-400 hover:bg-slate-100'"
-                    class="w-full py-3 rounded-2xl font-black uppercase tracking-widest text-xs transition-all">
-              {{ selectedRoomId() === room.id ? 'Selected Room' : 'Select This Room' }}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- RIGHT SIDE: Booking Summary -->
-    <aside class="lg:col-span-4 mt-12 lg:mt-0">
-      <div class="sticky top-24 bg-slate-900 text-white rounded-3xl p-8 shadow-2xl shadow-blue-900/20 overflow-hidden">
-        <!-- Floating decoration -->
-        <div class="absolute -top-20 -right-20 w-40 h-40 bg-blue-600/20 rounded-full blur-3xl"></div>
-        
-        <div class="relative z-10">
-          <h2 class="text-2xl font-black tracking-tight mb-8">Booking Summary</h2>
-        
-          <div class="space-y-6">
-            <!-- Dates info -->
-            <div class="grid grid-cols-2 gap-4 pb-6 border-b border-white/10">
-              <div class="space-y-1">
-                <p class="text-[10px] font-black uppercase tracking-widest text-slate-500">Entry</p>
-                <p class="font-bold">{{ checkIn() || 'Select dates' }}</p>
-              </div>
-              <div class="space-y-1">
-                <p class="text-[10px] font-black uppercase tracking-widest text-slate-500">Departure</p>
-                <p class="font-bold">{{ checkOut() || 'Select dates' }}</p>
-              </div>
-            </div>
-
-            <!-- Guests info -->
-            <div class="pb-6 border-b border-white/10 flex items-center justify-between">
-              <div>
-                <p class="text-[10px] font-black uppercase tracking-widest text-slate-500">Guests</p>
-                <p class="font-bold">{{ adults() }} Adults, {{ children() }} Children</p>
-              </div>
-              <div class="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center">
-                 <lucide-icon [img]="icons.Users" class="w-5 h-5 text-blue-400"></lucide-icon>
-              </div>
-            </div>
-
-            <!-- Room Selection Info -->
-            <div class="pb-6 border-b border-white/10">
-              <p class="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Room selected</p>
-              <div *ngIf="selectedRoom()" class="flex items-center gap-4">
-                 <div class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center shrink-0">
-                   <lucide-icon [img]="icons.Briefcase" class="w-6 h-6 text-blue-400"></lucide-icon>
-                 </div>
-                 <div>
-                   <p class="font-black text-lg leading-none">{{ selectedRoom()?.roomTypeName }}</p>
-                   <p class="text-[10px] font-bold text-blue-400 mt-1 uppercase tracking-widest">No. {{ selectedRoom()?.roomNumber }}</p>
-                 </div>
-              </div>
-              <div *ngIf="!selectedRoom()" class="p-4 rounded-2xl bg-white/5 border border-dashed border-white/10 text-center">
-                <p class="text-xs font-bold text-slate-400">Please select a room to continue</p>
-              </div>
-            </div>
-
-            <!-- Calculation -->
-            <div class="space-y-4 pt-2">
-              <div class="flex justify-between text-sm">
-                <span class="text-slate-400 font-medium">{{ totalNights() }} Nights × ${{ selectedRoom()?.pricePerNight || 0 }}</span>
-                <span class="font-black">${{ totalPrice() }}</span>
-              </div>
-              <div class="flex justify-between text-sm">
-                <span class="text-slate-400 font-medium">Tax & Fees (10%)</span>
-                <span class="font-black text-green-400">Included</span>
-              </div>
+          <div *ngIf="!isLoading()" class="grid md:grid-cols-2 gap-8">
+            <div *ngFor="let room of rooms()" 
+                 (click)="onSelectRoom(room.id)"
+                 [ngClass]="{'ring-4 ring-blue-500 ring-offset-4': selectedRoomId() === room.id}"
+                 class="bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl transition-all cursor-pointer group relative">
               
-              <div class="pt-6 border-t-2 border-dashed border-white/10">
-                <div class="flex items-end justify-between">
-                   <p class="text-xs font-black uppercase tracking-widest text-blue-400">Total Price</p>
-                   <p class="text-4xl font-black">${{ totalPrice() }}</p>
+              <!-- Image ... -->
+              <div class="h-48 overflow-hidden relative">
+                <img [src]="'assets/images/rooms/' + (room.roomTypeName | lowercase) + '.jpg'" 
+                     onerror="this.src='assets/images/pic-1.jpg'"
+                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="Preview">
+                <div class="absolute inset-0 bg-linear-to-t from-black/60 to-transparent"></div>
+                <div class="absolute bottom-4 left-4 text-white">
+                  <span class="text-[10px] font-black uppercase tracking-widest opacity-80">Room No.</span>
+                  <h3 class="font-black text-xl leading-none mt-1">{{ room.roomNumber }}</h3>
                 </div>
               </div>
+
+              <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                  <span class="px-3 py-1 bg-slate-50 border border-slate-100 rounded-lg text-xs font-black uppercase text-slate-600">
+                    {{ room.roomTypeName }}
+                  </span>
+                  <span class="text-lg font-black text-slate-900">${{ room.pricePerNight }} <span class="text-[10px] text-slate-400 font-bold uppercase">/ Night</span></span>
+                </div>
+                <!-- ... benefits ... -->
+                <button [ngClass]="selectedRoomId() === room.id ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 'bg-slate-50 text-slate-400 hover:bg-slate-100'"
+                        class="w-full py-3 rounded-2xl font-black uppercase tracking-widest text-xs transition-all">
+                  {{ selectedRoomId() === room.id ? 'Selected Room' : 'Select This Room' }}
+                </button>
+              </div>
             </div>
+          </div>
+        </div>
 
-            <button [disabled]="!selectedRoom() || !checkIn() || !checkOut()"
-                    class="w-full py-5 bg-blue-600 hover:bg-blue-500 disabled:opacity-30 disabled:cursor-not-allowed rounded-2xl font-black uppercase tracking-widest text-sm transition-all shadow-xl shadow-blue-600/30 mt-4">
-              Process Checkout
-            </button>
+        <!-- STEP 2: PERSONAL INFO -->
+        <div *ngIf="step() === 'personal'" class="bg-white p-10 rounded-3xl border border-slate-100 shadow-sm space-y-8">
+          <div>
+            <h2 class="text-3xl font-black text-slate-900 tracking-tight leading-none mb-4">Personal Details</h2>
+            <p class="text-slate-500 font-medium">We just need a few more details to confirm your reservation.</p>
+          </div>
 
-            <div class="flex items-center gap-2 justify-center mt-6 py-3 bg-white/5 rounded-xl">
-               <lucide-icon [img]="icons.Info" class="w-4 h-4 text-blue-400 font-black"></lucide-icon>
-               <span class="text-[10px] font-black uppercase tracking-widest opacity-60">Flexible Cancellation</span>
+          <div class="grid md:grid-cols-2 gap-6">
+            <div class="space-y-2">
+              <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Full Name</label>
+              <input type="text" [(ngModel)]="customerInfo.fullName" class="w-full p-4 bg-slate-50 rounded-2xl border-none outline-none font-bold text-slate-900 focus:ring-2 focus:ring-blue-600 transition-all" placeholder="John Doe">
+            </div>
+            <div class="space-y-2">
+              <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Email Address</label>
+              <input type="email" [(ngModel)]="customerInfo.email" class="w-full p-4 bg-slate-50 rounded-2xl border-none outline-none font-bold text-slate-900 focus:ring-2 focus:ring-blue-600 transition-all" placeholder="john@example.com">
+            </div>
+            <div class="space-y-2">
+              <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Phone Number</label>
+              <input type="tel" [(ngModel)]="customerInfo.phone" class="w-full p-4 bg-slate-50 rounded-2xl border-none outline-none font-bold text-slate-900 focus:ring-2 focus:ring-blue-600 transition-all" placeholder="+1 (555) 000-0000">
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">Special Requests</label>
+            <textarea [(ngModel)]="customerInfo.notes" rows="4" class="w-full p-4 bg-slate-50 rounded-2xl border-none outline-none font-bold text-slate-900 focus:ring-2 focus:ring-blue-600 transition-all" placeholder="Anything else we should know?"></textarea>
+          </div>
+        </div>
+
+        <!-- STEP 3: PAYMENT -->
+        <div *ngIf="step() === 'payment'" class="bg-white p-10 rounded-3xl border border-slate-100 shadow-sm text-center space-y-8">
+          <div>
+            <h2 class="text-3xl font-black text-slate-900 tracking-tight leading-none mb-4">Complete Payment</h2>
+            <p class="text-slate-500 font-medium">Please scan the QR code to complete your booking.</p>
+          </div>
+
+          <div class="max-w-xs mx-auto space-y-3">
+             <div class="relative">
+               <input type="text" [(ngModel)]="couponCode" placeholder="Enter Coupon Code" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 uppercase font-bold text-slate-900 text-sm transition-all" [disabled]="isApplyingCoupon()">
+               <button (click)="applyCoupon()" [disabled]="!couponCode() || isApplyingCoupon()" class="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-600 text-white px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 disabled:opacity-50 transition-all">
+                  Apply
+               </button>
+             </div>
+             <p *ngIf="couponError()" class="text-[11px] font-bold text-red-500">{{ couponError() }}</p>
+             <p *ngIf="couponSuccess()" class="text-[11px] font-bold text-green-500">{{ couponSuccess() }}</p>
+          </div>
+
+          <div class="flex flex-col items-center gap-6">
+            <div class="w-64 h-64 bg-slate-50 rounded-3xl border border-slate-100 p-4 flex items-center justify-center">
+              <img *ngIf="paymentQr()" [src]="paymentQr()" class="w-full h-full object-contain" alt="Payment QR">
+              <div *ngIf="!paymentQr()" class="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+            <div class="bg-blue-50 text-blue-600 px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-xs">
+              Booking ID: {{ bookingResult()?.shortId }}
+            </div>
+            
+            <div class="flex items-center justify-center gap-3 text-slate-500 font-medium bg-slate-50 px-6 py-3 rounded-2xl border border-slate-100">
+               <div class="w-4 h-4 border-2 border-slate-400 border-t-transparent rounded-full animate-spin"></div>
+               Waiting for payment confirmation...
             </div>
           </div>
         </div>
       </div>
-    </aside>
+
+      <!-- RIGHT SIDE: Booking Summary -->
+      <aside class="lg:col-span-4 mt-12 lg:mt-0">
+        <div class="sticky top-24 bg-slate-900 text-white rounded-3xl p-8 shadow-2xl shadow-blue-900/20 overflow-hidden">
+          <div class="absolute -top-20 -right-20 w-40 h-40 bg-blue-600/20 rounded-full blur-3xl"></div>
+          
+          <div class="relative z-10">
+            <h2 class="text-2xl font-black tracking-tight mb-8">Booking Summary</h2>
+            <!-- Summary Details ... -->
+            <div class="space-y-6">
+              <div class="grid grid-cols-2 gap-4 pb-6 border-b border-white/10">
+                <div class="space-y-1">
+                  <p class="text-[10px] font-black uppercase tracking-widest text-slate-500">Entry</p>
+                  <p class="font-bold">{{ checkIn() || 'Select dates' }}</p>
+                </div>
+                <div class="space-y-1">
+                  <p class="text-[10px] font-black uppercase tracking-widest text-slate-500">Departure</p>
+                  <p class="font-bold">{{ checkOut() || 'Select dates' }}</p>
+                </div>
+              </div>
+
+              <div class="pb-6 border-b border-white/10 flex items-center justify-between">
+                <div>
+                  <p class="text-[10px] font-black uppercase tracking-widest text-slate-500">Guests</p>
+                  <p class="font-bold">{{ adults() }} Adults, {{ children() }} Children</p>
+                </div>
+              </div>
+
+              <div class="pb-6 border-b border-white/10">
+                <p class="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Room selected</p>
+                <div *ngIf="selectedRoom()" class="flex items-center gap-4">
+                   <div class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center shrink-0">
+                     <lucide-icon [img]="icons.Briefcase" class="w-6 h-6 text-blue-400"></lucide-icon>
+                   </div>
+                   <div>
+                     <p class="font-black text-lg leading-none">{{ selectedRoom()?.roomTypeName }}</p>
+                     <p class="text-[10px] font-bold text-blue-400 mt-1 uppercase tracking-widest">No. {{ selectedRoom()?.roomNumber }}</p>
+                   </div>
+                </div>
+              </div>
+
+              <div class="space-y-4 pt-2">
+                <div class="flex justify-between text-sm">
+                  <span class="text-slate-400 font-medium">{{ totalNights() }} Nights × ${{ selectedRoom()?.pricePerNight || 0 }}</span>
+                  <span class="font-black">${{ totalPrice() }}</span>
+                </div>
+                <div class="pt-6 border-t-2 border-dashed border-white/10">
+                  <div class="flex items-end justify-between">
+                     <p class="text-xs font-black uppercase tracking-widest text-blue-400">Total Price</p>
+                     <p class="text-4xl font-black">${{ bookingResult() ? bookingResult()?.grantTotal : totalPrice() }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <button (click)="onProcessCheckout()" 
+                      [disabled]="!selectedRoom() || !checkIn() || !checkOut() || isSubmitting()"
+                      class="w-full py-5 bg-blue-600 hover:bg-blue-500 disabled:opacity-30 disabled:cursor-not-allowed rounded-2xl font-black uppercase tracking-widest text-sm transition-all shadow-xl shadow-blue-600/30 mt-4 flex items-center justify-center gap-2">
+                <div *ngIf="isSubmitting()" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                {{ step() === 'selection' ? 'Choose This Room' : (step() === 'personal' ? 'Confirm & Pay' : 'Next Step') }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- SUCCESS MESSAGE -->
+    <div *ngIf="step() === 'success'" class="max-w-2xl mx-auto py-20 text-center space-y-8 animate-in fade-in zoom-in duration-500">
+      <div class="w-24 h-24 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-8 shadow-xl shadow-green-100">
+        <lucide-icon [img]="icons.CheckCircle2" class="w-12 h-12"></lucide-icon>
+      </div>
+      <h2 class="text-5xl font-black text-slate-900 tracking-tight">Booking Confirmed!</h2>
+      <p class="text-xl text-slate-500 font-medium">Thank you for choosing Paradise Hotel. Your reservation ({{ bookingResult()?.shortId }}) has been successfully processed.</p>
+      <div class="pt-10">
+        <button class="px-10 py-4 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-slate-800 transition-all" routerLink="/rooms">
+          View Other Rooms
+        </button>
+      </div>
+    </div>
   </main>
 </div>

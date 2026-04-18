@@ -1,8 +1,8 @@
-import { Component, OnInit, signal, inject, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { RoomTypeService, AvailableRoom, RoomType } from '@core/services/room-type.service';
+import { RoomTypeService, AvailableRoom } from '@core/services/room-type.service';
 import {
   LucideAngularModule,
   Calendar,
@@ -13,6 +13,9 @@ import {
   CheckCircle2,
 } from 'lucide-angular';
 import { Meta, Title } from '@angular/platform-browser';
+import { AuthStore } from '@core/stores/auth.store';
+import { BookingService } from '@core/services/booking.service';
+import { RoomType } from '@core/interfaces';
 
 @Component({
   selector: 'app-booking-page',
@@ -20,13 +23,18 @@ import { Meta, Title } from '@angular/platform-browser';
   imports: [CommonModule, LucideAngularModule, FormsModule],
   templateUrl: './booking.component.html',
 })
-export class BookingPageComponent implements OnInit {
+export class BookingPageComponent implements OnInit, OnDestroy {
   constructor(
     private title: Title,
     private meta: Meta,
   ) {}
   private roomTypeService = inject(RoomTypeService);
+  private bookingService = inject(BookingService);
   private route = inject(ActivatedRoute);
+  private authStore = inject(AuthStore);
+
+  // Steps: 'selection' | 'personal' | 'payment' | 'success'
+  step = signal<'selection' | 'personal' | 'payment' | 'success'>('selection');
 
   // Filters
   checkIn = signal<string>('');
@@ -40,6 +48,26 @@ export class BookingPageComponent implements OnInit {
   rooms = signal<AvailableRoom[]>([]);
   selectedRoomId = signal<string | null>(null);
   isLoading = signal(true);
+  isSubmitting = signal(false);
+
+  // Personal Info form (simplified for demo)
+  customerInfo = {
+    fullName: '',
+    email: '',
+    phone: '',
+    notes: '',
+  };
+
+  // Payment info
+  paymentQr = signal<string | null>(null);
+  bookingResult = signal<any>(null);
+  pollingInterval: any;
+
+  // Coupon
+  couponCode = signal<string>('');
+  couponError = signal<string>('');
+  couponSuccess = signal<string>('');
+  isApplyingCoupon = signal(false);
 
   // Computed data
   selectedRoom = computed(() => this.rooms().find((r) => r.id === this.selectedRoomId()) || null);
@@ -114,6 +142,29 @@ export class BookingPageComponent implements OnInit {
       tomorrow.setDate(today.getDate() + 1);
       this.checkOut.set(tomorrow.toISOString().split('T')[0]);
     }
+
+    // Check pending booking
+    const pendingId = localStorage.getItem('pendingBookingId');
+    if (pendingId) {
+      this.bookingService.getById(pendingId).subscribe({
+        next: (res: any) => {
+          if (res.paymentStatus === 'PAID') {
+            this.bookingResult.set(res);
+            this.confirmBooking(res.id);
+          } else {
+            this.bookingResult.set(res);
+            this.getPaymentQr(res);
+            this.step.set('payment');
+            this.startPaymentPolling(res.id);
+          }
+        },
+        error: () => localStorage.removeItem('pendingBookingId')
+      });
+    }
+  }
+
+  ngOnDestroy() {
+    this.stopPaymentPolling();
   }
 
   loadRooms() {
@@ -151,5 +202,118 @@ export class BookingPageComponent implements OnInit {
         this.roomTypes.set(res.result);
       },
     });
+  }
+
+  onProcessCheckout() {
+    console.log('Processing checkout with step:', this.step());
+    if (this.step() === 'selection') {
+      this.step.set('personal');
+    } else if (this.step() === 'personal') {
+      this.createBooking();
+    }
+  }
+
+  createBooking() {
+    const user = this.authStore.user();
+    if (!user) {
+      alert('Please login to book a room.');
+      return;
+    }
+
+    this.isSubmitting.set(true);
+    
+    const selectedRoom = this.selectedRoom();
+    if (!selectedRoom) return;
+
+    const bookingData = {
+      customerId: user.id,
+      roomTypeId: selectedRoom.roomTypeId,
+      roomIds: [selectedRoom.id],
+      checkIn: `${this.checkIn()}T14:00:00`,
+      checkOut: `${this.checkOut()}T12:00:00`,
+      adults: Number(this.adults()),
+      children: Number(this.children())
+    };
+
+    this.bookingService.createByCustomer(bookingData).subscribe({
+      next: (res: any) => {
+        this.bookingResult.set(res);
+        localStorage.setItem('pendingBookingId', res.id);
+        this.getPaymentQr(res);
+        this.step.set('payment');
+        this.isSubmitting.set(false);
+        this.startPaymentPolling(res.id);
+      },
+      error: (err: any) => {
+        console.error('Booking failed', err);
+        this.isSubmitting.set(false);
+        alert('Booking failed. Please try again.');
+      }
+    });
+  }
+
+  getPaymentQr(booking: any) {
+    this.paymentQr.set(null); // Show loading
+    const amount = booking.finalAmount || booking.grantTotal;
+    const description = `BOOKING_${booking.id}`;
+    this.bookingService.getPaymentQr(amount, description).subscribe({
+      next: (res: string) => {
+        this.paymentQr.set(res);
+      }
+    });
+  }
+
+  applyCoupon() {
+    if (!this.couponCode() || this.isApplyingCoupon()) return;
+    this.isApplyingCoupon.set(true);
+    this.couponError.set('');
+    this.couponSuccess.set('');
+    
+    this.bookingService.applyCoupon(this.bookingResult().id, this.couponCode()).subscribe({
+      next: (res: any) => {
+        this.bookingResult.set(res);
+        this.couponSuccess.set('Coupon applied successfully!');
+        this.isApplyingCoupon.set(false);
+        this.getPaymentQr(res); // Regenerate QR for new amount
+      },
+      error: (err: any) => {
+        this.couponError.set(err?.message || 'Invalid or expired coupon');
+        this.isApplyingCoupon.set(false);
+      }
+    });
+  }
+
+  startPaymentPolling(bookingId: string) {
+    this.stopPaymentPolling();
+    this.pollingInterval = setInterval(() => {
+      this.bookingService.getById(bookingId).subscribe({
+        next: (booking: any) => {
+          if (booking.paymentStatus === 'PAID') {
+            this.stopPaymentPolling();
+            this.confirmBooking(bookingId);
+          }
+        }
+      });
+    }, 3000);
+  }
+
+  stopPaymentPolling() {
+    if (this.pollingInterval) {
+      clearInterval(this.pollingInterval);
+    }
+  }
+
+  confirmBooking(bookingId: string) {
+    this.bookingService.confirmBooking(bookingId).subscribe({
+      next: () => {
+        localStorage.removeItem('pendingBookingId');
+        this.step.set('success');
+      }
+    });
+  }
+
+  goBack() {
+    if (this.step() === 'personal') this.step.set('selection');
+    if (this.step() === 'payment') this.step.set('personal');
   }
 }
