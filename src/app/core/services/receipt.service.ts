@@ -13,6 +13,6 @@ export interface Receipt {
 @Injectable({
   providedIn: 'root',
 })
-export class ReceiptService extends BaseService<Receipt> {
+export class ReceiptService extends BaseService {
   protected override readonly endpoint = 'api/v1/receipts';
 }

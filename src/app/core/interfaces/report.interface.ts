@@ -4,10 +4,12 @@ export enum ReportType {
   YEAR = 'year',
 }
 
-export interface ReportQuery {
+export interface ReportQueryDto {
   startDate?: string;
   endDate?: string;
   type?: ReportType;
+  month?: number;
+  year?: number;
 }
 
 export interface RoomStatsSummary {

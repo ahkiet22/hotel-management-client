@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, signal, inject, computed } from '@angular
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { RoomTypeService, AvailableRoom } from '@core/services/room-type.service';
+import { RoomTypeService } from '@core/services/room-type.service';
 import {
   LucideAngularModule,
   Calendar,
@@ -15,7 +15,8 @@ import {
 import { Meta, Title } from '@angular/platform-browser';
 import { AuthStore } from '@core/stores/auth.store';
 import { BookingService } from '@core/services/booking.service';
-import { RoomType } from '@core/interfaces';
+import { AvailableRoom } from '@core/interfaces/booking.dto';
+import { RoomType } from '@core/interfaces/room-type.dto';
 
 @Component({
   selector: 'app-booking-page',
@@ -69,8 +70,24 @@ export class BookingPageComponent implements OnInit, OnDestroy {
   couponSuccess = signal<string>('');
   isApplyingCoupon = signal(false);
 
-  // Computed data
-  selectedRoom = computed(() => this.rooms().find((r) => r.id === this.selectedRoomId()) || null);
+  // Computed data — enrichedRooms MUST be declared before selectedRoom
+  enrichedRooms = computed(() => {
+    const types = this.roomTypes();
+    const result = this.rooms().map((room: any) => {
+      const type = types.find((t: any) => t.id === room.roomTypeId);
+      return {
+        ...room,
+        roomTypeName: type?.name || room.roomTypeName || 'Standard Room',
+        basePrice: Number(type?.basePrice || room.basePrice || 0),
+        pricePerNight: Number(type?.pricePerNight || room.pricePerNight || type?.basePrice || room.basePrice || 0),
+        images: type?.images || room.images || [],
+        typeDescription: type?.description || room.description || '',
+      };
+    });
+    return result;
+  });
+
+  selectedRoom = computed(() => this.enrichedRooms().find((r) => r.id === this.selectedRoomId()) || null);
 
   totalNights = computed(() => {
     if (!this.checkIn() || !this.checkOut()) return 1;
@@ -83,8 +100,8 @@ export class BookingPageComponent implements OnInit, OnDestroy {
 
   totalPrice = computed(() => {
     const room = this.selectedRoom();
-    if (!room || !room.pricePerNight) return 0;
-    return Number(room.pricePerNight) * this.totalNights();
+    if (!room) return 0;
+    return Number(room.basePrice || 0) * this.totalNights();
   });
 
   icons = {
@@ -148,9 +165,9 @@ export class BookingPageComponent implements OnInit, OnDestroy {
     if (pendingId) {
       this.bookingService.getById(pendingId).subscribe({
         next: (res: any) => {
-          if (res.paymentStatus === 'PAID') {
+          if (res.status === 'Confirmed') {
             this.bookingResult.set(res);
-            this.confirmBooking(res.id);
+            this.onConfirmBooking(res.id);
           } else {
             this.bookingResult.set(res);
             this.getPaymentQr(res);
@@ -173,18 +190,25 @@ export class BookingPageComponent implements OnInit, OnDestroy {
     const typeId = this.selectedRoomTypeId() || undefined;
 
     // Format dates with time for API
-    const checkInDate = this.checkIn() ? `${this.checkIn()}T14:00:00` : undefined;
-    const checkOutDate = this.checkOut() ? `${this.checkOut()}T12:00:00` : undefined;
+    const checkIn = this.checkIn() ? `${this.checkIn()}T14:00:00` : '';
+    const checkOut = this.checkOut() ? `${this.checkOut()}T12:00:00` : '';
 
-    this.roomTypeService
-      .getAvailableRoomTypes(typeId, checkInDate, checkOutDate, capacity)
+    if (!checkIn || !checkOut) {
+       this.isLoading.set(false);
+       return;
+    }
+
+    this.bookingService
+      .getAvailableRoomTypes({ roomTypeId: typeId, checkIn, checkOut, capacity })
       .subscribe({
-        next: (data) => {
-          this.rooms.set(data.result);
+        next: (data: any) => {
+          console.log("getAvailableRoomTypes", data);
+          const result = Array.isArray(data) ? data : (data?.result || []);
+          this.rooms.set(result);
           this.isLoading.set(false);
           
           // Reset selection if the current selected room is no longer in the list
-          if (this.selectedRoomId() && !data.result.find(r => r.id === this.selectedRoomId())) {
+          if (this.selectedRoomId() && !result.find((r: any) => r.id === this.selectedRoomId())) {
             this.selectedRoomId.set(null);
           }
         },
@@ -197,8 +221,9 @@ export class BookingPageComponent implements OnInit, OnDestroy {
   }
 
   loadRoomTypes() {
-    this.roomTypeService.getAll().subscribe({
+    this.roomTypeService.getAllPublic().subscribe({
       next: (res) => {
+        console.log("getAllPublic", res)
         this.roomTypes.set(res.result);
       },
     });
@@ -227,15 +252,12 @@ export class BookingPageComponent implements OnInit, OnDestroy {
 
     const bookingData = {
       customerId: user.id,
-      roomTypeId: selectedRoom.roomTypeId,
-      roomIds: [selectedRoom.id],
-      checkIn: `${this.checkIn()}T14:00:00`,
-      checkOut: `${this.checkOut()}T12:00:00`,
-      adults: Number(this.adults()),
-      children: Number(this.children())
+      roomTypeId: selectedRoom.id,
+      checkInDate: `${this.checkIn()}T14:00:00`,
+      checkOutDate: `${this.checkOut()}T12:00:00`,
     };
 
-    this.bookingService.createByCustomer(bookingData).subscribe({
+    this.bookingService.create(bookingData).subscribe({
       next: (res: any) => {
         this.bookingResult.set(res);
         localStorage.setItem('pendingBookingId', res.id);
@@ -254,7 +276,7 @@ export class BookingPageComponent implements OnInit, OnDestroy {
 
   getPaymentQr(booking: any) {
     this.paymentQr.set(null); // Show loading
-    const amount = booking.finalAmount || booking.grantTotal;
+    const amount = booking.grandTotal;
     const description = `BOOKING_${booking.id}`;
     this.bookingService.getPaymentQr(amount, description).subscribe({
       next: (res: string) => {
@@ -269,7 +291,7 @@ export class BookingPageComponent implements OnInit, OnDestroy {
     this.couponError.set('');
     this.couponSuccess.set('');
     
-    this.bookingService.applyCoupon(this.bookingResult().id, this.couponCode()).subscribe({
+    this.bookingService.applyCoupon({ bookingId: this.bookingResult().id, couponCode: this.couponCode() }).subscribe({
       next: (res: any) => {
         this.bookingResult.set(res);
         this.couponSuccess.set('Coupon applied successfully!');
@@ -288,9 +310,9 @@ export class BookingPageComponent implements OnInit, OnDestroy {
     this.pollingInterval = setInterval(() => {
       this.bookingService.getById(bookingId).subscribe({
         next: (booking: any) => {
-          if (booking.paymentStatus === 'PAID') {
+          if (booking.status === 'Confirmed') {
             this.stopPaymentPolling();
-            this.confirmBooking(bookingId);
+            this.onConfirmBooking(bookingId);
           }
         }
       });
@@ -303,8 +325,8 @@ export class BookingPageComponent implements OnInit, OnDestroy {
     }
   }
 
-  confirmBooking(bookingId: string) {
-    this.bookingService.confirmBooking(bookingId).subscribe({
+  onConfirmBooking(bookingId: string) {
+    this.bookingService.confirm(bookingId).subscribe({
       next: () => {
         localStorage.removeItem('pendingBookingId');
         this.step.set('success');
@@ -315,5 +337,12 @@ export class BookingPageComponent implements OnInit, OnDestroy {
   goBack() {
     if (this.step() === 'personal') this.step.set('selection');
     if (this.step() === 'payment') this.step.set('personal');
+  }
+
+  getRoomImage(room: any): string {
+    if (room?.images && Array.isArray(room.images) && room.images.length > 0) {
+      return room.images[0];
+    }
+    return 'assets/images/pic-1.jpg';
   }
 }

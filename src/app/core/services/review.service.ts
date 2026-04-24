@@ -14,6 +14,6 @@ export interface Review {
 @Injectable({
   providedIn: 'root',
 })
-export class ReviewService extends BaseService<Review> {
+export class ReviewService extends BaseService {
   protected override readonly endpoint = 'api/v1/reviews';
 }

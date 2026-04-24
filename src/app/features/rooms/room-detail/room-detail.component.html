@@ -23,23 +23,31 @@
     <!-- Image Gallery Section -->
     <div class="lg:col-span-7 space-y-6">
       <div class="aspect-video rounded-3xl overflow-hidden shadow-2xl relative group">
-        <img src="assets/images/hero.jpg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Main View">
-        <div class="absolute top-6 right-6 px-4 py-2 bg-white/90 backdrop-blur-sm rounded-full text-xs font-black uppercase tracking-widest text-blue-600 shadow-sm">
-          {{ room()?.status }}
+        <img 
+          [src]="getMainImage()" 
+          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
+          alt="Main View"
+          (error)="onImgError($event)"
+        >
+        <div class="absolute top-6 right-6 px-4 py-2 bg-white/90 backdrop-blur-sm rounded-full text-xs font-black uppercase tracking-widest"
+             [ngClass]="room()?.status === 'Vacant' ? 'text-green-600' : 'text-red-500'">
+          {{ room()?.status === 'Vacant' ? 'Available' : room()?.status }}
         </div>
       </div>
       
       <div class="grid grid-cols-3 gap-6">
-        <div class="aspect-square rounded-2xl overflow-hidden border-2 border-slate-50 shadow-sm hover:shadow-lg transition-all cursor-pointer">
-          <img src="assets/images/pic-1.jpg" class="w-full h-full object-cover hover:scale-110 transition-transform duration-500" alt="Detail View">
-        </div>
-        <div class="aspect-square rounded-2xl overflow-hidden border-2 border-slate-50 shadow-sm hover:shadow-lg transition-all cursor-pointer">
-          <img src="assets/images/pic-1.jpg" class="w-full h-full object-cover hover:scale-110 transition-transform duration-500" alt="Detail View 2">
-        </div>
-        <div class="relative aspect-square rounded-2xl overflow-hidden border-2 border-slate-50 shadow-sm hover:shadow-lg transition-all cursor-pointer group">
-          <img src="assets/images/hero.jpg" class="w-full h-full object-cover blur-[2px] brightness-50" alt="More Photos">
+        <ng-container *ngFor="let img of getGalleryImages(); let i = index">
+          <div 
+            class="aspect-square rounded-2xl overflow-hidden border-2 border-slate-50 shadow-sm hover:shadow-lg transition-all cursor-pointer"
+            (click)="setMainImage(img)"
+          >
+            <img [src]="img" class="w-full h-full object-cover hover:scale-110 transition-transform duration-500" [alt]="'Room photo ' + (i+1)" (error)="onImgError($event)">
+          </div>
+        </ng-container>
+        <div *ngIf="getRemainingCount() > 0" class="relative aspect-square rounded-2xl overflow-hidden border-2 border-slate-50 shadow-sm hover:shadow-lg transition-all cursor-pointer group">
+          <img [src]="getMainImage()" class="w-full h-full object-cover blur-[2px] brightness-50" alt="More Photos">
           <div class="absolute inset-0 flex flex-col items-center justify-center text-white pointer-events-none">
-            <span class="text-2xl font-black">+12</span>
+            <span class="text-2xl font-black">+{{ getRemainingCount() }}</span>
             <span class="text-[10px] font-bold uppercase tracking-widest opacity-80 mt-1">Photos</span>
           </div>
         </div>
@@ -58,7 +66,7 @@
       </div>
 
       <h1 class="text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-none mb-4">
-        {{ room()?.roomType?.name }} Suite <span class="text-blue-600">No. {{ room()?.roomNumber }}</span>
+        {{ room()?.roomTypeName }} Suite <span class="text-blue-600">No. {{ room()?.roomNumber }}</span>
       </h1>
       <p class="text-slate-500 font-medium leading-relaxed mb-8">
         Experience unparalleled luxury with breathtaking city views, custom-designed furniture, and state-of-the-art technology integration for a seamless stay.
@@ -81,7 +89,7 @@
           </div>
           <div>
             <p class="text-[10px] uppercase font-black tracking-widest text-slate-400">Capacity</p>
-            <p class="font-bold text-slate-900 leading-none mt-0.5">2 Guest</p>
+            <p class="font-bold text-slate-900 leading-none mt-0.5">{{ room()?.capacity || 1 }} Guest{{ (room()?.capacity || 1) > 1 ? 's' : '' }}</p>
           </div>
         </div>
       </div>
@@ -91,7 +99,7 @@
         <div class="flex items-end justify-between mb-8">
           <div>
             <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Starting from</p>
-            <h2 class="text-4xl font-black">${{ room()?.roomType?.basePrice }} <span class="text-lg font-bold text-slate-500">/ night</span></h2>
+            <h2 class="text-4xl font-black">{{ room()?.pricePerNight | currency:'VND' }} <span class="text-lg font-bold text-slate-500">/ night</span></h2>
           </div>
           <div class="bg-blue-600 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest">
             Best Price

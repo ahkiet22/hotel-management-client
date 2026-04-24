@@ -35,15 +35,30 @@
     <div class="grid grid-cols-2 gap-4">
       <!-- Base Price -->
       <div class="space-y-2">
-        <label hlmLabel>Base Price ($)</label>
+        <label hlmLabel>Base Price (VND)</label>
         <input 
           hlmInput
           type="number" 
-          formControlName="basePrice"
+          formControlName="base_price"
           class="w-full"
-          [error]="form.get('basePrice')?.invalid && form.get('basePrice')?.touched ? true : 'auto'"
+          [error]="form.get('base_price')?.invalid && form.get('base_price')?.touched ? true : 'auto'"
         />
       </div>
+
+      <!-- Price Per Night -->
+      <div class="space-y-2">
+        <label hlmLabel>Price Per Night (VND)</label>
+        <input 
+          hlmInput
+          type="number" 
+          formControlName="price_per_night"
+          class="w-full"
+          [error]="form.get('price_per_night')?.invalid && form.get('price_per_night')?.touched ? true : 'auto'"
+        />
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
 
       <!-- Capacity -->
       <div class="space-y-2">

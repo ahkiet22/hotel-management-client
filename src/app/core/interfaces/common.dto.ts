@@ -1,11 +1,7 @@
 export interface ApiResponse<T> {
-  success: boolean;
   statusCode: number;
-  path: string;
-  method: string;
   message: string;
   data: T;
-  timestamp: string;
 }
 
 export interface Meta {
@@ -15,7 +11,18 @@ export interface Meta {
   totalItems: number;
 }
 
-export interface ListResponse<T> {
+export interface PaginatedResponse<T> {
   meta: Meta;
   result: T[];
+}
+
+export interface QueryParams {
+  page?: number;
+  limit?: number;
+  [key: string]: any;
+}
+
+export enum DiscountType {
+  PERCENTAGE = 'percentage',
+  FIXED = 'fixed',
 }

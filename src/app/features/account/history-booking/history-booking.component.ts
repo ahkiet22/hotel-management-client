@@ -13,7 +13,7 @@ import { BookingService, Booking } from '@core/services/booking.service';
       <!-- Search & Filters -->
       <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col md:flex-row gap-4 justify-between items-center">
         <div class="relative w-full md:w-96">
-          <lucide-icon [name]="SearchIcon" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></lucide-icon>
+          <lucide-icon [img]="SearchIcon" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></lucide-icon>
           <input
             type="text"
             [(ngModel)]="searchQuery"
@@ -24,7 +24,7 @@ import { BookingService, Booking } from '@core/services/booking.service';
         </div>
         
         <div class="flex items-center gap-3 w-full md:w-auto">
-          <lucide-icon [name]="FilterIcon" class="w-4 h-4 text-slate-500"></lucide-icon>
+          <lucide-icon [img]="FilterIcon" class="w-4 h-4 text-slate-500"></lucide-icon>
           <select
             [(ngModel)]="statusFilter"
             (change)="applyFilters()"
@@ -44,7 +44,7 @@ import { BookingService, Booking } from '@core/services/booking.service';
       <div class="space-y-4">
         <div *ngIf="filteredBookings.length === 0" class="bg-white p-12 rounded-3xl border border-slate-100 text-center space-y-4 shadow-sm py-20">
           <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto text-slate-300">
-            <lucide-icon [name]="HistoryIcon" class="w-10 h-10"></lucide-icon>
+            <lucide-icon [img]="HistoryIcon" class="w-10 h-10"></lucide-icon>
           </div>
           <h3 class="text-xl font-bold text-slate-900">No bookings found</h3>
           <p class="text-slate-500 max-w-sm mx-auto">Try adjusting your filters or search terms to find what you're looking for.</p>
@@ -59,37 +59,45 @@ import { BookingService, Booking } from '@core/services/booking.service';
             <!-- Icon/Status Indicator -->
             <div class="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-sm transition-transform group-hover:scale-110 duration-300" 
                  [ngClass]="getStatusStyles(booking.status)">
-              <lucide-icon [name]="getStatusIcon(booking.status)" class="w-6 h-6"></lucide-icon>
+              <lucide-icon [img]="getStatusIcon(booking.status)" class="w-6 h-6"></lucide-icon>
             </div>
 
             <!-- Details -->
-            <div class="flex-1 space-y-1 min-w-0">
+            <div class="flex-1 space-y-1.5 min-w-0">
               <div class="flex items-center gap-2 mb-1">
-                <span class="text-xs font-bold text-blue-600 px-2 py-0.5 bg-blue-50 rounded-md">ID: {{booking.shortId}}</span>
+                <span class="text-xs font-bold text-blue-600 px-2 py-0.5 bg-blue-50 rounded-md border border-blue-100">ID: {{booking.shortId}}</span>
                 <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md" [ngClass]="getStatusBadgeStyles(booking.status)">
                   {{booking.status}}
                 </span>
               </div>
-              <h4 class="font-bold text-slate-900 truncate flex items-center gap-2">
-                Booking from {{booking.checkIn | date:'mediumDate'}}
-                <lucide-icon [name]="ArrowRightIcon" class="w-3.5 h-3.5 text-slate-300"></lucide-icon>
-                {{booking.checkOut | date:'mediumDate'}}
+              <h4 class="font-bold text-slate-900 truncate">
+                Hotel Booking Reservation
               </h4>
-              <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
+              <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-slate-500 mt-1">
+                <ng-container *ngIf="booking.checkInDate && booking.checkOutDate">
+                  <span class="flex items-center gap-1.5 font-medium bg-slate-50 border border-slate-100 px-2 py-1 rounded-md text-slate-600">
+                    <lucide-icon [img]="CalendarIcon" class="w-3.5 h-3.5 text-blue-500"></lucide-icon>
+                    {{booking.checkInDate | date:'mediumDate'}}
+                    <lucide-icon [img]="ArrowRightIcon" class="w-3 h-3 text-slate-400"></lucide-icon>
+                    {{booking.checkOutDate | date:'mediumDate'}}
+                  </span>
+                </ng-container>
+
                 <span class="flex items-center gap-1.5 font-medium">
-                  <lucide-icon [name]="CalendarIcon" class="w-3.5 h-3.5"></lucide-icon>
-                  Created on {{booking.createdAt | date:'medium'}}
+                  <lucide-icon [img]="ClockIcon" class="w-3.5 h-3.5 text-slate-400"></lucide-icon>
+                  Created: {{booking.createdAt | date:'medium'}}
                 </span>
-                <span class="flex items-center gap-1.5 font-bold text-slate-700">
-                  <lucide-icon [name]="CreditCardIcon" class="w-3.5 h-3.5 text-blue-500"></lucide-icon>
-                  {{booking.grandTotal | currency}}
+                
+                <span class="flex items-center gap-1.5 font-bold text-slate-800 text-sm">
+                  <lucide-icon [img]="CreditCardIcon" class="w-4 h-4 text-emerald-500"></lucide-icon>
+                  {{booking.grandTotal | currency:'VND'}}
                 </span>
               </div>
             </div>
 
             <!-- Action Button -->
             <button class="shrink-0 w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all text-slate-400">
-              <lucide-icon [name]="ChevronRightIcon" class="w-5 h-5"></lucide-icon>
+              <lucide-icon [img]="ChevronRightIcon" class="w-5 h-5"></lucide-icon>
             </button>
           </div>
         </div>
@@ -111,6 +119,7 @@ export class HistoryBookingComponent implements OnInit {
   readonly CalendarIcon = Calendar;
   readonly ChevronRightIcon = ChevronRight;
   readonly ArrowRightIcon = ChevronRight;
+  readonly ClockIcon = Clock;
 
   bookings: Booking[] = [];
   filteredBookings: Booking[] = [];
@@ -120,8 +129,18 @@ export class HistoryBookingComponent implements OnInit {
   constructor(private bookingService: BookingService) {}
 
   ngOnInit(): void {
-    this.bookingService.getAll().subscribe(data => {
-      this.bookings = data.result;
+    this.bookingService.getMyBookings().subscribe((data: any) => {
+      console.log('Bookings API response:', data);
+      
+      // Handle both direct array or paginated response format
+      if (Array.isArray(data)) {
+        this.bookings = data;
+      } else if (data && data.result && Array.isArray(data.result)) {
+        this.bookings = data.result;
+      } else {
+        this.bookings = [];
+      }
+      
       this.applyFilters();
     });
   }

@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { ApiResponse } from '@core/interfaces/api';
+import { ApiResponse } from '@core/interfaces';
 
 @Injectable({
   providedIn: 'root',
@@ -27,7 +27,7 @@ export class UploadService {
     }
 
     return this.http
-      .post<ApiResponse<{ message: string; urls: string[] }>>(`${this.baseUrl}/images`, formData)
+      .post<ApiResponse<{ message: string; urls: string[] }>>(`${this.baseUrl}images`, formData)
       .pipe(map(res => res.data.urls));
   }
 
@@ -50,7 +50,7 @@ export class UploadService {
 
     return this.http
       .post<ApiResponse<{ message: string; urls: string[]; roomTypeId: string }>>(
-        `${this.baseUrl}/room-type-images`,
+        `${this.baseUrl}room-type-images`,
         formData
       )
       .pipe(map(res => res.data.urls));

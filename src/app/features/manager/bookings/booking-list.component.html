@@ -74,7 +74,7 @@
                 <div class="space-y-1">
                   <div class="flex items-center gap-1.5 text-sm font-medium text-slate-700">
                     <lucide-icon [img]="icons.Calendar" class="w-3.5 h-3.5 text-slate-400 shrink-0"></lucide-icon>
-                    {{ booking.checkIn | date:'dd MMM' }} → {{ booking.checkOut | date:'dd MMM yyyy' }}
+                    {{ booking.checkInDate | date:'dd MMM' }} → {{ booking.checkOutDate | date:'dd MMM yyyy' }}
                   </div>
                   @if (booking.actualCheckOut) {
                     <div class="flex items-center gap-1.5 text-[11px] text-slate-400">
@@ -102,9 +102,9 @@
 
               <!-- Amount -->
               <td class="px-6 py-5">
-                <p class="text-sm font-bold text-slate-900">${{ booking.grandTotal | number:'1.2-2' }}</p>
+                <p class="text-sm font-bold text-slate-900">{{ booking.grandTotal | currency:'VND' }}</p>
                 <p class="text-[11px] text-slate-400 font-medium mt-0.5">
-                  Room: ${{ booking.totalRoomPrice }} / Svc: ${{ booking.totalServicePrice }}
+                  Room: {{ booking.totalRoomPrice | currency:'VND' }} / Svc: {{ booking.totalServicePrice | currency:'VND' }}
                 </p>
               </td>
 

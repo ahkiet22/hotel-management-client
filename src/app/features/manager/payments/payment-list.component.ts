@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { PaymentService, Payment } from '@core/services/payment.service';
 import { LucideAngularModule, Search, Filter, MoreHorizontal, CreditCard, DollarSign } from 'lucide-angular';
 
-import { Meta } from '@core/interfaces/api';
+import { Meta } from '@core/interfaces';
 
 @Component({
   selector: 'app-payment-list',

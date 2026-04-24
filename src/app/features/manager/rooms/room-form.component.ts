@@ -6,9 +6,9 @@ import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmLabel } from '@spartan-ng/helm/label';
 import { HlmCheckbox } from '@spartan-ng/helm/checkbox';
 import { RoomTypeService } from '@core/services/room-type.service';
-import { CreateRoomDto } from '@core/interfaces/room.dto';
+import { CreateRoomDto, Room, RoomStatus } from '@core/interfaces/room.dto';
+import { RoomType } from '@core/interfaces/room-type.dto';
 import { UiModalComponent } from '@shared/components/ui-modal/ui-modal.component';
-import { Room, RoomType } from '@core/interfaces';
 
 @Component({
   selector: 'app-room-form',
@@ -33,15 +33,15 @@ export class RoomFormComponent implements OnChanges, OnInit {
     { label: 'Vacant', value: 'Vacant' },
     { label: 'Reserved', value: 'Reserved' },
     { label: 'Occupied', value: 'Occupied' },
-    { label: 'Out of Order', value: 'Out of Order' }
+    { label: 'Out of Order', value: 'Out_of_Order' }
   ];
 
   constructor() {
     this.form = this.fb.group({
-      roomNumber: ['', [Validators.required, Validators.maxLength(10)]],
+      room_number: ['', [Validators.required, Validators.maxLength(10)]],
       description: [''],
-      isPublic: [true],
-      roomTypeId: ['', [Validators.required]],
+      is_public: [true],
+      room_type_id: ['', [Validators.required]],
       status: ['Vacant', [Validators.required]],
     });
   }
@@ -60,19 +60,19 @@ export class RoomFormComponent implements OnChanges, OnInit {
     if (changes['room'] && this.room) {
       this.isEdit.set(true);
       this.form.patchValue({
-        roomNumber: this.room.roomNumber,
-        description: '', 
-        isPublic: this.room.isPublic ?? true,
-        roomTypeId: this.room.roomTypeId,
+        room_number: this.room.room_number,
+        description: this.room.description ?? '', 
+        is_public: this.room.is_public ?? true,
+        room_type_id: this.room.room_type_id,
         status: this.room.status,
       });
     } else if (changes['room'] && !this.room) {
       this.isEdit.set(false);
       this.form.reset({
-        roomNumber: '',
+        room_number: '',
         description: '',
-        isPublic: true,
-        roomTypeId: '',
+        is_public: true,
+        room_type_id: '',
         status: 'Vacant',
       });
     }

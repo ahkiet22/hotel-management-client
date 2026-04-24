@@ -170,7 +170,7 @@
             <img [src]="'assets/images/pic-1.jpg'" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="Room" />
             <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
             <span class="absolute top-4 right-4 bg-[#7C6A46] text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg">
-              ${{ room.pricePerNight }}/night
+              {{ room.base_price | currency:'VND' }}/night
             </span>
           </div>
           <div class="p-8 text-left">
@@ -178,10 +178,10 @@
               <lucide-icon *ngFor="let s of [1,2,3,4,5]" [img]="icons.Star" class="w-3.5 h-3.5 fill-current"></lucide-icon>
             </div>
             <h3 class="font-heading font-bold text-xl md:text-2xl text-[#1C1C1C] mb-3 leading-tight group-hover:text-[#7C6A46] transition-colors">
-              {{ room.roomTypeName }} - Room {{ room.roomNumber }}
+              {{ room.room_type_name }} - Room {{ room.room_number }}
             </h3>
             <p class="text-sm md:text-base text-black/50 leading-relaxed mb-6 line-clamp-2">
-              {{ room.description || 'Experience comfort and luxury in our premium ' + room.roomTypeName + '. Perfect for a relaxing stay.' }}
+              {{ room.description || 'Experience comfort and luxury in our premium ' + room.room_type_name + '. Perfect for a relaxing stay.' }}
             </p>
             <button (click)="bookRoom(room.id)" class="w-full h-12 rounded-xl bg-[#FAFAFA] border border-black/5 font-bold text-[#7C6A46] hover:bg-[#7C6A46] hover:text-white transition-all">
               Book this room

@@ -1,9 +1,8 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { UserService, User } from '@core/services/user.service';
+import { UserService } from '@core/services/user.service';
 import { LucideAngularModule, Search, Filter, UserPlus, Pencil, Trash2 } from 'lucide-angular';
-import { Meta } from '@core/interfaces/api';
-import { CreateUserDto } from '@core/interfaces/user.dto';
+import { CreateUserDto, User } from '@core/interfaces/user.dto';
 import { UserFormComponent } from './user-form.component';
 import { UiConfirmComponent } from '@shared/components/ui-confirm/ui-confirm.component';
 
@@ -17,7 +16,7 @@ export class UserListComponent implements OnInit {
   private userService = inject(UserService);
 
   users = signal<User[]>([]);
-  pagination = signal<Meta>({ page: 1, limit: 10, totalPages: 1, totalItems: 0 });
+  pagination = signal({ page: 1, limit: 10, totalPages: 1, totalItems: 0 });
   isLoading = signal(true);
 
   // Form state
@@ -63,8 +62,8 @@ export class UserListComponent implements OnInit {
 
   onSave(data: CreateUserDto) {
     const obs = this.selectedUser()
-      ? this.userService.update(this.selectedUser()!.id, data as any)
-      : this.userService.create(data as any);
+      ? this.userService.update(this.selectedUser()!.id, data)
+      : this.userService.create(data);
 
     obs.subscribe({
       next: () => {

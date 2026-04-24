@@ -3,7 +3,8 @@ import { Component, OnInit, signal, inject } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { RoomTypeService, AvailableRoom } from '@core/services/room-type.service';
+import { RoomTypeService } from '@core/services/room-type.service';
+import { BookingService } from '@core/services/booking.service';
 import {
   LucideAngularModule,
   Play,
@@ -25,7 +26,7 @@ import {
   Car,
   Info,
 } from 'lucide-angular';
-import { RoomType } from '@core/interfaces';
+import { AvailableRoom, RoomType } from '@core/interfaces';
 
 @Component({
   selector: 'app-home-page',
@@ -36,6 +37,7 @@ import { RoomType } from '@core/interfaces';
 export class HomePageComponent implements OnInit {
   private router = inject(Router);
   private roomTypeService = inject(RoomTypeService);
+  private bookingService = inject(BookingService);
 
   // Booking signals
   checkIn = signal<string>('');
@@ -143,11 +145,13 @@ export class HomePageComponent implements OnInit {
     const capacity = this.adults() + this.children();
     
     // Format dates with time for API
-    const checkInDate = this.checkIn() ? `${this.checkIn()}T14:00:00` : undefined;
-    const checkOutDate = this.checkOut() ? `${this.checkOut()}T12:00:00` : undefined;
+    const checkIn = this.checkIn() ? `${this.checkIn()}T14:00:00` : '';
+    const checkOut = this.checkOut() ? `${this.checkOut()}T12:00:00` : '';
 
-    this.roomTypeService
-      .getAvailableRoomTypes(undefined, checkInDate, checkOutDate, capacity)
+    if (!checkIn || !checkOut) return;
+
+    this.bookingService
+      .getAvailableRoomTypes({ checkIn, checkOut, capacity })
       .subscribe({
         next: (res) => {
           this.rooms.set(res.result.slice(0, 3)); // Show first 3 rooms

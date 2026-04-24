@@ -28,7 +28,7 @@
               {{ rcpt.booking_id }}
             </td>
             <td class="px-6 py-5">
-              <span class="text-sm font-bold text-slate-900">${{ rcpt.total_amount }}</span>
+              <span class="text-sm font-bold text-slate-900">{{ rcpt.total_amount | currency:'VND' }}</span>
             </td>
             <td class="px-6 py-5 text-sm text-slate-500">
               {{ rcpt.issued_date | date:'medium' }}

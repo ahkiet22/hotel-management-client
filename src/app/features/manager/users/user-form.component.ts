@@ -7,8 +7,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmLabel } from '@spartan-ng/helm/label';
-import { User } from '@core/services/user.service';
-import { CreateUserDto } from '@core/interfaces/user.dto';
+import { CreateUserDto, User } from '@core/interfaces/user.dto';
 import { UiModalComponent } from '@shared/components/ui-modal/ui-modal.component';
 
 @Component({

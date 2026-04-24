@@ -49,7 +49,7 @@
                 <p class="text-sm text-slate-500 max-w-xs truncate">{{ srv.description || '—' }}</p>
               </td>
               <td class="px-6 py-5">
-                <span class="text-sm font-bold text-slate-900">${{ srv.price }}</span>
+                <span class="text-sm font-bold text-slate-900">{{ srv.price | currency:'VND' }}</span>
               </td>
               <td class="px-6 py-5">
                 <span

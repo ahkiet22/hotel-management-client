@@ -1,13 +1,13 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RoomTypeService } from '@core/services/room-type.service';
+import { BookingService } from '@core/services/booking.service';
 import { LucideAngularModule, Search, Filter, MoreHorizontal, Plus, Layout, Edit, Trash2 } from 'lucide-angular';
-import { Meta } from '@core/interfaces/api';
 import { RoomTypeFormComponent } from './room-type-form.component';
-import { CreateRoomTypeDto } from '@core/interfaces/room-type.dto';
+import { CreateRoomTypeDto, RoomType } from '@core/interfaces/room-type.dto';
 
 import { UiConfirmComponent } from '@shared/components/ui-confirm/ui-confirm.component';
-import { RoomType } from '@core/interfaces';
+import { Meta } from '@core/interfaces';
 
 @Component({
   selector: 'app-room-type-list',
@@ -17,6 +17,8 @@ import { RoomType } from '@core/interfaces';
 })
 export class RoomTypeListComponent implements OnInit {
   private roomTypeService = inject(RoomTypeService);
+  private bookingService = inject(BookingService);
+
   roomTypes = signal<RoomType[]>([]);
   pagination = signal<Meta>({ page: 1, limit: 10, totalPages: 1, totalItems: 0 });
   isLoading = signal(true);
@@ -48,16 +50,27 @@ export class RoomTypeListComponent implements OnInit {
     this.isLoading.set(true);
     
     if (this.showOnlyAvailable()) {
-      this.roomTypeService.getAvailableRoomTypes().subscribe({
+      const today = new Date();
+      const tomorrow = new Date(today);
+      tomorrow.setDate(today.getDate() + 1);
+
+      this.bookingService.getAvailableRoomTypes({
+        checkIn: today.toISOString(),
+        checkOut: tomorrow.toISOString(),
+        page: this.pagination().page,
+        limit: this.pagination().limit
+      }).subscribe({
         next: (res) => {
           // Map AvailableRoom to something that looks like RoomType for the list
-          const mapped: RoomType[] = res.result.map(r => ({
+          const mapped: RoomType[] = res.result.map((r: any) => ({
             id: r.id,
-            name: `${r.roomTypeName} (Room ${r.roomNumber})`,
+            name: `${r.room_type_name} (Room ${r.room_number})`,
             description: r.description || undefined,
-            basePrice: Number(r.pricePerNight),
-            capacity: r.capacity
-
+            base_price: Number(r.base_price),
+            capacity: r.capacity,
+            price_per_night: Number(r.price_per_night || r.base_price),
+            created_at: '',
+            updated_at: ''
           }));
           this.roomTypes.set(mapped);
           this.pagination.set(res.meta);
@@ -66,7 +79,7 @@ export class RoomTypeListComponent implements OnInit {
         error: () => this.isLoading.set(false)
       });
     } else {
-      this.roomTypeService.getAll().subscribe({
+      this.roomTypeService.getAll({ page: this.pagination().page, limit: this.pagination().limit }).subscribe({
         next: (res) => {
           this.roomTypes.set(res.result);
           this.pagination.set(res.meta);

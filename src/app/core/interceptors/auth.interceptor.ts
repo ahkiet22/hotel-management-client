@@ -4,7 +4,8 @@ import {
   HttpInterceptor,
   HttpRequest,
 } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, PLATFORM_ID, Inject, Injector } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { IS_PUBLIC_ENABLED } from '@core/http/context.http';
 import { AuthService } from '@core/services/auth.service';
 import { StorageService } from '@core/services/storage.service';
@@ -14,8 +15,17 @@ import { BehaviorSubject, catchError, filter, switchMap, take, throwError } from
 export class AuthInterceptor implements HttpInterceptor {
   private isRefreshing = false;
   private refreshTokenSubject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
-  private authService = inject(AuthService);
-  private storageService = inject(StorageService);
+
+  constructor(
+    private injector: Injector,
+    private storageService: StorageService,
+    @Inject(PLATFORM_ID) private platformId: object
+  ) {}
+
+  private get authService(): AuthService {
+    return this.injector.get(AuthService);
+  }
+
 
   intercept(req: HttpRequest<any>, next: HttpHandler) {
     // If IS_PUBLIC_ENABLED is true, do not add the Authorization header
@@ -40,17 +50,25 @@ export class AuthInterceptor implements HttpInterceptor {
     );
   }
 
+
   // Handle 401 errors by attempting to refresh the token
   private handle401Error(request: HttpRequest<any>, next: HttpHandler) {
+    const isBrowser = isPlatformBrowser(this.platformId);
+    if (!isBrowser) {
+      return next.handle(request);
+    }
+
     if (!this.isRefreshing) {
+
+
       this.isRefreshing = true;
       this.refreshTokenSubject.next(null);
 
-      return this.authService.refreshToken().pipe(
+      return this.authService.refresh().pipe(
         switchMap((response) => {
           this.isRefreshing = false;
-          this.refreshTokenSubject.next(response.data.accessToken);
-          return next.handle(this.addTokenHeader(request, response.data.accessToken));
+          this.refreshTokenSubject.next(response.accessToken);
+          return next.handle(this.addTokenHeader(request, response.accessToken));
         }),
         catchError((err) => {
           this.isRefreshing = false;

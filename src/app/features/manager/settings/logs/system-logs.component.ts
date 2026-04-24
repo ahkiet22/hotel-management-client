@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { SystemLogService, SystemLog } from '@core/services/system-log.service';
 import { LucideAngularModule, Activity, Clock, Shield, Search, User, Filter, RefreshCw, X } from 'lucide-angular';
 
-import { Meta } from '@core/interfaces/api';
+import { Meta } from '@core/interfaces';
 
 @Component({
   selector: 'app-system-logs',

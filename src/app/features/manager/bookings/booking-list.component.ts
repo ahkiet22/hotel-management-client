@@ -1,12 +1,13 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { BookingService, Booking } from '@core/services/booking.service';
+import { BookingService } from '@core/services/booking.service';
+import { Booking, BookingStatus } from '@core/interfaces/booking.dto';
 import {
   LucideAngularModule, Search, Filter, Plus, Calendar,
   CheckCircle, Clock, Eye, X, RefreshCw, QrCode, Ticket, Check, LogOut
 } from 'lucide-angular';
-import { Meta } from '@core/interfaces/api';
+import { Meta } from '@core/interfaces';
 import { UiConfirmComponent } from '@shared/components/ui-confirm/ui-confirm.component';
 
 @Component({
@@ -42,7 +43,7 @@ export class BookingListComponent implements OnInit {
 
   loadBookings() {
     this.isLoading.set(true);
-    this.bookingService.getAll().subscribe({
+    this.bookingService.getAll({ page: this.pagination().page, limit: this.pagination().limit }).subscribe({
       next: (res) => {
         this.bookings.set(res.result);
         this.pagination.set(res.meta);
@@ -54,7 +55,7 @@ export class BookingListComponent implements OnInit {
 
   /** Confirm a Pending booking → Confirmed */
   confirmBooking(booking: Booking) {
-    this.bookingService.confirmBooking(booking.id).subscribe({
+    this.bookingService.confirm(booking.id).subscribe({
       next: () => this.loadBookings(),
       error: (err) => console.error('Error confirming booking:', err)
     });
@@ -69,7 +70,7 @@ export class BookingListComponent implements OnInit {
   onCancelConfirmed() {
     const booking = this.bookingToCancel();
     if (!booking) return;
-    this.bookingService.update(booking.id, { status: 'Cancelled' }).subscribe({
+    this.bookingService.update(booking.id, { status: BookingStatus.CANCELLED }).subscribe({
       next: () => {
         this.isConfirmOpen.set(false);
         this.bookingToCancel.set(null);
@@ -88,7 +89,7 @@ export class BookingListComponent implements OnInit {
   openQrModal(booking: Booking) {
     this.bookingService.getPaymentQr(booking.grandTotal, `Payment for ${booking.shortId}`).subscribe({
       next: (res) => {
-        this.qrImageUrl.set(res.qrDataURL || res.qrCode || res); // Depends on exact server response
+        this.qrImageUrl.set(res); 
         this.isQrModalOpen.set(true);
       },
       error: (err) => console.error('Error fetching QR:', err)
@@ -117,7 +118,7 @@ export class BookingListComponent implements OnInit {
     const code = this.couponCode();
     if (!booking || !code) return;
 
-    this.bookingService.applyCoupon(booking.id, code).subscribe({
+    this.bookingService.applyCoupon({ bookingId: booking.id, couponCode: code }).subscribe({
       next: () => {
         this.closeCouponModal();
         this.loadBookings();
@@ -128,14 +129,14 @@ export class BookingListComponent implements OnInit {
 
   /** Status Transitions */
   checkIn(booking: Booking) {
-    this.bookingService.update(booking.id, { status: 'Checked-in' }).subscribe({
+    this.bookingService.checkIn(booking.id).subscribe({
       next: () => this.loadBookings(),
       error: (err) => console.error('Error checking in:', err)
     });
   }
 
   checkOut(booking: Booking) {
-    this.bookingService.update(booking.id, { status: 'Checked-out' }).subscribe({
+    this.bookingService.checkOut(booking.id).subscribe({
       next: () => this.loadBookings(),
       error: (err) => console.error('Error checking out:', err)
     });

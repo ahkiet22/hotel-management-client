@@ -14,6 +14,6 @@ export interface Payment {
 @Injectable({
   providedIn: 'root',
 })
-export class PaymentService extends BaseService<Payment> {
+export class PaymentService extends BaseService {
   protected override readonly endpoint = 'api/v1/payments';
 }

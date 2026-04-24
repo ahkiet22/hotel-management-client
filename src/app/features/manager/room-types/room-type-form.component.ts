@@ -3,8 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmLabel } from '@spartan-ng/helm/label';
-import { RoomType } from '@core/interfaces';
-import { CreateRoomTypeDto } from '@core/interfaces/room-type.dto';
+import { RoomType, CreateRoomTypeDto } from '@core/interfaces/room-type.dto';
 import { UploadService } from '@core/services/upload.service';
 
 import { UiModalComponent } from '@shared/components/ui-modal/ui-modal.component';
@@ -32,7 +31,8 @@ export class RoomTypeFormComponent implements OnChanges {
     this.form = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(50)]],
       description: [''],
-      basePrice: [0, [Validators.required, Validators.min(0)]],
+      base_price: [0, [Validators.required, Validators.min(0)]],
+      price_per_night: [0, [Validators.required, Validators.min(0)]],
       capacity: [1, [Validators.required, Validators.min(1)]],
       images: [[]],
     });
@@ -44,7 +44,8 @@ export class RoomTypeFormComponent implements OnChanges {
       this.form.patchValue({
         name: this.roomType.name,
         description: this.roomType.description,
-        basePrice: this.roomType.basePrice,
+        base_price: this.roomType.base_price,
+        price_per_night: this.roomType.price_per_night,
         capacity: this.roomType.capacity,
         images: this.roomType.images || [],
       });
@@ -53,7 +54,8 @@ export class RoomTypeFormComponent implements OnChanges {
       this.form.reset({
         name: '',
         description: '',
-        basePrice: 0,
+        base_price: 0,
+        price_per_night: 0,
         capacity: 1,
         images: [],
       });

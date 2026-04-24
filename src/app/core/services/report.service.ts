@@ -1,58 +1,76 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { BaseService } from './base.service';
-import { Observable, map, catchError } from 'rxjs';
-import { ApiResponse } from '@core/interfaces/api';
+import { ApiResponse } from '../interfaces/common.dto';
 import { 
-  ReportQuery, 
-  ReportSummary, 
-  RoomStats, 
+  CustomerStats, 
+  ReportQueryDto, 
   RevenueStats, 
-  CustomerStats 
-} from '@core/interfaces/report.interface';
+  RoomStats, 
+  ReportSummary 
+} from '../interfaces/report.interface';
 
 @Injectable({
   providedIn: 'root'
 })
-export class ReportService extends BaseService<any> {
-  protected readonly endpoint = 'api/v1/reports';
+export class ReportService extends BaseService {
+  protected override readonly endpoint = 'api/v1/reports';
 
-  getSummary(query?: ReportQuery): Observable<ReportSummary> {
-    const params = this.buildParams(query);
-    return this.http.get<ApiResponse<ReportSummary>>(`${this.fullUrl}/summary`, { params }).pipe(
-      map(res => res.data),
-      catchError(this.handleError)
-    );
+  private getReportParams(query: ReportQueryDto): HttpParams {
+    let params = new HttpParams();
+    if (query.startDate) params = params.set('startDate', query.startDate);
+    if (query.endDate) params = params.set('endDate', query.endDate);
+    if (query.month) params = params.set('month', query.month.toString());
+    if (query.year) params = params.set('year', query.year.toString());
+    if (query.type) params = params.set('type', query.type);
+    return params;
   }
 
-  getRoomStats(query?: ReportQuery): Observable<RoomStats> {
-    const params = this.buildParams(query);
-    return this.http.get<ApiResponse<RoomStats>>(`${this.fullUrl}/rooms`, { params }).pipe(
-      map(res => res.data),
-      catchError(this.handleError)
-    );
+  getSummary(query: ReportQueryDto): Observable<ReportSummary> {
+    const params = this.getReportParams(query);
+    return this.http.get<ApiResponse<ReportSummary>>(`${this.baseUrl}${this.endpoint}/summary`, { params })
+      .pipe(
+        map(res => res.data),
+        catchError(this.handleError)
+      );
   }
 
-  getRevenueStats(query?: ReportQuery): Observable<RevenueStats> {
-    const params = this.buildParams(query);
-    return this.http.get<ApiResponse<RevenueStats>>(`${this.fullUrl}/revenue`, { params }).pipe(
-      map(res => res.data),
-      catchError(this.handleError)
-    );
+  getRoomStats(query: ReportQueryDto): Observable<RoomStats> {
+    const params = this.getReportParams(query);
+    return this.http.get<ApiResponse<RoomStats>>(`${this.baseUrl}${this.endpoint}/rooms`, { params })
+      .pipe(
+        map(res => res.data),
+        catchError(this.handleError)
+      );
   }
 
-  getCustomerStats(query?: ReportQuery): Observable<CustomerStats> {
-    const params = this.buildParams(query);
-    return this.http.get<ApiResponse<CustomerStats>>(`${this.fullUrl}/customers`, { params }).pipe(
-      map(res => res.data),
-      catchError(this.handleError)
-    );
+  getRevenueStats(query: ReportQueryDto): Observable<RevenueStats> {
+    const params = this.getReportParams(query);
+    return this.http.get<ApiResponse<RevenueStats>>(`${this.baseUrl}${this.endpoint}/revenue`, { params })
+      .pipe(
+        map(res => res.data),
+        catchError(this.handleError)
+      );
   }
 
-  exportCsv(query?: ReportQuery): Observable<Blob> {
-    const params = this.buildParams(query);
-    return this.http.get(`${this.fullUrl}/export`, { 
+  getCustomerStats(query: ReportQueryDto): Observable<CustomerStats> {
+    const params = this.getReportParams(query);
+    return this.http.get<ApiResponse<CustomerStats>>(`${this.baseUrl}${this.endpoint}/customers`, { params })
+      .pipe(
+        map(res => res.data),
+        catchError(this.handleError)
+      );
+  }
+
+  exportCsv(query: ReportQueryDto): Observable<Blob> {
+    const params = this.getReportParams(query);
+    return this.http.get(`${this.baseUrl}${this.endpoint}/export`, { 
       params, 
       responseType: 'blob' 
-    });
+    }).pipe(
+      catchError(this.handleError)
+    );
   }
 }

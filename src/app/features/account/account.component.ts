@@ -1,7 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-import { LucideAngularModule, User, History } from 'lucide-angular';
+import { RouterModule, Router } from '@angular/router';
+import { LucideAngularModule, User, History, LogOut } from 'lucide-angular';
+import { AuthService } from '@core/services/auth.service';
+import { AuthStore } from '@core/stores/auth.store';
 
 @Component({
   selector: 'app-account',
@@ -35,6 +37,16 @@ import { LucideAngularModule, User, History } from 'lucide-angular';
                 <lucide-icon [img]="HistoryIcon" class="w-5 h-5"></lucide-icon>
                 <span>Booking History</span>
               </a>
+              
+              <div class="pt-2 mt-2 border-t border-slate-100">
+                <button
+                  (click)="logout()"
+                  class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:bg-red-50 text-red-600 font-medium border border-transparent"
+                >
+                  <lucide-icon [img]="LogOutIcon" class="w-5 h-5"></lucide-icon>
+                  <span>Sign Out</span>
+                </button>
+              </div>
             </nav>
           </aside>
 
@@ -55,4 +67,25 @@ import { LucideAngularModule, User, History } from 'lucide-angular';
 export class AccountComponent {
   readonly UserIcon = User;
   readonly HistoryIcon = History;
+  readonly LogOutIcon = LogOut;
+
+  private authService = inject(AuthService);
+  private authStore = inject(AuthStore);
+  private router = inject(Router);
+
+  logout() {
+    this.authService.logout().subscribe({
+      next: () => {
+        this.authStore.clearAuth();
+        this.router.navigate(['/login']);
+      },
+      error: (err) => {
+        console.error('Logout error:', err);
+        // Still clear local auth state if server fails
+        this.authStore.clearAuth();
+        this.router.navigate(['/login']);
+      }
+    });
+  }
 }
+

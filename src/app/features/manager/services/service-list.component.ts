@@ -1,9 +1,9 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HotelServiceService, HotelService } from '@core/services/hotel-service.service';
+import { HotelServiceService } from '@core/services/hotel-service.service';
 import { LucideAngularModule, Search, Filter, Plus, Briefcase, Pencil, Trash2 } from 'lucide-angular';
-import { Meta } from '@core/interfaces/api';
-import { CreateServiceDto } from '@core/interfaces/service.dto';
+import { CreateServiceDto, HotelService } from '@core/interfaces/service.dto';
+import { Meta } from '@core/interfaces';
 import { ServiceFormComponent } from './service-form.component';
 import { UiConfirmComponent } from '@shared/components/ui-confirm/ui-confirm.component';
 

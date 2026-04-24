@@ -87,7 +87,7 @@
                 </div>
                 <div>
                   <p class="font-bold text-slate-900 text-[14.5px] leading-tight">
-                    Room {{ room.roomNumber }}
+                    Room {{ room.room_number }}
                   </p>
                   <p class="text-[12.5px] font-medium text-slate-500 mt-1">ID: {{ room.id }}</p>
                 </div>
@@ -97,7 +97,7 @@
               <span
                 class="text-sm font-bold text-slate-600 bg-slate-50 px-3 py-1 rounded-lg border border-slate-100"
               >
-                {{ room.roomType?.name || room.roomTypeId }}
+                {{ room.room_type_name || room.room_type_id }}
               </span>
             </td>
             <td class="px-6 py-5">
@@ -110,7 +110,7 @@
             </td>
             <td class="px-6 py-5">
               <span class="text-sm font-medium text-slate-500 italic">
-                Floor {{ room.roomNumber.substring(0, 1) }}
+                Floor {{ room.room_number.substring(0, 1) }}
               </span>
             </td>
             <td class="px-6 py-5 text-right">
@@ -162,7 +162,7 @@
 <app-ui-confirm
   [isOpen]="isConfirmOpen()"
   title="Delete Room"
-  [message]="'Are you sure you want to delete room &quot;' + (roomToDelete()?.roomNumber ?? '') + '&quot;? This action cannot be undone and may affect active bookings.'"
+  [message]="'Are you sure you want to delete room &quot;' + (roomToDelete()?.room_number ?? '') + '&quot;? This action cannot be undone and may affect active bookings.'"
   confirmText="Delete Room"
   variant="danger"
   (confirmed)="onDeleteConfirmed()"

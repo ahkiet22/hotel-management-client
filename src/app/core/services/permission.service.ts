@@ -16,6 +16,7 @@ export class PermissionService {
     if (!user) return false;
 
     const role = user.roleName;
+    console.log("ROLE-NAME", user)
     const permissions = ROLE_PERMISSIONS[role as keyof typeof ROLE_PERMISSIONS] || [];
 
     // Admin has everything

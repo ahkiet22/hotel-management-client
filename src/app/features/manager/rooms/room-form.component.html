@@ -11,10 +11,10 @@
         <input 
           hlmInput
           type="text" 
-          formControlName="roomNumber"
+          formControlName="room_number"
           placeholder="e.g. 101"
           class="w-full"
-          [error]="form.get('roomNumber')?.invalid && form.get('roomNumber')?.touched ? true : 'auto'"
+          [error]="form.get('room_number')?.invalid && form.get('room_number')?.touched ? true : 'auto'"
         />
       </div>
 
@@ -36,9 +36,9 @@
       <label hlmLabel>Room Type</label>
       <select 
         hlmInput
-        formControlName="roomTypeId"
+        formControlName="room_type_id"
         class="w-full appearance-none"
-        [error]="form.get('roomTypeId')?.invalid && form.get('roomTypeId')?.touched ? true : 'auto'"
+        [error]="form.get('room_type_id')?.invalid && form.get('room_type_id')?.touched ? true : 'auto'"
       >
         <option value="" disabled>Select room type...</option>
         <option *ngFor="let type of roomTypes()" [value]="type.id">{{ type.name }}</option>
@@ -61,7 +61,7 @@
     <div class="flex items-center space-x-2 pt-1">
       <hlm-checkbox 
         id="isPublic"
-        formControlName="isPublic"
+        formControlName="is_public"
       ></hlm-checkbox>
       <label hlmLabel for="isPublic" class="text-slate-600 font-medium">Make this room public</label>
     </div>

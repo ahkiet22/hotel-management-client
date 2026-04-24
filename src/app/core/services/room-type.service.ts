@@ -1,51 +1,75 @@
 import { Injectable } from '@angular/core';
-import { Observable, catchError, map } from 'rxjs';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { BaseService } from './base.service';
-import { ApiResponse, ListResponse } from '@core/interfaces/api';
-import { RoomType } from '../interfaces';
-
-export interface AvailableRoom {
-  id: string;
-  roomNumber: string;
-  description: string | null;
-  isPublic: number;
-  roomTypeId: string;
-  roomTypeName: string;
-  basePrice: string;
-  pricePerNight: string;
-  capacity: number;
-  status: string;
-  createdAt: string;
-}
+import { ApiResponse, PaginatedResponse } from '../interfaces/common.dto';
+import { CreateRoomTypeDto, QueryRoomTypeDto, RoomType, UpdateRoomTypeDto } from '../interfaces/room-type.dto';
+export type { CreateRoomTypeDto, QueryRoomTypeDto, RoomType, UpdateRoomTypeDto };
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
-export class RoomTypeService extends BaseService<RoomType> {
+export class RoomTypeService extends BaseService {
   protected override readonly endpoint = 'api/v1/room-types';
 
-  /**
-   * Get available room types
-   */
-  getAvailableRoomTypes(
-    typeId?: string,
-    checkIn?: string,
-    checkOut?: string,
-    capacity?: number,
-  ): Observable<ListResponse<AvailableRoom>> {
-    let params: any = {};
-    if (typeId) params.typeId = typeId;
-    if (checkIn) params.checkIn = checkIn;
-    if (checkOut) params.checkOut = checkOut;
-    if (capacity) params.capacity = capacity.toString();
+  override getAll(query?: QueryRoomTypeDto): Observable<PaginatedResponse<RoomType>> {
+    let params = new HttpParams();
+    if (query) {
+      if (query.page) params = params.set('page', query.page.toString());
+      if (query.limit) params = params.set('limit', query.limit.toString());
+    }
 
-    return this.http
-      .get<ApiResponse<ListResponse<AvailableRoom>>>(`${this.fullUrl}/available`, {
-        params,
-      })
+    return this.http.get<ApiResponse<PaginatedResponse<RoomType>>>(`${this.baseUrl}api/v1/room-types`, { params })
       .pipe(
-        map((res) => res.data),
-        catchError(this.handleError),
+        map(res => res.data),
+        catchError(this.handleError)
+      );
+  }
+
+  getAllPublic(query?: QueryRoomTypeDto): Observable<PaginatedResponse<RoomType>> {
+    let params = new HttpParams();
+    if (query) {
+      if (query.page) params = params.set('page', query.page.toString());
+      if (query.limit) params = params.set('limit', query.limit.toString());
+    }
+
+    return this.http.get<ApiResponse<PaginatedResponse<RoomType>>>(`${this.baseUrl}api/v1/room-types/public`, { params })
+      .pipe(
+        map(res => res.data),
+        catchError(this.handleError)
+      );
+  }
+
+  override getById(id: string): Observable<RoomType> {
+    return this.http.get<ApiResponse<RoomType>>(`${this.baseUrl}api/v1/room-types/${id}`)
+      .pipe(
+        map(res => res.data),
+        catchError(this.handleError)
+      );
+  }
+
+  override create(data: CreateRoomTypeDto): Observable<any> {
+    return this.http.post<ApiResponse<any>>(`${this.baseUrl}api/v1/room-types`, data)
+      .pipe(
+        map(res => res.data),
+        catchError(this.handleError)
+      );
+  }
+
+  override update(id: string, data: UpdateRoomTypeDto): Observable<any> {
+    return this.http.patch<ApiResponse<any>>(`${this.baseUrl}api/v1/room-types/${id}`, data)
+      .pipe(
+        map(res => res.data),
+        catchError(this.handleError)
+      );
+  }
+
+  override delete(id: string): Observable<any> {
+    return this.http.delete<ApiResponse<any>>(`${this.baseUrl}api/v1/room-types/${id}`)
+      .pipe(
+        map(res => res.data),
+        catchError(this.handleError)
       );
   }
 }

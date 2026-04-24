@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReviewService, Review } from '@core/services/review.service';
 import { LucideAngularModule, Star, MessageSquare, Trash2 } from 'lucide-angular';
 
-import { Meta } from '@core/interfaces/api';
+import { Meta } from '@core/interfaces';
 
 @Component({
   selector: 'app-review-list',
@@ -30,7 +30,7 @@ export class ReviewListComponent implements OnInit {
   loadReviews() {
     this.isLoading.set(true);
     this.reviewService.getAll().subscribe({
-      next: (res) => {
+      next: (res: any) => {
         this.reviews.set(res.result);
         this.pagination.set(res.meta);
         this.isLoading.set(false);

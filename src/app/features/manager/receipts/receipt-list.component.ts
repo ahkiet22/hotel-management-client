@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReceiptService, Receipt } from '@core/services/receipt.service';
 import { LucideAngularModule, FileText, Download, Printer } from 'lucide-angular';
 
-import { Meta } from '@core/interfaces/api';
+import { Meta } from '@core/interfaces';
 
 @Component({
   selector: 'app-receipt-list',

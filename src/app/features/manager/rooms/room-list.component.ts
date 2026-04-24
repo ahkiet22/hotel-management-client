@@ -2,11 +2,9 @@ import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RoomService } from '@core/services/room.service';
 import { LucideAngularModule, Search, Filter, MoreHorizontal, Plus, Home, Edit, Trash2 } from 'lucide-angular';
-import { Meta } from '@core/interfaces/api';
-import { CreateRoomDto } from '@core/interfaces/room.dto';
+import { CreateRoomDto, Room } from '@core/interfaces/room.dto';
 import { RoomFormComponent } from './room-form.component';
 import { UiConfirmComponent } from '@shared/components/ui-confirm/ui-confirm.component';
-import { Room } from '@core/interfaces';
 
 @Component({
   selector: 'app-room-list',
@@ -17,7 +15,7 @@ import { Room } from '@core/interfaces';
 export class RoomListComponent implements OnInit {
   private roomService = inject(RoomService);
   rooms = signal<Room[]>([]);
-  pagination = signal<Meta>({ page: 1, limit: 10, totalPages: 1, totalItems: 0 });
+  pagination = signal({ page: 1, limit: 10, totalPages: 1, totalItems: 0 });
   isLoading = signal(true);
 
   // Form state
@@ -44,7 +42,7 @@ export class RoomListComponent implements OnInit {
 
   loadRooms() {
     this.isLoading.set(true);
-    this.roomService.getAll().subscribe({
+    this.roomService.getAll({ page: this.pagination().page, limit: this.pagination().limit }).subscribe({
       next: (res) => {
         this.rooms.set(res.result);
         this.pagination.set(res.meta);
@@ -71,8 +69,8 @@ export class RoomListComponent implements OnInit {
 
   onSave(data: CreateRoomDto) {
     const obs = this.selectedRoom()
-      ? this.roomService.update(this.selectedRoom()!.id, data as any)
-      : this.roomService.create(data as any);
+      ? this.roomService.update(this.selectedRoom()!.id, data)
+      : this.roomService.create(data);
 
     obs.subscribe({
       next: () => {
@@ -111,7 +109,7 @@ export class RoomListComponent implements OnInit {
       case 'Vacant': return 'bg-green-100 text-green-700 border-green-200';
       case 'Occupied': return 'bg-blue-100 text-blue-700 border-blue-200';
       case 'Reserved': return 'bg-amber-100 text-amber-700 border-amber-200';
-      case 'Out of Order': return 'bg-red-100 text-red-700 border-red-200';
+      case 'Out_of_Order': return 'bg-red-100 text-red-700 border-red-200';
       default: return 'bg-gray-100 text-gray-700 border-gray-200';
     }
   }
