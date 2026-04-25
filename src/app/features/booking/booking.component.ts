@@ -167,10 +167,7 @@ export class BookingPageComponent implements OnInit, OnDestroy {
             this.bookingResult.set(res);
             this.onConfirmBooking(res.id);
           } else {
-            this.bookingResult.set(res);
-            this.getPaymentQr(res);
-            this.step.set('payment');
-            this.startPaymentPolling(res.id);
+            this.openPaymentStep(res);
           }
         },
         error: () => this.clearPendingBookingId()
@@ -252,7 +249,10 @@ export class BookingPageComponent implements OnInit, OnDestroy {
     this.isSubmitting.set(true);
     
     const selectedRoom = this.selectedRoom();
-    if (!selectedRoom) return;
+    if (!selectedRoom) {
+      this.isSubmitting.set(false);
+      return;
+    }
 
     const bookingData = {
       customerId: user.id,
@@ -264,12 +264,18 @@ export class BookingPageComponent implements OnInit, OnDestroy {
 
     this.bookingService.create(bookingData).subscribe({
       next: (res: any) => {
-        this.bookingResult.set(res);
         this.setPendingBookingId(res.id);
-        this.getPaymentQr(res);
-        this.step.set('payment');
-        this.isSubmitting.set(false);
-        this.startPaymentPolling(res.id);
+        this.bookingService.getById(res.id).subscribe({
+          next: (booking: any) => {
+            this.openPaymentStep(booking);
+            this.isSubmitting.set(false);
+          },
+          error: (err: any) => {
+            console.error('Failed to load booking after create', err);
+            this.isSubmitting.set(false);
+            alert('Booking created but payment data is not ready. Please try again.');
+          },
+        });
       },
       error: (err: any) => {
         console.error('Booking failed', err);
@@ -281,8 +287,13 @@ export class BookingPageComponent implements OnInit, OnDestroy {
 
   getPaymentQr(booking: any) {
     this.paymentQr.set(null); // Show loading
-    const amount = booking.grandTotal;
+    const amount = Number(booking?.grandTotal ?? booking?.totalRoomPrice ?? 0);
     const description = `BOOKING_${booking.id}`;
+
+    if (!amount || !booking?.id) {
+      return;
+    }
+
     this.bookingService.getPaymentQr(amount, description).subscribe({
       next: (res: string) => {
         this.paymentQr.set(res);
@@ -337,6 +348,13 @@ export class BookingPageComponent implements OnInit, OnDestroy {
         this.step.set('success');
       }
     });
+  }
+
+  private openPaymentStep(booking: any) {
+    this.bookingResult.set(booking);
+    this.getPaymentQr(booking);
+    this.step.set('payment');
+    this.startPaymentPolling(booking.id);
   }
 
   private getPendingBookingId(): string | null {

@@ -57,6 +57,13 @@ export const routes: Routes = [
                 (m) => m.HistoryBookingComponent,
               ),
           },
+          {
+            path: 'history-booking/:id',
+            loadComponent: () =>
+              import('./features/account/history-booking/history-booking-detail.component').then(
+                (m) => m.HistoryBookingDetailComponent,
+              ),
+          },
           { path: '', redirectTo: 'profile', pathMatch: 'full' },
         ],
       },
