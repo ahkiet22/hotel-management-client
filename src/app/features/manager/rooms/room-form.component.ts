@@ -62,7 +62,7 @@ export class RoomFormComponent implements OnChanges, OnInit {
       this.form.patchValue({
         room_number: this.room.room_number,
         description: this.room.description ?? '', 
-        is_public: this.room.is_public ?? true,
+        is_public: this.normalizeBoolean(this.room.is_public, true),
         room_type_id: this.room.room_type_id,
         status: this.room.status,
       });
@@ -80,11 +80,36 @@ export class RoomFormComponent implements OnChanges, OnInit {
 
   onSubmit() {
     if (this.form.valid) {
-      this.save.emit(this.form.value);
+      this.save.emit({
+        ...this.form.getRawValue(),
+        is_public: this.normalizeBoolean(this.form.getRawValue().is_public, true),
+      });
     } else {
       Object.values(this.form.controls).forEach(control => {
         control.markAsTouched();
       });
     }
+  }
+
+  private normalizeBoolean(value: unknown, fallback = false): boolean {
+    if (typeof value === 'boolean') {
+      return value;
+    }
+
+    if (typeof value === 'number') {
+      return value === 1;
+    }
+
+    if (typeof value === 'string') {
+      const normalized = value.trim().toLowerCase();
+      if (normalized === 'true' || normalized === '1') {
+        return true;
+      }
+      if (normalized === 'false' || normalized === '0') {
+        return false;
+      }
+    }
+
+    return fallback;
   }
 }

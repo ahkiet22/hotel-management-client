@@ -69,7 +69,7 @@ export class RoomListComponent implements OnInit {
       id: item?.id,
       room_number: item?.room_number ?? item?.roomNumber ?? '',
       description: item?.description,
-      is_public: item?.is_public ?? item?.isPublic ?? true,
+      is_public: this.normalizeBoolean(item?.is_public ?? item?.isPublic, true),
       room_type_id: item?.room_type_id ?? item?.roomTypeId ?? '',
       status: item?.status,
       room_type_name: item?.room_type_name ?? item?.roomTypeName ?? item?.roomType?.name,
@@ -112,10 +112,15 @@ export class RoomListComponent implements OnInit {
   }
 
   onSave(data: CreateRoomDto) {
+    const payload: CreateRoomDto = {
+      ...data,
+      is_public: this.normalizeBoolean(data?.is_public, true),
+    };
+
     const isEditing = !!this.selectedRoom();
     const obs = isEditing
-      ? this.roomService.update(this.selectedRoom()!.id, data)
-      : this.roomService.create(data);
+      ? this.roomService.update(this.selectedRoom()!.id, payload)
+      : this.roomService.create(payload);
 
     obs.subscribe({
       next: () => {
@@ -161,5 +166,27 @@ export class RoomListComponent implements OnInit {
       case 'Out_of_Order': return 'bg-red-100 text-red-700 border-red-200';
       default: return 'bg-gray-100 text-gray-700 border-gray-200';
     }
+  }
+
+  private normalizeBoolean(value: unknown, fallback = false): boolean {
+    if (typeof value === 'boolean') {
+      return value;
+    }
+
+    if (typeof value === 'number') {
+      return value === 1;
+    }
+
+    if (typeof value === 'string') {
+      const normalized = value.trim().toLowerCase();
+      if (normalized === 'true' || normalized === '1') {
+        return true;
+      }
+      if (normalized === 'false' || normalized === '0') {
+        return false;
+      }
+    }
+
+    return fallback;
   }
 }

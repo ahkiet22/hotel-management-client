@@ -5,6 +5,13 @@ import { LucideAngularModule, Pause, Play } from 'lucide-angular';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { Meta, Title } from '@angular/platform-browser';
 
+type TourHighlight = {
+  title: string;
+  description: string;
+  image: string;
+  eyebrow: string;
+};
+
 @Component({
   selector: 'app-explore-page',
   standalone: true,
@@ -16,6 +23,43 @@ export class ExplorePageComponent {
     private title: Title,
     private meta: Meta,
   ) {}
+
+  assets = {
+    video: 'assets/videos/4185240-hd_1920_1080_25fps.mp4',
+    poster: 'assets/images/video.jpg',
+  };
+
+  highlights: TourHighlight[] = [
+    {
+      eyebrow: 'Rooms & Suites',
+      title: 'Luxurious rooms',
+      description:
+        'Step through thoughtfully designed rooms with warm materials, comfortable bedding, and a calm visual language tailored for rest.',
+      image: 'assets/images/pic-1.jpg',
+    },
+    {
+      eyebrow: 'Arrival Experience',
+      title: 'Elegant social spaces',
+      description:
+        'From lobby arrival to shared lounge moments, the hotel experience is shaped around comfort, movement, and refined service.',
+      image: 'assets/images/hero.jpg',
+    },
+    {
+      eyebrow: 'Signature Moments',
+      title: 'Relaxed day-to-night atmosphere',
+      description:
+        'Discover the tone of Paradise Hotel through spaces curated for quiet mornings, slow afternoons, and memorable evening stays.',
+      image: 'assets/images/video.jpg',
+    },
+  ];
+
+  icons = {
+    Play,
+    Pause,
+  };
+
+  isPlaying = signal(false);
+
   ngOnInit(): void {
     this.title.setTitle('Explore Luxury Hotels & Experiences | Paradise Hotel');
 
@@ -29,7 +73,6 @@ export class ExplorePageComponent {
       content: 'explore hotels, luxury experience, Paradise Hotel',
     });
 
-    // Open Graph
     this.meta.updateTag({
       property: 'og:title',
       content: 'Explore Luxury Hotels | Paradise Hotel',
@@ -45,7 +88,6 @@ export class ExplorePageComponent {
       content: this.assets.poster,
     });
 
-    // Twitter
     this.meta.updateTag({
       name: 'twitter:title',
       content: 'Explore Hotels | Paradise Hotel',
@@ -56,30 +98,6 @@ export class ExplorePageComponent {
       content: 'Discover luxury hotels and experiences.',
     });
   }
-  assets = {
-    video: 'assets/videos/4185240-hd_1920_1080_25fps.mp4',
-    poster: 'assets/images/video.jpg',
-    playBtn: 'https://www.figma.com/api/mcp/asset/8a7b7384-57a5-465b-84d2-175f0f9038b8',
-    pauseBtn: 'assets/images/pause-icon.png',
-    item1: 'https://www.figma.com/api/mcp/asset/88c854b5-22c5-41c3-96c2-c8c6cda39441',
-    item2: 'https://www.figma.com/api/mcp/asset/653bab33-aab6-40e9-91ab-142039a74854',
-    item3: 'https://www.figma.com/api/mcp/asset/dce897f4-b0a6-4e6e-bfef-c753306871bc',
-    logo: 'https://www.figma.com/api/mcp/asset/fd641deb-6a79-4ae2-be87-1914147a6153',
-  };
-
-  icons = {
-    Play,
-    Pause,
-  };
-
-  // @ViewChild('myVideo') videoRef!: ElementRef<HTMLVideoElement>;
-
-  isPlaying = signal(false);
-
-  // ngAfterViewInit() {
-  //   const video = this.videoRef.nativeElement;
-  //   this.isPlaying.set(!video.paused);
-  // }
 
   toggleVideo(video: HTMLVideoElement) {
     if (video.paused) {

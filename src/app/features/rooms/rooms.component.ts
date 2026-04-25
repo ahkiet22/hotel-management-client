@@ -55,8 +55,6 @@ export class RoomsPageComponent implements OnInit {
     this.roomService.getAllPublic({ page: 1, limit: 12 }).subscribe({
       next: (data) => {
         const roomData = data.result;
-
-        console.log('Fetched rooms:', roomData);
         
         setTimeout(() => {
           this.rooms = roomData.map((room: any) => {

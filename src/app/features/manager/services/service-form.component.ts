@@ -7,7 +7,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmLabel } from '@spartan-ng/helm/label';
-import { CreateServiceDto, HotelService } from '@core/interfaces/service.dto';
+import { CreateServiceDto, HotelService, ServiceType } from '@core/interfaces/service.dto';
 import { UiModalComponent } from '@shared/components/ui-modal/ui-modal.component';
 
 @Component({
@@ -33,12 +33,11 @@ export class ServiceFormComponent implements OnChanges {
   ];
 
   typeOptions = [
-    { label: 'Room Service', value: 'Room Service' },
-    { label: 'Spa & Wellness', value: 'Spa & Wellness' },
-    { label: 'Food & Beverage', value: 'Food & Beverage' },
-    { label: 'Transport', value: 'Transport' },
-    { label: 'Laundry', value: 'Laundry' },
-    { label: 'Other', value: 'Other' },
+    { label: 'Food & Beverage', value: ServiceType.FNB },
+    { label: 'Spa', value: ServiceType.SPA },
+    { label: 'Laundry', value: ServiceType.LAUNDRY },
+    { label: 'Transportation', value: ServiceType.TRANSPORTATION },
+    { label: 'Other', value: ServiceType.OTHER },
   ];
 
   constructor() {
@@ -56,8 +55,8 @@ export class ServiceFormComponent implements OnChanges {
       this.isEdit.set(true);
       this.form.patchValue({
         name: this.service.name,
-        description: this.service.description,
-        price: this.service.price,
+        description: this.service.description ?? '',
+        price: this.normalizePrice(this.service.price),
         status: this.service.status,
         type: this.service.type,
       });
@@ -69,9 +68,28 @@ export class ServiceFormComponent implements OnChanges {
 
   onSubmit() {
     if (this.form.valid) {
-      this.save.emit(this.form.value as CreateServiceDto);
+      const raw = this.form.getRawValue();
+      this.save.emit({
+        ...raw,
+        description: raw.description?.trim() || '',
+        price: this.normalizePrice(raw.price),
+      } as CreateServiceDto);
     } else {
       Object.values(this.form.controls).forEach(c => c.markAsTouched());
     }
+  }
+
+  private normalizePrice(value: unknown): number {
+    if (typeof value === 'number') {
+      return Number.isFinite(value) ? value : 0;
+    }
+
+    if (typeof value === 'string') {
+      const normalized = value.replace(/,/g, '').trim();
+      const parsed = Number(normalized);
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
+
+    return 0;
   }
 }

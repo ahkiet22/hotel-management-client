@@ -22,11 +22,19 @@
           </p>
 
           <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">
-            <button class="bg-[#7C6A46] hover:bg-[#635538] text-white w-full sm:w-48 h-14 rounded-full text-lg font-bold shadow-xl shadow-[#7C6A46]/20 transition-all hover:scale-105 active:scale-95">
+            <button
+              type="button"
+              (click)="goToBooking()"
+              class="bg-[#7C6A46] hover:bg-[#635538] text-white w-full sm:w-48 h-14 rounded-full text-lg font-bold shadow-xl shadow-[#7C6A46]/20 transition-all hover:scale-105 active:scale-95"
+            >
               Book now
             </button>
 
-            <button class="flex items-center justify-center gap-3 text-lg font-bold text-[#1C1C1C] group w-full sm:w-auto px-6 h-14 rounded-full hover:bg-black/5 transition-all">
+            <button
+              type="button"
+              (click)="goToTour()"
+              class="flex items-center justify-center gap-3 text-lg font-bold text-[#1C1C1C] group w-full sm:w-auto px-6 h-14 rounded-full hover:bg-black/5 transition-all"
+            >
               <span class="w-12 h-12 bg-[#00A699] text-white rounded-full grid place-items-center shadow-lg group-hover:rotate-12 transition-transform">
                 <lucide-icon [img]="icons.Play" class="w-5 h-5 fill-current"></lucide-icon>
               </span>
@@ -159,9 +167,13 @@
           <h2 class="text-4xl md:text-5xl font-heading font-black text-white">Luxurious Rooms</h2>
           <p class="text-base md:text-lg text-white/60 mt-4 max-w-md">All rooms are designed for your comfort and ultimate relaxation experience.</p>
         </div>
-        <a routerLink="/rooms" class="inline-flex items-center gap-2 text-white font-bold h-12 px-6 rounded-full border border-white/20 hover:bg-white hover:text-black transition-all">
+        <button
+          type="button"
+          (click)="goToRooms()"
+          class="inline-flex items-center gap-2 text-white font-bold h-12 px-6 rounded-full border border-white/20 hover:bg-white hover:text-black transition-all"
+        >
           View all rooms <lucide-icon [img]="icons.Star" class="w-4 h-4"></lucide-icon>
-        </a>
+        </button>
       </div>
 
       <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">

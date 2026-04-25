@@ -1,178 +1,224 @@
 <div class="min-h-screen bg-white">
-  <!-- Header -->
-  <header class="h-16 border-b border-slate-100 flex items-center px-6 sticky top-0 z-50 bg-white/80 backdrop-blur-md">
-    <a routerLink="/rooms" class="flex items-center gap-2 text-slate-600 hover:text-blue-600 font-bold transition-all group">
-      <lucide-icon [img]="icons.ArrowLeft" class="w-5 h-5 group-hover:-translate-x-1 transition-transform"></lucide-icon>
+  <header class="sticky top-0 z-50 flex h-16 items-center border-b border-slate-100 bg-white/80 px-6 backdrop-blur-md">
+    <a
+      routerLink="/rooms"
+      class="group flex items-center gap-2 font-bold text-slate-600 transition-all hover:text-[#7C6A46]"
+    >
+      <lucide-icon
+        [img]="icons.ArrowLeft"
+        class="h-5 w-5 transition-transform group-hover:-translate-x-1"
+      ></lucide-icon>
       Back to Rooms
     </a>
   </header>
 
-  <div *ngIf="isLoading()" class="flex flex-col items-center justify-center py-40 gap-4">
-    <div class="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-    <p class="text-slate-500 font-bold tracking-tight">Enhancing your room data...</p>
+  <div *ngIf="isLoading()" class="flex flex-col items-center justify-center gap-4 py-40">
+    <div class="h-12 w-12 animate-spin rounded-full border-4 border-[#7C6A46] border-t-transparent"></div>
+    <p class="font-bold tracking-tight text-slate-500">Enhancing your room data...</p>
   </div>
 
-  <div *ngIf="!isLoading() && error()" class="max-w-xl mx-auto py-20 text-center">
-    <h1 class="text-3xl font-black text-slate-900 mb-4">{{ error() }}</h1>
-    <a routerLink="/rooms" class="inline-block px-8 py-3 bg-blue-600 text-white rounded-full font-bold hover:bg-blue-700 transition-all">
+  <div *ngIf="!isLoading() && error()" class="mx-auto max-w-xl py-20 text-center">
+    <h1 class="mb-4 text-3xl font-black text-slate-900">{{ error() }}</h1>
+    <a
+      routerLink="/rooms"
+      class="inline-block rounded-full bg-[#7C6A46] px-8 py-3 font-bold text-white transition-all hover:bg-[#635538]"
+    >
       Return to Gallery
     </a>
   </div>
 
-  <main *ngIf="!isLoading() && room()" class="max-w-7xl mx-auto px-6 py-12 lg:grid lg:grid-cols-12 lg:gap-16">
-    <!-- Image Gallery Section -->
-    <div class="lg:col-span-7 space-y-6">
-      <div class="aspect-video rounded-3xl overflow-hidden shadow-2xl relative group">
-        <img 
-          [src]="getMainImage()" 
-          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
+  <main
+    *ngIf="!isLoading() && roomView()"
+    class="mx-auto max-w-7xl px-6 py-12 lg:grid lg:grid-cols-12 lg:gap-16"
+  >
+    <div class="space-y-6 lg:col-span-7">
+      <div class="group relative aspect-video overflow-hidden rounded-3xl shadow-2xl">
+        <img
+          [src]="getMainImage()"
+          class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
           alt="Main View"
           (error)="onImgError($event)"
+        />
+        <div
+          class="absolute right-6 top-6 rounded-full bg-white/90 px-4 py-2 text-xs font-black uppercase tracking-widest backdrop-blur-sm"
+          [ngClass]="roomView()?.status === 'Vacant' ? 'text-[#00A699]' : 'text-red-500'"
         >
-        <div class="absolute top-6 right-6 px-4 py-2 bg-white/90 backdrop-blur-sm rounded-full text-xs font-black uppercase tracking-widest"
-             [ngClass]="room()?.status === 'Vacant' ? 'text-green-600' : 'text-red-500'">
-          {{ room()?.status === 'Vacant' ? 'Available' : room()?.status }}
+          {{ roomView()?.status === 'Vacant' ? 'Available' : roomView()?.status }}
         </div>
       </div>
-      
-      <div class="grid grid-cols-3 gap-6">
+
+      <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <ng-container *ngFor="let img of getGalleryImages(); let i = index">
-          <div 
-            class="aspect-square rounded-2xl overflow-hidden border-2 border-slate-50 shadow-sm hover:shadow-lg transition-all cursor-pointer"
+          <div
+            class="aspect-square cursor-pointer overflow-hidden rounded-2xl border-2 shadow-sm transition-all hover:shadow-lg"
+            [ngClass]="getMainImage() === img ? 'border-[#7C6A46]' : 'border-slate-50'"
             (click)="setMainImage(img)"
           >
-            <img [src]="img" class="w-full h-full object-cover hover:scale-110 transition-transform duration-500" [alt]="'Room photo ' + (i+1)" (error)="onImgError($event)">
+            <img
+              [src]="img"
+              class="h-full w-full object-cover transition-transform duration-500 hover:scale-110"
+              [alt]="'Room photo ' + (i + 1)"
+              (error)="onImgError($event)"
+            />
           </div>
         </ng-container>
-        <div *ngIf="getRemainingCount() > 0" class="relative aspect-square rounded-2xl overflow-hidden border-2 border-slate-50 shadow-sm hover:shadow-lg transition-all cursor-pointer group">
-          <img [src]="getMainImage()" class="w-full h-full object-cover blur-[2px] brightness-50" alt="More Photos">
-          <div class="absolute inset-0 flex flex-col items-center justify-center text-white pointer-events-none">
-            <span class="text-2xl font-black">+{{ getRemainingCount() }}</span>
-            <span class="text-[10px] font-bold uppercase tracking-widest opacity-80 mt-1">Photos</span>
-          </div>
-        </div>
+      </div>
+
+      <div
+        *ngIf="getRemainingCount() > 0"
+        class="inline-flex items-center gap-2 rounded-full bg-[#7C6A46]/10 px-4 py-2 text-sm font-bold text-[#7C6A46]"
+      >
+        <lucide-icon [img]="icons.Star" class="h-4 w-4"></lucide-icon>
+        +{{ getRemainingCount() }} more photos available for this room type
       </div>
     </div>
 
-    <!-- Info Section -->
-    <div class="lg:col-span-5 mt-12 lg:mt-0 flex flex-col">
-      <div class="flex items-center gap-2 mb-4">
+    <div class="mt-12 flex flex-col lg:col-span-5 lg:mt-0">
+      <div class="mb-4 flex items-center gap-2">
         <div class="flex text-amber-400">
-          <lucide-icon [img]="icons.Star" *ngFor="let i of stars" class="w-4 h-4 fill-amber-400"></lucide-icon>
+          <lucide-icon
+            [img]="icons.Star"
+            *ngFor="let i of stars"
+            class="h-4 w-4 fill-amber-400"
+          ></lucide-icon>
         </div>
-        <span class="text-xs font-black text-slate-400 border-l border-slate-200 pl-2 uppercase tracking-widest">
-          5.0 (124 Reviews)
+        <span class="border-l border-slate-200 pl-2 text-xs font-black uppercase tracking-widest text-slate-400">
+          Paradise Signature Stay
         </span>
       </div>
 
-      <h1 class="text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-none mb-4">
-        {{ room()?.roomTypeName }} Suite <span class="text-blue-600">No. {{ room()?.roomNumber }}</span>
+      <h1 class="mb-4 text-4xl font-black leading-none tracking-tight text-slate-900 md:text-5xl">
+        {{ roomView()?.roomTypeName }} <span class="text-[#7C6A46]">Room {{ roomView()?.roomNumber }}</span>
       </h1>
-      <p class="text-slate-500 font-medium leading-relaxed mb-8">
-        Experience unparalleled luxury with breathtaking city views, custom-designed furniture, and state-of-the-art technology integration for a seamless stay.
+      <p class="mb-8 font-medium leading-relaxed text-slate-500">
+        {{ roomView()?.description }}
       </p>
 
-      <!-- Key Features -->
-      <div class="grid grid-cols-2 gap-4 mb-8">
-        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex items-center gap-4">
-          <div class="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center text-blue-600">
-            <lucide-icon [img]="icons.Maximize" class="w-5 h-5"></lucide-icon>
+      <div class="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div class="flex items-center gap-4 rounded-2xl border border-slate-100 bg-slate-50 p-4">
+          <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-[#7C6A46] shadow-sm">
+            <lucide-icon [img]="icons.Maximize" class="h-5 w-5"></lucide-icon>
           </div>
           <div>
-            <p class="text-[10px] uppercase font-black tracking-widest text-slate-400">Size</p>
-            <p class="font-bold text-slate-900 leading-none mt-0.5">45m²</p>
+            <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Base Rate</p>
+            <p class="mt-0.5 leading-none font-bold text-slate-900">
+              {{ roomView()?.basePrice | currency:'VND' }}
+            </p>
           </div>
         </div>
-        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex items-center gap-4">
-          <div class="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center text-blue-600">
-            <lucide-icon [img]="icons.Users" class="w-5 h-5"></lucide-icon>
+        <div class="flex items-center gap-4 rounded-2xl border border-slate-100 bg-slate-50 p-4">
+          <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-[#7C6A46] shadow-sm">
+            <lucide-icon [img]="icons.Coffee" class="h-5 w-5"></lucide-icon>
           </div>
           <div>
-            <p class="text-[10px] uppercase font-black tracking-widest text-slate-400">Capacity</p>
-            <p class="font-bold text-slate-900 leading-none mt-0.5">{{ room()?.capacity || 1 }} Guest{{ (room()?.capacity || 1) > 1 ? 's' : '' }}</p>
+            <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Nightly Rate</p>
+            <p class="mt-0.5 leading-none font-bold text-slate-900">
+              {{ roomView()?.pricePerNight | currency:'VND' }}
+            </p>
+          </div>
+        </div>
+        <div class="flex items-center gap-4 rounded-2xl border border-slate-100 bg-slate-50 p-4">
+          <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-[#7C6A46] shadow-sm">
+            <lucide-icon [img]="icons.Users" class="h-5 w-5"></lucide-icon>
+          </div>
+          <div>
+            <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Capacity</p>
+            <p class="mt-0.5 leading-none font-bold text-slate-900">
+              {{ roomView()?.capacity || 1 }} Guest{{ (roomView()?.capacity || 1) > 1 ? 's' : '' }}
+            </p>
+          </div>
+        </div>
+        <div class="flex items-center gap-4 rounded-2xl border border-slate-100 bg-slate-50 p-4">
+          <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-[#7C6A46] shadow-sm">
+            <lucide-icon [img]="icons.Wifi" class="h-5 w-5"></lucide-icon>
+          </div>
+          <div>
+            <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Room Type</p>
+            <p class="mt-0.5 leading-none font-bold text-slate-900">{{ roomView()?.roomTypeName }}</p>
           </div>
         </div>
       </div>
 
-      <!-- Pricing Card -->
-      <div class="mt-auto p-8 rounded-3xl bg-slate-900 text-white shadow-2xl shadow-blue-900/20">
-        <div class="flex items-end justify-between mb-8">
+      <div class="mt-auto rounded-3xl bg-slate-900 p-8 text-white shadow-2xl shadow-[#7C6A46]/15">
+        <div class="mb-8 flex items-end justify-between">
           <div>
-            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Starting from</p>
-            <h2 class="text-4xl font-black">{{ room()?.pricePerNight | currency:'VND' }} <span class="text-lg font-bold text-slate-500">/ night</span></h2>
+            <p class="mb-1 text-xs font-bold uppercase tracking-widest text-slate-400">Starting from</p>
+            <h2 class="text-4xl font-black">
+              {{ roomView()?.pricePerNight | currency:'VND' }}
+              <span class="text-lg font-bold text-slate-500">/ night</span>
+            </h2>
           </div>
-          <div class="bg-blue-600 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest">
+          <div class="rounded-lg bg-[#00A699] px-3 py-1 text-[10px] font-black uppercase tracking-widest">
             Best Price
           </div>
         </div>
 
-        <ul class="space-y-4 mb-8">
-          <li class="flex items-center gap-3 text-sm font-medium text-slate-300">
-            <lucide-icon [img]="icons.CheckCircle2" class="w-4 h-4 text-green-400"></lucide-icon>
-            Free High-Speed Wi-Fi
-          </li>
-          <li class="flex items-center gap-3 text-sm font-medium text-slate-300">
-            <lucide-icon [img]="icons.CheckCircle2" class="w-4 h-4 text-green-400"></lucide-icon>
-            Complimentary Minibar
-          </li>
-          <li class="flex items-center gap-3 text-sm font-medium text-slate-300">
-            <lucide-icon [img]="icons.CheckCircle2" class="w-4 h-4 text-green-400"></lucide-icon>
-            Free Cancellation
+        <ul class="mb-8 space-y-4">
+          <li *ngFor="let feature of getFeatureList()" class="flex items-center gap-3 text-sm font-medium text-slate-300">
+            <lucide-icon [img]="icons.CheckCircle2" class="h-4 w-4 text-green-400"></lucide-icon>
+            {{ feature }}
           </li>
         </ul>
 
-        <a [routerLink]="['/booking']" [queryParams]="{roomId: room()?.id}" class="block w-full text-center py-4 bg-blue-600 hover:bg-blue-500 rounded-2xl font-black uppercase tracking-widest text-sm transition-all shadow-xl hover:shadow-blue-500/30 no-underline">
+        <a
+          [routerLink]="['/booking']"
+          [queryParams]="{ roomId: roomView()?.id, typeId: roomView()?.roomTypeId, step: 'personal' }"
+          class="block w-full rounded-2xl bg-[#7C6A46] py-4 text-center text-sm font-black uppercase tracking-widest no-underline shadow-xl transition-all hover:bg-[#635538] hover:shadow-[#7C6A46]/30"
+        >
           Book This Suite
         </a>
       </div>
     </div>
   </main>
 
-  <!-- Detailed Specs -->
-  <section *ngIf="!isLoading() && room()" class="max-w-7xl mx-auto px-6 py-20 border-t border-slate-100 mt-12">
-    <div class="grid md:grid-cols-3 gap-12">
+  <section
+    *ngIf="!isLoading() && roomView()"
+    class="mx-auto mt-12 max-w-7xl border-t border-slate-100 px-6 py-20"
+  >
+    <div class="grid gap-12 md:grid-cols-3">
       <div>
-        <h3 class="text-xl font-black text-slate-900 mb-6 flex items-center gap-3">
-          <span class="w-2 h-8 bg-blue-600 rounded-full"></span>
+        <h3 class="mb-6 flex items-center gap-3 text-xl font-black text-slate-900">
+          <span class="h-8 w-2 rounded-full bg-[#7C6A46]"></span>
           Room Details
         </h3>
-        <p class="text-slate-500 font-medium leading-relaxed">
-          The suite features handcrafted Italian marble flooring and premium smart-lighting controls, allowing you to set the perfect mood for any occasion.
+        <p class="font-medium leading-relaxed text-slate-500">
+          {{ roomView()?.description }}
         </p>
       </div>
-      
+
       <div>
-        <h3 class="text-xl font-black text-slate-900 mb-6 flex items-center gap-3">
-          <span class="w-2 h-8 bg-blue-600 rounded-full"></span>
+        <h3 class="mb-6 flex items-center gap-3 text-xl font-black text-slate-900">
+          <span class="h-8 w-2 rounded-full bg-[#7C6A46]"></span>
           Amenities
         </h3>
         <div class="grid grid-cols-2 gap-4">
-          <div class="flex items-center gap-3 text-slate-600 font-bold">
-            <lucide-icon [img]="icons.Wifi" class="w-4 h-4"></lucide-icon>
-            Smart TV
+          <div class="flex items-center gap-3 font-bold text-slate-600">
+            <lucide-icon [img]="icons.Wifi" class="h-4 w-4"></lucide-icon>
+            Free Wi-Fi
           </div>
-          <div class="flex items-center gap-3 text-slate-600 font-bold">
-            <lucide-icon [img]="icons.Coffee" class="w-4 h-4"></lucide-icon>
-            Nespresso
+          <div class="flex items-center gap-3 font-bold text-slate-600">
+            <lucide-icon [img]="icons.Coffee" class="h-4 w-4"></lucide-icon>
+            Daily refreshment
           </div>
-          <div class="flex items-center gap-3 text-slate-600 font-bold">
-            <lucide-icon [img]="icons.Maximize" class="w-4 h-4"></lucide-icon>
-            A/C
+          <div class="flex items-center gap-3 font-bold text-slate-600">
+            <lucide-icon [img]="icons.Maximize" class="h-4 w-4"></lucide-icon>
+            Flexible layout
           </div>
-          <div class="flex items-center gap-3 text-slate-600 font-bold">
-            <lucide-icon [img]="icons.CheckCircle2" class="w-4 h-4 font-black"></lucide-icon>
-            Safe Box
+          <div class="flex items-center gap-3 font-bold text-slate-600">
+            <lucide-icon [img]="icons.CheckCircle2" class="h-4 w-4"></lucide-icon>
+            Signature service
           </div>
         </div>
       </div>
 
       <div>
-        <h3 class="text-xl font-black text-slate-900 mb-6 flex items-center gap-3">
-          <span class="w-2 h-8 bg-blue-600 rounded-full"></span>
+        <h3 class="mb-6 flex items-center gap-3 text-xl font-black text-slate-900">
+          <span class="h-8 w-2 rounded-full bg-[#7C6A46]"></span>
           Premium Service
         </h3>
-        <p class="text-slate-500 font-medium leading-relaxed">
-          Access to our executive lounge and 24/7 dedicated butler service ensures your every need is met with absolute precision and elegance.
+        <p class="font-medium leading-relaxed text-slate-500">
+          This room belongs to the {{ roomView()?.roomTypeName }} category and includes tailored
+          support from the Paradise Hotel team throughout your stay.
         </p>
       </div>
     </div>

@@ -180,6 +180,18 @@ export class HomePageComponent implements OnInit {
     });
   }
 
+  goToBooking() {
+    this.onSearch();
+  }
+
+  goToTour() {
+    this.router.navigate(['/explore']);
+  }
+
+  goToRooms() {
+    this.router.navigate(['/rooms']);
+  }
+
   bookRoom(roomId: string) {
     this.router.navigate(['/booking'], {
       queryParams: {

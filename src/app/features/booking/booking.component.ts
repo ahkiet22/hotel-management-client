@@ -65,6 +65,7 @@ export class BookingPageComponent implements OnInit, OnDestroy {
   paymentQr = signal<string | null>(null);
   bookingResult = signal<any>(null);
   pollingInterval: any;
+  requestedStep = signal<'selection' | 'personal' | null>(null);
 
   // Coupon
   couponCode = signal<string>('');
@@ -144,23 +145,18 @@ export class BookingPageComponent implements OnInit, OnDestroy {
       if (params['typeId']) {
         this.selectedRoomTypeId.set(params['typeId']);
       }
-      
+      if (params['step'] === 'personal' && params['roomId']) {
+        this.requestedStep.set('personal');
+        this.step.set('personal');
+      } else {
+        this.requestedStep.set(null);
+      }
+
+      this.ensureDefaultDates();
       this.loadRooms();
     });
 
     this.loadRoomTypes();
-
-    // Default dates (today and tomorrow) if not set
-    if (!this.checkIn()) {
-      const today = new Date();
-      this.checkIn.set(today.toISOString().split('T')[0]);
-    }
-    if (!this.checkOut()) {
-      const today = new Date();
-      const tomorrow = new Date(today);
-      tomorrow.setDate(today.getDate() + 1);
-      this.checkOut.set(tomorrow.toISOString().split('T')[0]);
-    }
 
     // Check pending booking
     const pendingId = this.getPendingBookingId();
@@ -204,14 +200,19 @@ export class BookingPageComponent implements OnInit, OnDestroy {
       .getAvailableRoomTypes({ roomTypeId: typeId, checkIn, checkOut, capacity })
       .subscribe({
         next: (data: any) => {
-          console.log("getAvailableRoomTypes", data);
           const result = Array.isArray(data) ? data : (data?.result || []);
           this.rooms.set(result);
           this.isLoading.set(false);
           
           // Reset selection if the current selected room is no longer in the list
-          if (this.selectedRoomId() && !result.find((r: any) => r.id === this.selectedRoomId())) {
+          const hasSelectedRoom = result.some((r: any) => r.id === this.selectedRoomId());
+          if (this.selectedRoomId() && !hasSelectedRoom) {
             this.selectedRoomId.set(null);
+            if (this.requestedStep() === 'personal') {
+              this.step.set('selection');
+            }
+          } else if (hasSelectedRoom && this.requestedStep() === 'personal') {
+            this.step.set('personal');
           }
         },
         error: () => this.isLoading.set(false),
@@ -220,19 +221,20 @@ export class BookingPageComponent implements OnInit, OnDestroy {
 
   onSelectRoom(id: string) {
     this.selectedRoomId.set(id);
+    if (this.requestedStep() === 'personal') {
+      this.requestedStep.set(null);
+    }
   }
 
   loadRoomTypes() {
     this.roomTypeService.getAllPublic().subscribe({
       next: (res) => {
-        console.log("getAllPublic", res)
         this.roomTypes.set(res.result);
       },
     });
   }
 
   onProcessCheckout() {
-    console.log('Processing checkout with step:', this.step());
     if (this.step() === 'selection') {
       this.step.set('personal');
     } else if (this.step() === 'personal') {
@@ -359,6 +361,20 @@ export class BookingPageComponent implements OnInit, OnDestroy {
     }
 
     localStorage.removeItem('pendingBookingId');
+  }
+
+  private ensureDefaultDates() {
+    if (!this.checkIn()) {
+      const today = new Date();
+      this.checkIn.set(today.toISOString().split('T')[0]);
+    }
+
+    if (!this.checkOut()) {
+      const today = new Date();
+      const tomorrow = new Date(today);
+      tomorrow.setDate(today.getDate() + 1);
+      this.checkOut.set(tomorrow.toISOString().split('T')[0]);
+    }
   }
 
   goBack() {

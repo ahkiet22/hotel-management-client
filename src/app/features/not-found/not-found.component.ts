@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, Home, ArrowLeft } from 'lucide-angular';
@@ -19,6 +19,7 @@ export class NotFoundComponent implements OnInit {
   constructor(
     private meta: Meta,
     private title: Title,
+    private location: Location,
   ) {}
 
   ngOnInit(): void {
@@ -27,5 +28,9 @@ export class NotFoundComponent implements OnInit {
       { name: 'robots', content: 'noindex, nofollow' },
       { name: 'description', content: 'The page you are looking for does not exist.' },
     ]);
+  }
+
+  goBack(): void {
+    this.location.back();
   }
 }

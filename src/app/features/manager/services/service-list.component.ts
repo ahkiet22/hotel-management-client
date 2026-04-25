@@ -41,7 +41,8 @@ export class ServiceListComponent implements OnInit {
     this.isLoading.set(true);
     this.serviceService.getAll({ page: this.pagination().page, limit: this.pagination().limit }).subscribe({
       next: (res) => {
-        this.services.set(res.result);
+        const services = Array.isArray(res?.result) ? res.result.map((item) => this.normalizeService(item)) : [];
+        this.services.set(services);
         this.pagination.set(res.meta);
         this.isLoading.set(false);
       },
@@ -70,10 +71,16 @@ export class ServiceListComponent implements OnInit {
   }
 
   onSave(data: CreateServiceDto) {
+    const payload: CreateServiceDto = {
+      ...data,
+      description: data.description?.trim() || '',
+      price: this.normalizePrice(data.price),
+    };
+
     const isEditing = !!this.selectedService();
     const obs = isEditing
-      ? this.serviceService.update(this.selectedService()!.id, data as any)
-      : this.serviceService.create(data as any);
+      ? this.serviceService.update(this.selectedService()!.id, payload as any)
+      : this.serviceService.create(payload as any);
 
     obs.subscribe({
       next: () => {
@@ -113,5 +120,33 @@ export class ServiceListComponent implements OnInit {
     return status === 'Active'
       ? 'bg-green-100 text-green-700 border-green-200'
       : 'bg-red-100 text-red-700 border-red-200';
+  }
+
+  private normalizeService(item: any): HotelService {
+    return {
+      id: item?.id ?? '',
+      name: item?.name ?? '',
+      description: item?.description ?? '',
+      price: this.normalizePrice(item?.price),
+      status: item?.status ?? 'Inactive',
+      type: item?.type ?? 'Other',
+      quantity: Number(item?.quantity ?? 0),
+      created_at: item?.created_at ?? item?.createdAt ?? '',
+      updated_at: item?.updated_at ?? item?.updatedAt ?? '',
+    } as HotelService;
+  }
+
+  private normalizePrice(value: unknown): number {
+    if (typeof value === 'number') {
+      return Number.isFinite(value) ? value : 0;
+    }
+
+    if (typeof value === 'string') {
+      const normalized = value.replace(/,/g, '').trim();
+      const parsed = Number(normalized);
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
+
+    return 0;
   }
 }
