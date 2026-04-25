@@ -9,7 +9,7 @@ import { ApiResponse } from '@core/interfaces';
 })
 export class UploadService {
   private http = inject(HttpClient);
-  private readonly baseUrl = `${environment.apiUrl}/api/v1/upload`;
+  private readonly baseUrl = `${environment.apiUrl}api/v1/upload/`;
 
   /**
    * Upload multiple images

@@ -11,5 +11,5 @@ function normalizeApiUrl(value: string | undefined, fallback: string): string {
 
 export const environment = {
   production: true,
-  apiUrl: normalizeApiUrl(process.env['API_URL'], 'http://localhost:3000/'),
+  apiUrl: normalizeApiUrl("https://hotel-management-server-lpzp.onrender.com/", 'https://hotel-management-server-lpzp.onrender.com/'),
 };
