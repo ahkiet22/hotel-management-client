@@ -5,17 +5,21 @@ import { LucideAngularModule, Search, Filter, MoreHorizontal, Plus, Home, Edit, 
 import { CreateRoomDto, Room } from '@core/interfaces/room.dto';
 import { RoomFormComponent } from './room-form.component';
 import { UiConfirmComponent } from '@shared/components/ui-confirm/ui-confirm.component';
+import { PaginationComponent } from '@shared/components/pagination/pagination.component';
+import { Meta } from '@core/interfaces';
+import { ToastService } from '@core/services/toast.service';
 
 @Component({
   selector: 'app-room-list',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, RoomFormComponent, UiConfirmComponent],
+  imports: [CommonModule, LucideAngularModule, RoomFormComponent, UiConfirmComponent, PaginationComponent],
   templateUrl: './room-list.component.html',
 })
 export class RoomListComponent implements OnInit {
   private roomService = inject(RoomService);
+  private toastService = inject(ToastService);
   rooms = signal<Room[]>([]);
-  pagination = signal({ page: 1, limit: 10, totalPages: 1, totalItems: 0 });
+  pagination = signal<Meta>({ page: 1, limit: 10, totalPages: 1, totalItems: 0 });
   isLoading = signal(true);
 
   // Form state
@@ -43,13 +47,53 @@ export class RoomListComponent implements OnInit {
   loadRooms() {
     this.isLoading.set(true);
     this.roomService.getAll({ page: this.pagination().page, limit: this.pagination().limit }).subscribe({
-      next: (res) => {
-        this.rooms.set(res.result);
-        this.pagination.set(res.meta);
+      next: (res: any) => {
+        const rawResult: any[] = Array.isArray(res?.result) ? res.result : Array.isArray(res) ? res : [];
+        const result: Room[] = rawResult.map((item) => this.normalizeRoom(item));
+        const current = this.pagination();
+        const totalItems = res?.meta?.totalItems ?? result.length;
+        const limit = res?.meta?.limit ?? current.limit;
+        const page = res?.meta?.page ?? current.page;
+        const totalPages = res?.meta?.totalPages ?? Math.max(1, Math.ceil(totalItems / Math.max(limit, 1)));
+
+        this.rooms.set(result);
+        this.pagination.set({ page, limit, totalPages, totalItems });
         this.isLoading.set(false);
       },
       error: () => this.isLoading.set(false)
     });
+  }
+
+  private normalizeRoom(item: any): Room {
+    return {
+      id: item?.id,
+      room_number: item?.room_number ?? item?.roomNumber ?? '',
+      description: item?.description,
+      is_public: item?.is_public ?? item?.isPublic ?? true,
+      room_type_id: item?.room_type_id ?? item?.roomTypeId ?? '',
+      status: item?.status,
+      room_type_name: item?.room_type_name ?? item?.roomTypeName ?? item?.roomType?.name,
+      base_price: item?.base_price ?? item?.basePrice,
+      price_per_night: item?.price_per_night ?? item?.pricePerNight,
+      capacity: item?.capacity,
+      created_at: item?.created_at ?? item?.createdAt ?? '',
+      updated_at: item?.updated_at ?? item?.updatedAt ?? ''
+    };
+  }
+
+  getRoomNumber(room: Room): string {
+    return room.room_number || 'N/A';
+  }
+
+  getRoomFloor(room: Room): string {
+    const roomNumber = this.getRoomNumber(room);
+    if (roomNumber === 'N/A') return 'N/A';
+    return roomNumber.substring(0, 1);
+  }
+
+  onPageChange(page: number) {
+    this.pagination.update((p) => ({ ...p, page }));
+    this.loadRooms();
   }
 
   openCreateForm() {
@@ -68,7 +112,8 @@ export class RoomListComponent implements OnInit {
   }
 
   onSave(data: CreateRoomDto) {
-    const obs = this.selectedRoom()
+    const isEditing = !!this.selectedRoom();
+    const obs = isEditing
       ? this.roomService.update(this.selectedRoom()!.id, data)
       : this.roomService.create(data);
 
@@ -76,8 +121,11 @@ export class RoomListComponent implements OnInit {
       next: () => {
         this.closeForm();
         this.loadRooms();
+        this.toastService.success(
+          isEditing ? 'Room updated successfully' : 'Room created successfully'
+        );
       },
-      error: (err) => console.error('Error saving room:', err)
+      error: (err) => this.toastService.error('Failed to save room', err?.message)
     });
   }
 
@@ -94,8 +142,9 @@ export class RoomListComponent implements OnInit {
         this.isConfirmOpen.set(false);
         this.roomToDelete.set(null);
         this.loadRooms();
+        this.toastService.success('Room deleted successfully');
       },
-      error: (err) => console.error('Error deleting room:', err)
+      error: (err) => this.toastService.error('Failed to delete room', err?.message)
     });
   }
 

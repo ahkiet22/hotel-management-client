@@ -2,10 +2,11 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { AuthStore } from './core/stores/auth.store';
 import { AuthService } from './core/services/auth.service';
+import { UiToastComponent } from '@shared/components/ui-toast/ui-toast.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, UiToastComponent],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })

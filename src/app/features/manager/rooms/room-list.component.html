@@ -87,7 +87,7 @@
                 </div>
                 <div>
                   <p class="font-bold text-slate-900 text-[14.5px] leading-tight">
-                    Room {{ room.room_number }}
+                    Room {{ getRoomNumber(room) }}
                   </p>
                   <p class="text-[12.5px] font-medium text-slate-500 mt-1">ID: {{ room.id }}</p>
                 </div>
@@ -110,7 +110,7 @@
             </td>
             <td class="px-6 py-5">
               <span class="text-sm font-medium text-slate-500 italic">
-                Floor {{ room.room_number.substring(0, 1) }}
+                Floor {{ getRoomFloor(room) }}
               </span>
             </td>
             <td class="px-6 py-5 text-right">
@@ -147,6 +147,8 @@
         </p>
       </div>
     }
+
+    <app-pagination [meta]="pagination()" (pageChange)="onPageChange($event)"></app-pagination>
   </div>
 </section>
 

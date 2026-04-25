@@ -8,16 +8,19 @@ import { CreateRoomTypeDto, RoomType } from '@core/interfaces/room-type.dto';
 
 import { UiConfirmComponent } from '@shared/components/ui-confirm/ui-confirm.component';
 import { Meta } from '@core/interfaces';
+import { PaginationComponent } from '@shared/components/pagination/pagination.component';
+import { ToastService } from '@core/services/toast.service';
 
 @Component({
   selector: 'app-room-type-list',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, RoomTypeFormComponent, UiConfirmComponent],
+  imports: [CommonModule, LucideAngularModule, RoomTypeFormComponent, UiConfirmComponent, PaginationComponent],
   templateUrl: './room-type-list.component.html',
 })
 export class RoomTypeListComponent implements OnInit {
   private roomTypeService = inject(RoomTypeService);
   private bookingService = inject(BookingService);
+  private toastService = inject(ToastService);
 
   roomTypes = signal<RoomType[]>([]);
   pagination = signal<Meta>({ page: 1, limit: 10, totalPages: 1, totalItems: 0 });
@@ -95,6 +98,11 @@ export class RoomTypeListComponent implements OnInit {
     this.loadRoomTypes();
   }
 
+  onPageChange(page: number) {
+    this.pagination.update((p) => ({ ...p, page }));
+    this.loadRoomTypes();
+  }
+
   openCreateForm() {
     this.selectedRoomType.set(null);
     this.isFormOpen.set(true);
@@ -111,7 +119,8 @@ export class RoomTypeListComponent implements OnInit {
   }
 
   onSave(data: CreateRoomTypeDto) {
-    const obs = this.selectedRoomType()
+    const isEditing = !!this.selectedRoomType();
+    const obs = isEditing
       ? this.roomTypeService.update(this.selectedRoomType()!.id, data as any)
       : this.roomTypeService.create(data as any);
 
@@ -119,8 +128,9 @@ export class RoomTypeListComponent implements OnInit {
       next: () => {
         this.closeForm();
         this.loadRoomTypes();
+        this.toastService.success(isEditing ? 'Room type updated successfully' : 'Room type created successfully');
       },
-      error: (err) => console.error('Error saving room type:', err)
+      error: (err) => this.toastService.error('Failed to save room type', err?.message)
     });
   }
 
@@ -137,8 +147,9 @@ export class RoomTypeListComponent implements OnInit {
         this.isConfirmOpen.set(false);
         this.itemToDelete.set(null);
         this.loadRoomTypes();
+        this.toastService.success('Room type deleted successfully');
       },
-      error: (err) => console.error('Error deleting room type:', err)
+      error: (err) => this.toastService.error('Failed to delete room type', err?.message)
     });
   }
 

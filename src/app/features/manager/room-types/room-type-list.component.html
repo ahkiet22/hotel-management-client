@@ -164,6 +164,8 @@
         </p>
       </div>
     }
+
+    <app-pagination [meta]="pagination()" (pageChange)="onPageChange($event)"></app-pagination>
   </div>
 </section>
 

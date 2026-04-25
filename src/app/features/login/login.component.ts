@@ -8,6 +8,7 @@ import { LoadingService } from '@core/services/loading.service';
 import { HlmSpinner } from "src/app/libs/ui/spinner/src";
 import { AuthStore, User } from '@core/stores/auth.store';
 import { StorageService } from '@core/services/storage.service';
+import { ToastService } from '@core/services/toast.service';
 
 @Component({
   selector: 'app-login',
@@ -24,7 +25,8 @@ export class LoginComponent {
     private router: Router,
     public loadingService: LoadingService,
     private authStore: AuthStore,
-    private storageService: StorageService
+    private storageService: StorageService,
+    private toastService: ToastService
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -49,7 +51,6 @@ export class LoginComponent {
         )
         .subscribe({
           next: (userMe) => {
-            console.log("USER", userMe)
             const token = this.storageService.get<string>('accessToken') || '';
             const user: User = {
               id: userMe.id,
@@ -58,13 +59,13 @@ export class LoginComponent {
               roleName: userMe.role.name,
               role_id: userMe.role.id
             };
-            console.log("US", user)
             this.authStore.setAuth(user, token);
+            this.toastService.success('Login successful', `Welcome back, ${user.fullName}!`);
             this.router.navigate(['/']);
           },
           error: (err) => {
             this.authStore.clearAuth();
-            console.error('Error during login process:', err);
+            this.toastService.error('Login failed', err?.message || 'Please check your account and try again.');
           },
         });
     }

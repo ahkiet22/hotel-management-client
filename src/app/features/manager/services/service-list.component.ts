@@ -6,15 +6,18 @@ import { CreateServiceDto, HotelService } from '@core/interfaces/service.dto';
 import { Meta } from '@core/interfaces';
 import { ServiceFormComponent } from './service-form.component';
 import { UiConfirmComponent } from '@shared/components/ui-confirm/ui-confirm.component';
+import { PaginationComponent } from '@shared/components/pagination/pagination.component';
+import { ToastService } from '@core/services/toast.service';
 
 @Component({
   selector: 'app-service-list',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, ServiceFormComponent, UiConfirmComponent],
+  imports: [CommonModule, LucideAngularModule, ServiceFormComponent, UiConfirmComponent, PaginationComponent],
   templateUrl: './service-list.component.html',
 })
 export class ServiceListComponent implements OnInit {
   private serviceService = inject(HotelServiceService);
+  private toastService = inject(ToastService);
 
   services = signal<HotelService[]>([]);
   pagination = signal<Meta>({ page: 1, limit: 10, totalPages: 1, totalItems: 0 });
@@ -36,7 +39,7 @@ export class ServiceListComponent implements OnInit {
 
   loadServices() {
     this.isLoading.set(true);
-    this.serviceService.getAll().subscribe({
+    this.serviceService.getAll({ page: this.pagination().page, limit: this.pagination().limit }).subscribe({
       next: (res) => {
         this.services.set(res.result);
         this.pagination.set(res.meta);
@@ -44,6 +47,11 @@ export class ServiceListComponent implements OnInit {
       },
       error: () => this.isLoading.set(false)
     });
+  }
+
+  onPageChange(page: number) {
+    this.pagination.update((p) => ({ ...p, page }));
+    this.loadServices();
   }
 
   openCreateForm() {
@@ -62,7 +70,8 @@ export class ServiceListComponent implements OnInit {
   }
 
   onSave(data: CreateServiceDto) {
-    const obs = this.selectedService()
+    const isEditing = !!this.selectedService();
+    const obs = isEditing
       ? this.serviceService.update(this.selectedService()!.id, data as any)
       : this.serviceService.create(data as any);
 
@@ -70,8 +79,9 @@ export class ServiceListComponent implements OnInit {
       next: () => {
         this.closeForm();
         this.loadServices();
+        this.toastService.success(isEditing ? 'Service updated successfully' : 'Service created successfully');
       },
-      error: (err) => console.error('Error saving service:', err)
+      error: (err) => this.toastService.error('Failed to save service', err?.message)
     });
   }
 
@@ -88,8 +98,9 @@ export class ServiceListComponent implements OnInit {
         this.isConfirmOpen.set(false);
         this.serviceToDelete.set(null);
         this.loadServices();
+        this.toastService.success('Service deleted successfully');
       },
-      error: (err) => console.error('Error deleting service:', err)
+      error: (err) => this.toastService.error('Failed to delete service', err?.message)
     });
   }
 

@@ -2,19 +2,19 @@
   <!-- Header & Filters -->
   <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
     <div>
-      <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Analytics & Reports</h1>
-      <p class="text-slate-500 mt-1">Monitor your hotel performance and growth.</p>
+      <h1 class="text-3xl font-bold text-slate-900 tracking-tight">{{ reportTitle() }}</h1>
+      <p class="text-slate-500 mt-1">{{ reportSubtitle() }}</p>
     </div>
     
     <div class="flex flex-wrap items-center gap-3 bg-white p-2 rounded-xl shadow-sm border border-slate-100">
       <div class="flex items-center gap-2 px-3 py-1.5 border-r border-slate-100">
         <lucide-icon [img]="icons.Calendar" class="w-4 h-4 text-slate-400"></lucide-icon>
-        <input type="date" [(ngModel)]="query().startDate" class="text-sm font-medium border-none focus:ring-0 p-0 w-32 bg-transparent">
+        <input type="date" [ngModel]="query().startDate" (ngModelChange)="updateStartDate($event)" class="text-sm font-medium border-none focus:ring-0 p-0 w-32 bg-transparent">
         <span class="text-slate-300">→</span>
-        <input type="date" [(ngModel)]="query().endDate" class="text-sm font-medium border-none focus:ring-0 p-0 w-32 bg-transparent">
+        <input type="date" [ngModel]="query().endDate" (ngModelChange)="updateEndDate($event)" class="text-sm font-medium border-none focus:ring-0 p-0 w-32 bg-transparent">
       </div>
       
-      <select [(ngModel)]="query().type" class="text-sm font-medium border-none focus:ring-0 bg-transparent cursor-pointer hover:text-blue-600 transition-colors">
+      <select [ngModel]="query().type" (ngModelChange)="updateType($event)" class="text-sm font-medium border-none focus:ring-0 bg-transparent cursor-pointer hover:text-blue-600 transition-colors">
         <option *ngFor="let type of reportTypes" [value]="type">{{ type | titlecase }}</option>
       </select>
 
@@ -31,66 +31,37 @@
   </div>
 
   <!-- Summary Cards -->
+  @if (isSectionVisible('summary')) {
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-    <!-- Revenue -->
+    @for (kpi of getKpis(); track kpi.label) {
     <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow group">
       <div class="flex items-center justify-between mb-4">
-        <div class="p-3 bg-blue-50 text-blue-600 rounded-xl group-hover:scale-110 transition-transform">
-          <lucide-icon [img]="icons.TrendingUp" class="w-6 h-6"></lucide-icon>
+        <div class="p-3 rounded-xl group-hover:scale-110 transition-transform" [ngClass]="getToneClass(kpi.tone).icon">
+          <lucide-icon [img]="icons[kpi.icon]" class="w-6 h-6"></lucide-icon>
         </div>
-        <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">+12.5%</span>
+        <span class="text-xs font-bold px-2 py-1 rounded-full" [ngClass]="getToneClass(kpi.tone).badge">{{ kpi.badge }}</span>
       </div>
-      <h3 class="text-slate-500 text-sm font-medium">Total Revenue</h3>
+      <h3 class="text-slate-500 text-sm font-medium">{{ kpi.label }}</h3>
       <p class="text-2xl font-bold text-slate-900 mt-1">
-        {{ formatCurrency(summary()?.revenue?.totalRevenue) }}
+        {{ kpi.value }}
       </p>
     </div>
-
-    <!-- Bookings -->
-    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow group">
-      <div class="flex items-center justify-between mb-4">
-        <div class="p-3 bg-indigo-50 text-indigo-600 rounded-xl group-hover:scale-110 transition-transform">
-          <lucide-icon [img]="icons.BarChart3" class="w-6 h-6"></lucide-icon>
-        </div>
-        <span class="text-xs font-bold text-slate-500 bg-slate-50 px-2 py-1 rounded-full">Bookings</span>
-      </div>
-      <h3 class="text-slate-500 text-sm font-medium">Total Bookings</h3>
-      <p class="text-2xl font-bold text-slate-900 mt-1">
-        {{ summary()?.rooms?.totalBookings || 0 }}
-      </p>
-    </div>
-
-    <!-- Active Customers -->
-    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow group">
-      <div class="flex items-center justify-between mb-4">
-        <div class="p-3 bg-purple-50 text-purple-600 rounded-xl group-hover:scale-110 transition-transform">
-          <lucide-icon [img]="icons.Users" class="w-6 h-6"></lucide-icon>
-        </div>
-        <span class="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded-full">Active</span>
-      </div>
-      <h3 class="text-slate-500 text-sm font-medium">Active Customers</h3>
-      <p class="text-2xl font-bold text-slate-900 mt-1">
-        {{ summary()?.customers?.active || 0 }}
-      </p>
-    </div>
-
-    <!-- New Customers -->
-    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow group">
-      <div class="flex items-center justify-between mb-4">
-        <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl group-hover:scale-110 transition-transform">
-          <lucide-icon [img]="icons.Users" class="w-6 h-6"></lucide-icon>
-        </div>
-        <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">New</span>
-      </div>
-      <h3 class="text-slate-500 text-sm font-medium">New Registrations</h3>
-      <p class="text-2xl font-bold text-slate-900 mt-1">
-        {{ summary()?.customers?.new || 0 }}
-      </p>
-    </div>
+    }
   </div>
+  }
 
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+  @if (reportView() === 'reviews') {
+    <div class="rounded-2xl border border-indigo-100 bg-indigo-50 px-5 py-4 text-sm text-indigo-700">
+      Review report currently reuses booking-quality metrics from reports API. When a dedicated reviews endpoint is available, this section can be expanded with rating distribution and sentiment trends.
+    </div>
+  }
+
+  <div
+    class="grid grid-cols-1 lg:grid-cols-2 gap-8"
+    [ngClass]="{ 'lg:grid-cols-1': !isSectionVisible('rooms') || !isSectionVisible('revenue') }"
+  >
     <!-- Revenue Timeline -->
+    @if (isSectionVisible('revenue')) {
     <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
       <div class="flex items-center justify-between mb-8">
         <div>
@@ -121,8 +92,10 @@
         </div>
       </div>
     </div>
+    }
 
     <!-- Room Distribution -->
+    @if (isSectionVisible('rooms')) {
     <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
       <div class="flex items-center justify-between mb-8">
         <div>
@@ -157,9 +130,11 @@
         </div>
       </div>
     </div>
+    }
   </div>
 
   <!-- Top Customers -->
+  @if (isSectionVisible('customers')) {
   <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
     <div class="p-8 border-b border-slate-100 flex items-center justify-between">
       <div>
@@ -167,7 +142,7 @@
         <p class="text-slate-500 text-sm mt-1">Customers with highest spending and booking frequency.</p>
       </div>
       <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
-        <lucide-icon [name]="icons.Users" class="w-6 h-6"></lucide-icon>
+        <lucide-icon [img]="icons.Users" class="w-6 h-6"></lucide-icon>
       </div>
     </div>
     
@@ -214,7 +189,7 @@
           <tr *ngIf="!customerStats()?.topCustomers?.length">
             <td colspan="4" class="px-8 py-16 text-center text-slate-400">
                <div class="flex flex-col items-center gap-3">
-                 <lucide-icon [name]="icons.Users" class="w-12 h-12 opacity-10"></lucide-icon>
+                 <lucide-icon [img]="icons.Users" class="w-12 h-12 opacity-10"></lucide-icon>
                  <span class="font-medium">No customer insights available for this period.</span>
                </div>
             </td>
@@ -223,4 +198,5 @@
       </table>
     </div>
   </div>
+  }
 </div>

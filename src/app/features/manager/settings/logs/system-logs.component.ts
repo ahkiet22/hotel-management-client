@@ -5,11 +5,12 @@ import { SystemLogService, SystemLog } from '@core/services/system-log.service';
 import { LucideAngularModule, Activity, Clock, Shield, Search, User, Filter, RefreshCw, X } from 'lucide-angular';
 
 import { Meta } from '@core/interfaces';
+import { PaginationComponent } from '@shared/components/pagination/pagination.component';
 
 @Component({
   selector: 'app-system-logs',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule, PaginationComponent],
   templateUrl: './system-logs.component.html',
 })
 export class SystemLogsComponent implements OnInit {
@@ -59,5 +60,10 @@ export class SystemLogsComponent implements OnInit {
     this.filterUserId.set('');
     this.filterAction.set('');
     this.applyFilters();
+  }
+
+  onPageChange(page: number) {
+    this.pagination.update((p) => ({ ...p, page }));
+    this.loadLogs();
   }
 }

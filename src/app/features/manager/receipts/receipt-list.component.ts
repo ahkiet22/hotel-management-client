@@ -4,11 +4,12 @@ import { ReceiptService, Receipt } from '@core/services/receipt.service';
 import { LucideAngularModule, FileText, Download, Printer } from 'lucide-angular';
 
 import { Meta } from '@core/interfaces';
+import { PaginationComponent } from '@shared/components/pagination/pagination.component';
 
 @Component({
   selector: 'app-receipt-list',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, PaginationComponent],
   templateUrl: './receipt-list.component.html',
 })
 export class ReceiptListComponent implements OnInit {
@@ -29,7 +30,7 @@ export class ReceiptListComponent implements OnInit {
 
   loadReceipts() {
     this.isLoading.set(true);
-    this.receiptService.getAll().subscribe({
+    this.receiptService.getAll({ page: this.pagination().page, limit: this.pagination().limit }).subscribe({
       next: (res) => {
         this.receipts.set(res.result);
         this.pagination.set(res.meta);
@@ -37,5 +38,10 @@ export class ReceiptListComponent implements OnInit {
       },
       error: () => this.isLoading.set(false)
     });
+  }
+
+  onPageChange(page: number) {
+    this.pagination.update((p) => ({ ...p, page }));
+    this.loadReceipts();
   }
 }

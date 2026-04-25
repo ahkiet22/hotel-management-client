@@ -4,11 +4,12 @@ import { PaymentService, Payment } from '@core/services/payment.service';
 import { LucideAngularModule, Search, Filter, MoreHorizontal, CreditCard, DollarSign } from 'lucide-angular';
 
 import { Meta } from '@core/interfaces';
+import { PaginationComponent } from '@shared/components/pagination/pagination.component';
 
 @Component({
   selector: 'app-payment-list',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, PaginationComponent],
   templateUrl: './payment-list.component.html',
 })
 export class PaymentListComponent implements OnInit {
@@ -31,7 +32,7 @@ export class PaymentListComponent implements OnInit {
 
   loadPayments() {
     this.isLoading.set(true);
-    this.paymentService.getAll().subscribe({
+    this.paymentService.getAll({ page: this.pagination().page, limit: this.pagination().limit }).subscribe({
       next: (res) => {
         this.payments.set(res.result);
         this.pagination.set(res.meta);
@@ -39,6 +40,11 @@ export class PaymentListComponent implements OnInit {
       },
       error: () => this.isLoading.set(false)
     });
+  }
+
+  onPageChange(page: number) {
+    this.pagination.update((p) => ({ ...p, page }));
+    this.loadPayments();
   }
 
   getStatusClass(status?: string) {

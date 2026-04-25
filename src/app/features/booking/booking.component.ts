@@ -78,8 +78,8 @@ export class BookingPageComponent implements OnInit, OnDestroy {
       return {
         ...room,
         roomTypeName: type?.name || room.roomTypeName || 'Standard Room',
-        basePrice: Number(type?.basePrice || room.basePrice || 0),
-        pricePerNight: Number(type?.pricePerNight || room.pricePerNight || type?.basePrice || room.basePrice || 0),
+        basePrice: Number(type?.base_price || room.basePrice || 0),
+        pricePerNight: Number(type?.price_per_night || room.pricePerNight || type?.base_price || room.basePrice || 0),
         images: type?.images || room.images || [],
         typeDescription: type?.description || room.description || '',
       };
@@ -252,7 +252,8 @@ export class BookingPageComponent implements OnInit, OnDestroy {
 
     const bookingData = {
       customerId: user.id,
-      roomTypeId: selectedRoom.id,
+      roomTypeId: selectedRoom.roomTypeId || selectedRoom.id,
+      roomIds: [selectedRoom.id],
       checkInDate: `${this.checkIn()}T14:00:00`,
       checkOutDate: `${this.checkOut()}T12:00:00`,
     };

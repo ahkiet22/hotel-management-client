@@ -9,15 +9,18 @@ import {
 } from 'lucide-angular';
 import { Meta } from '@core/interfaces';
 import { UiConfirmComponent } from '@shared/components/ui-confirm/ui-confirm.component';
+import { PaginationComponent } from '@shared/components/pagination/pagination.component';
+import { ToastService } from '@core/services/toast.service';
 
 @Component({
   selector: 'app-booking-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule, UiConfirmComponent],
+  imports: [CommonModule, FormsModule, LucideAngularModule, UiConfirmComponent, PaginationComponent],
   templateUrl: './booking-list.component.html',
 })
 export class BookingListComponent implements OnInit {
   private bookingService = inject(BookingService);
+  private toastService = inject(ToastService);
 
   bookings = signal<Booking[]>([]);
   pagination = signal<Meta>({ page: 1, limit: 10, totalPages: 1, totalItems: 0 });
@@ -53,11 +56,19 @@ export class BookingListComponent implements OnInit {
     });
   }
 
+  onPageChange(page: number) {
+    this.pagination.update((p) => ({ ...p, page }));
+    this.loadBookings();
+  }
+
   /** Confirm a Pending booking → Confirmed */
   confirmBooking(booking: Booking) {
     this.bookingService.confirm(booking.id).subscribe({
-      next: () => this.loadBookings(),
-      error: (err) => console.error('Error confirming booking:', err)
+      next: () => {
+        this.loadBookings();
+        this.toastService.success(`Booking ${booking.shortId} confirmed`);
+      },
+      error: (err) => this.toastService.error('Failed to confirm booking', err?.message)
     });
   }
 
@@ -75,8 +86,9 @@ export class BookingListComponent implements OnInit {
         this.isConfirmOpen.set(false);
         this.bookingToCancel.set(null);
         this.loadBookings();
+        this.toastService.success('Booking cancelled successfully');
       },
-      error: (err) => console.error('Error cancelling booking:', err)
+      error: (err) => this.toastService.error('Failed to cancel booking', err?.message)
     });
   }
 
@@ -92,7 +104,7 @@ export class BookingListComponent implements OnInit {
         this.qrImageUrl.set(res); 
         this.isQrModalOpen.set(true);
       },
-      error: (err) => console.error('Error fetching QR:', err)
+      error: (err) => this.toastService.error('Failed to load payment QR', err?.message)
     });
   }
 
@@ -122,23 +134,30 @@ export class BookingListComponent implements OnInit {
       next: () => {
         this.closeCouponModal();
         this.loadBookings();
+        this.toastService.success('Coupon applied successfully');
       },
-      error: (err) => console.error('Error applying coupon:', err)
+      error: (err) => this.toastService.error('Failed to apply coupon', err?.message)
     });
   }
 
   /** Status Transitions */
   checkIn(booking: Booking) {
     this.bookingService.checkIn(booking.id).subscribe({
-      next: () => this.loadBookings(),
-      error: (err) => console.error('Error checking in:', err)
+      next: () => {
+        this.loadBookings();
+        this.toastService.success(`Checked in ${booking.shortId}`);
+      },
+      error: (err) => this.toastService.error('Failed to check in', err?.message)
     });
   }
 
   checkOut(booking: Booking) {
     this.bookingService.checkOut(booking.id).subscribe({
-      next: () => this.loadBookings(),
-      error: (err) => console.error('Error checking out:', err)
+      next: () => {
+        this.loadBookings();
+        this.toastService.success(`Checked out ${booking.shortId}`);
+      },
+      error: (err) => this.toastService.error('Failed to check out', err?.message)
     });
   }
 

@@ -160,7 +160,7 @@ export class HomePageComponent implements OnInit {
   }
 
   loadRoomTypes() {
-    this.roomTypeService.getAll().subscribe({
+    this.roomTypeService.getAllPublic().subscribe({
       next: (res) => {
         this.roomTypes.set(res.result);
       },

@@ -5,18 +5,22 @@ import { LucideAngularModule, Search, Filter, UserPlus, Pencil, Trash2 } from 'l
 import { CreateUserDto, User } from '@core/interfaces/user.dto';
 import { UserFormComponent } from './user-form.component';
 import { UiConfirmComponent } from '@shared/components/ui-confirm/ui-confirm.component';
+import { PaginationComponent } from '@shared/components/pagination/pagination.component';
+import { Meta } from '@core/interfaces';
+import { ToastService } from '@core/services/toast.service';
 
 @Component({
   selector: 'app-user-list',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, UserFormComponent, UiConfirmComponent],
+  imports: [CommonModule, LucideAngularModule, UserFormComponent, UiConfirmComponent, PaginationComponent],
   templateUrl: './user-list.component.html',
 })
 export class UserListComponent implements OnInit {
   private userService = inject(UserService);
+  private toastService = inject(ToastService);
 
   users = signal<User[]>([]);
-  pagination = signal({ page: 1, limit: 10, totalPages: 1, totalItems: 0 });
+  pagination = signal<Meta>({ page: 1, limit: 10, totalPages: 1, totalItems: 0 });
   isLoading = signal(true);
 
   // Form state
@@ -35,14 +39,26 @@ export class UserListComponent implements OnInit {
 
   loadUsers() {
     this.isLoading.set(true);
-    this.userService.getAll().subscribe({
-      next: (res) => {
-        this.users.set(res.result);
-        this.pagination.set(res.meta);
+    this.userService.getAll({ page: this.pagination().page, limit: this.pagination().limit }).subscribe({
+      next: (res: any) => {
+        const result: User[] = Array.isArray(res?.result) ? res.result : Array.isArray(res) ? res : [];
+        const current = this.pagination();
+        const totalItems = res?.meta?.totalItems ?? result.length;
+        const limit = res?.meta?.limit ?? current.limit;
+        const page = res?.meta?.page ?? current.page;
+        const totalPages = res?.meta?.totalPages ?? Math.max(1, Math.ceil(totalItems / Math.max(limit, 1)));
+
+        this.users.set(result);
+        this.pagination.set({ page, limit, totalPages, totalItems });
         this.isLoading.set(false);
       },
       error: () => this.isLoading.set(false)
     });
+  }
+
+  onPageChange(page: number) {
+    this.pagination.update((p) => ({ ...p, page }));
+    this.loadUsers();
   }
 
   openCreateForm() {
@@ -61,7 +77,8 @@ export class UserListComponent implements OnInit {
   }
 
   onSave(data: CreateUserDto) {
-    const obs = this.selectedUser()
+    const isEditing = !!this.selectedUser();
+    const obs = isEditing
       ? this.userService.update(this.selectedUser()!.id, data)
       : this.userService.create(data);
 
@@ -69,8 +86,9 @@ export class UserListComponent implements OnInit {
       next: () => {
         this.closeForm();
         this.loadUsers();
+        this.toastService.success(isEditing ? 'User updated successfully' : 'User created successfully');
       },
-      error: (err) => console.error('Error saving user:', err)
+      error: (err) => this.toastService.error('Failed to save user', err?.message)
     });
   }
 
@@ -87,8 +105,9 @@ export class UserListComponent implements OnInit {
         this.isConfirmOpen.set(false);
         this.userToDelete.set(null);
         this.loadUsers();
+        this.toastService.success('User deleted successfully');
       },
-      error: (err) => console.error('Error deleting user:', err)
+      error: (err) => this.toastService.error('Failed to delete user', err?.message)
     });
   }
 

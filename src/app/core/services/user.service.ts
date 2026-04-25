@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { BaseService } from './base.service';
-import { ApiResponse, PaginatedResponse } from '../interfaces/common.dto';
+import { ApiResponse, PaginatedResponse, QueryParams } from '../interfaces/common.dto';
 import { CreateUserDto, UpdateUserDto, User } from '../interfaces/user.dto';
 export type { CreateUserDto, UpdateUserDto, User };
 
@@ -13,20 +12,8 @@ export type { CreateUserDto, UpdateUserDto, User };
 export class UserService extends BaseService {
   protected override readonly endpoint = 'api/v1/users';
 
-  override getAll(): Observable<PaginatedResponse<User>> {
-    return this.http.get<ApiResponse<User[]>>(`${this.baseUrl}api/v1/users`)
-      .pipe(
-        map(res => ({
-          result: res.data,
-          meta: {
-            page: 1,
-            limit: res.data.length,
-            totalPages: 1,
-            totalItems: res.data.length
-          }
-        })),
-        catchError(this.handleError)
-      );
+  override getAll(query?: QueryParams): Observable<PaginatedResponse<User>> {
+    return super.getAll(query) as Observable<PaginatedResponse<User>>;
   }
 
   override getById(id: string): Observable<User> {

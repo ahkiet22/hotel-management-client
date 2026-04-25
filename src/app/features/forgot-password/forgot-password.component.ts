@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { ToastService } from '@core/services/toast.service';
 
 @Component({
   selector: 'app-forgot-password',
@@ -12,7 +13,7 @@ import { RouterLink } from '@angular/router';
 export class ForgotPasswordComponent {
   forgotForm: FormGroup;
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder, private toastService: ToastService) {
     this.forgotForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
     });
@@ -20,7 +21,12 @@ export class ForgotPasswordComponent {
 
   onSubmit() {
     if (this.forgotForm.valid) {
-      console.log('Forgot Password for Email:', this.forgotForm.get('email')?.value);
+      this.toastService.info(
+        'Request sent',
+        `If account exists, reset instructions will be sent to ${this.forgotForm.get('email')?.value}.`
+      );
+    } else {
+      this.toastService.warning('Invalid email', 'Please enter a valid email address.');
     }
   }
 }
