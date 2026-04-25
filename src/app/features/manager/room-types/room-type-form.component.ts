@@ -43,10 +43,10 @@ export class RoomTypeFormComponent implements OnChanges {
       this.isEdit.set(true);
       this.form.patchValue({
         name: this.roomType.name,
-        description: this.roomType.description,
-        base_price: this.roomType.base_price,
-        price_per_night: this.roomType.price_per_night,
-        capacity: this.roomType.capacity,
+        description: this.roomType.description ?? '',
+        base_price: this.normalizeNumber((this.roomType as any).base_price ?? (this.roomType as any).basePrice),
+        price_per_night: this.normalizeNumber((this.roomType as any).price_per_night ?? (this.roomType as any).pricePerNight),
+        capacity: this.normalizeNumber(this.roomType.capacity, 1),
         images: this.roomType.images || [],
       });
     } else if (changes['roomType'] && !this.roomType) {
@@ -89,11 +89,32 @@ export class RoomTypeFormComponent implements OnChanges {
 
   onSubmit() {
     if (this.form.valid) {
-      this.save.emit(this.form.value);
+      const raw = this.form.getRawValue();
+      this.save.emit({
+        ...raw,
+        description: raw.description?.trim() || '',
+        base_price: this.normalizeNumber(raw.base_price),
+        price_per_night: this.normalizeNumber(raw.price_per_night),
+        capacity: this.normalizeNumber(raw.capacity, 1),
+        images: Array.isArray(raw.images) ? raw.images : [],
+      });
     } else {
       Object.values(this.form.controls).forEach(control => {
         control.markAsTouched();
       });
     }
+  }
+
+  private normalizeNumber(value: unknown, fallback = 0): number {
+    if (typeof value === 'number') {
+      return Number.isFinite(value) ? value : fallback;
+    }
+
+    if (typeof value === 'string') {
+      const parsed = Number(value.replace(/,/g, '').trim());
+      return Number.isFinite(parsed) ? parsed : fallback;
+    }
+
+    return fallback;
   }
 }

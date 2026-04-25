@@ -84,7 +84,8 @@ export class RoomTypeListComponent implements OnInit {
     } else {
       this.roomTypeService.getAll({ page: this.pagination().page, limit: this.pagination().limit }).subscribe({
         next: (res) => {
-          this.roomTypes.set(res.result);
+          const items = Array.isArray(res?.result) ? res.result.map((item: any) => this.normalizeRoomType(item)) : [];
+          this.roomTypes.set(items);
           this.pagination.set(res.meta);
           this.isLoading.set(false);
         },
@@ -119,10 +120,19 @@ export class RoomTypeListComponent implements OnInit {
   }
 
   onSave(data: CreateRoomTypeDto) {
+    const payload: CreateRoomTypeDto = {
+      ...data,
+      description: data.description?.trim() || '',
+      base_price: this.normalizeNumber((data as any).base_price),
+      price_per_night: this.normalizeNumber((data as any).price_per_night),
+      capacity: this.normalizeNumber(data.capacity, 1),
+      images: Array.isArray(data.images) ? data.images : [],
+    };
+
     const isEditing = !!this.selectedRoomType();
     const obs = isEditing
-      ? this.roomTypeService.update(this.selectedRoomType()!.id, data as any)
-      : this.roomTypeService.create(data as any);
+      ? this.roomTypeService.update(this.selectedRoomType()!.id, payload as any)
+      : this.roomTypeService.create(payload as any);
 
     obs.subscribe({
       next: () => {
@@ -156,5 +166,33 @@ export class RoomTypeListComponent implements OnInit {
   onDeleteCancelled() {
     this.isConfirmOpen.set(false);
     this.itemToDelete.set(null);
+  }
+
+  private normalizeRoomType(item: any): RoomType {
+    return {
+      id: item?.id ?? '',
+      name: item?.name ?? '',
+      description: item?.description ?? '',
+      images: Array.isArray(item?.images) ? item.images : [],
+      base_price: this.normalizeNumber(item?.base_price ?? item?.basePrice),
+      price_per_night: this.normalizeNumber(item?.price_per_night ?? item?.pricePerNight),
+      capacity: this.normalizeNumber(item?.capacity, 1),
+      created_at: item?.created_at ?? item?.createdAt ?? '',
+      updated_at: item?.updated_at ?? item?.updatedAt ?? '',
+      is_public: item?.is_public ?? item?.isPublic,
+    };
+  }
+
+  private normalizeNumber(value: unknown, fallback = 0): number {
+    if (typeof value === 'number') {
+      return Number.isFinite(value) ? value : fallback;
+    }
+
+    if (typeof value === 'string') {
+      const parsed = Number(value.replace(/,/g, '').trim());
+      return Number.isFinite(parsed) ? parsed : fallback;
+    }
+
+    return fallback;
   }
 }
