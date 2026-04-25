@@ -1,7 +1,8 @@
 import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
-import { Observable, throwError } from 'rxjs';
+import { Injectable, inject, PLATFORM_ID } from '@angular/core';
+import { Observable, EMPTY, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
+import { isPlatformServer } from '@angular/common';
 import { environment } from 'src/environments/environment';
 import { ApiResponse, PaginatedResponse } from '../interfaces/common.dto';
 
@@ -11,6 +12,7 @@ import { ApiResponse, PaginatedResponse } from '../interfaces/common.dto';
 export abstract class BaseService {
   protected http = inject(HttpClient);
   protected baseUrl: string = environment.apiUrl;
+  private platformId = inject(PLATFORM_ID);
   protected abstract readonly endpoint: string;
 
   protected getHeaders(): HttpHeaders {
@@ -68,7 +70,7 @@ export abstract class BaseService {
       );
   }
 
-  protected handleError(error: HttpErrorResponse): Observable<never> {
+  protected handleError = (error: HttpErrorResponse): Observable<never> => {
     let errorMessage = 'An unknown error occurred!';
     if (typeof ErrorEvent !== 'undefined' && error.error instanceof ErrorEvent) {
       errorMessage = `Error: ${error.error.message}`;
@@ -76,6 +78,11 @@ export abstract class BaseService {
       errorMessage = error.error?.message || `Error Code: ${error.status}\nMessage: ${error.message}`;
     }
     console.error(errorMessage);
+
+    if (isPlatformServer(this.platformId)) {
+      return EMPTY;
+    }
+
     return throwError(() => new Error(errorMessage));
-  }
+  };
 }
