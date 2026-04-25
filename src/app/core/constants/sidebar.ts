@@ -9,6 +9,7 @@ import {
   LucideIconData,
   Settings,
   Star,
+  Ticket,
   Users,
 } from 'lucide-angular';
 
@@ -54,6 +55,12 @@ export const SIDEBAR_ITEMS: SidebarItem[] = [
     icon: CalendarCheck,
     permission: PERMISSIONS.MANAGE_BOOKINGS.VIEW,
     children: [{ title: 'Bookings', href: ROUTES.MANAGER.BOOKINGS, permission: PERMISSIONS.MANAGE_BOOKINGS.VIEW }],
+  },
+  {
+    title: 'Coupons',
+    icon: Ticket,
+    href: ROUTES.MANAGER.COUPONS,
+    permission: PERMISSIONS.MANAGE_BOOKINGS.VIEW,
   },
   {
     title: 'Finance',

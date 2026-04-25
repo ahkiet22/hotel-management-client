@@ -157,6 +157,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'coupons',
+        loadComponent: () =>
+          import('./features/manager/coupons/coupon-list.component').then(
+            (m) => m.CouponListComponent,
+          ),
+      },
+      {
         path: 'reports/bookings',
         loadComponent: () =>
           import('./features/manager/reports/reports.component').then((m) => m.ReportsComponent),
