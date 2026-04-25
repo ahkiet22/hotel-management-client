@@ -70,7 +70,7 @@ export abstract class BaseService {
 
   protected handleError(error: HttpErrorResponse): Observable<never> {
     let errorMessage = 'An unknown error occurred!';
-    if (error.error instanceof ErrorEvent) {
+    if (typeof ErrorEvent !== 'undefined' && error.error instanceof ErrorEvent) {
       errorMessage = `Error: ${error.error.message}`;
     } else {
       errorMessage = error.error?.message || `Error Code: ${error.status}\nMessage: ${error.message}`;

@@ -259,7 +259,7 @@ export class ReportsComponent implements OnInit {
       customers: 'Customer Report',
       reviews: 'Review Report',
     };
-    this.reportTitle.set(titles[current] || titles.overview);
+    this.reportTitle.set(titles[current] || titles['overview']);
 
     const subtitles: Record<string, string> = {
       overview: 'Monitor your hotel performance and growth.',
@@ -269,6 +269,6 @@ export class ReportsComponent implements OnInit {
       customers: 'Understand customer activity and highest value guests.',
       reviews: 'Review booking quality and retention-related signals.',
     };
-    this.reportSubtitle.set(subtitles[current] || subtitles.overview);
+    this.reportSubtitle.set(subtitles[current] || subtitles['overview']);
   }
 }

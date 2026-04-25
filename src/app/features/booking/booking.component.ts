@@ -1,5 +1,6 @@
-import { Component, OnInit, OnDestroy, signal, inject, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, inject, computed, PLATFORM_ID } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { RoomTypeService } from '@core/services/room-type.service';
@@ -33,6 +34,7 @@ export class BookingPageComponent implements OnInit, OnDestroy {
   private bookingService = inject(BookingService);
   private route = inject(ActivatedRoute);
   private authStore = inject(AuthStore);
+  private platformId = inject(PLATFORM_ID);
 
   // Steps: 'selection' | 'personal' | 'payment' | 'success'
   step = signal<'selection' | 'personal' | 'payment' | 'success'>('selection');
@@ -161,7 +163,7 @@ export class BookingPageComponent implements OnInit, OnDestroy {
     }
 
     // Check pending booking
-    const pendingId = localStorage.getItem('pendingBookingId');
+    const pendingId = this.getPendingBookingId();
     if (pendingId) {
       this.bookingService.getById(pendingId).subscribe({
         next: (res: any) => {
@@ -175,7 +177,7 @@ export class BookingPageComponent implements OnInit, OnDestroy {
             this.startPaymentPolling(res.id);
           }
         },
-        error: () => localStorage.removeItem('pendingBookingId')
+        error: () => this.clearPendingBookingId()
       });
     }
   }
@@ -261,7 +263,7 @@ export class BookingPageComponent implements OnInit, OnDestroy {
     this.bookingService.create(bookingData).subscribe({
       next: (res: any) => {
         this.bookingResult.set(res);
-        localStorage.setItem('pendingBookingId', res.id);
+        this.setPendingBookingId(res.id);
         this.getPaymentQr(res);
         this.step.set('payment');
         this.isSubmitting.set(false);
@@ -329,10 +331,34 @@ export class BookingPageComponent implements OnInit, OnDestroy {
   onConfirmBooking(bookingId: string) {
     this.bookingService.confirm(bookingId).subscribe({
       next: () => {
-        localStorage.removeItem('pendingBookingId');
+        this.clearPendingBookingId();
         this.step.set('success');
       }
     });
+  }
+
+  private getPendingBookingId(): string | null {
+    if (!isPlatformBrowser(this.platformId)) {
+      return null;
+    }
+
+    return localStorage.getItem('pendingBookingId');
+  }
+
+  private setPendingBookingId(bookingId: string) {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    localStorage.setItem('pendingBookingId', bookingId);
+  }
+
+  private clearPendingBookingId() {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    localStorage.removeItem('pendingBookingId');
   }
 
   goBack() {

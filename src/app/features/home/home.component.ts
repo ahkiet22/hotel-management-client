@@ -154,7 +154,8 @@ export class HomePageComponent implements OnInit {
       .getAvailableRoomTypes({ checkIn, checkOut, capacity })
       .subscribe({
         next: (res) => {
-          this.rooms.set(res.result.slice(0, 3)); // Show first 3 rooms
+          const rooms = Array.isArray(res?.result) ? res.result : [];
+          this.rooms.set(rooms.slice(0, 3));
         },
       });
   }
@@ -162,7 +163,7 @@ export class HomePageComponent implements OnInit {
   loadRoomTypes() {
     this.roomTypeService.getAllPublic().subscribe({
       next: (res) => {
-        this.roomTypes.set(res.result);
+        this.roomTypes.set(Array.isArray(res?.result) ? res.result : []);
       },
     });
   }
