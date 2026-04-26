@@ -1,4 +1,4 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, computed, effect, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, Router, NavigationEnd } from '@angular/router';
 import { AuthStore } from '@core/stores/auth.store';
@@ -24,7 +24,7 @@ export class ManagerLayoutComponent {
   permissionService = inject(PermissionService);
   isCollapsed = signal(false);
   toggleMap: Record<string, boolean> = {};
-  menuItems: SidebarItem[] = [];
+  menuItems = computed(() => this.filterMenuItems(SIDEBAR_ITEMS));
 
   icons = {
     ChevronDown,
@@ -34,11 +34,10 @@ export class ManagerLayoutComponent {
   };
 
   constructor(private router: Router) {
-    // Filter menu items based on permissions
-    this.menuItems = this.filterMenuItems(SIDEBAR_ITEMS);
-
-    // Check current URL to expand active menus on load
-    this.expandActiveMenus();
+    effect(() => {
+      this.auth.user();
+      this.expandActiveMenus();
+    });
 
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
@@ -49,20 +48,28 @@ export class ManagerLayoutComponent {
 
   private filterMenuItems(items: SidebarItem[]): SidebarItem[] {
     return items
-      .filter(item => {
-        if (!item.permission) return true;
-        return Array.isArray(item.permission)
-          ? this.permissionService.hasAnyPermission(item.permission)
-          : this.permissionService.hasPermission(item.permission);
+      .map(item => {
+        const children = item.children ? this.filterMenuItems(item.children) : undefined;
+        return {
+          ...item,
+          children
+        };
       })
-      .map(item => ({
-        ...item,
-        children: item.children ? this.filterMenuItems(item.children) : undefined
-      }));
+      .filter(item => {
+        const hasVisibleChildren = !!item.children?.length;
+        const hasPermission = !item.permission || (
+          Array.isArray(item.permission)
+            ? this.permissionService.hasAnyPermission(item.permission)
+            : this.permissionService.hasPermission(item.permission)
+        );
+
+        if (hasVisibleChildren) return hasPermission || !item.href;
+        return hasPermission;
+      });
   }
 
   private expandActiveMenus() {
-    this.menuItems.forEach(item => {
+    this.menuItems().forEach(item => {
       if (item.children) {
         const hasActiveChild = item.children.some(child => this.isActive(child.href));
         if (hasActiveChild) {
@@ -77,14 +84,15 @@ export class ManagerLayoutComponent {
   }
 
   isActive(path?: string) {
-    return path && this.router.url.startsWith(path);
+    return !!path && this.router.url.startsWith(path);
   }
 
   toggleSidebar() {
     this.isCollapsed.update((state) => !state);
   }
 
-  // onLogout() {
-  //   this.auth.logout();
-  // }
+  onLogout() {
+    this.auth.clearAuth();
+    this.router.navigate(['/login']);
+  }
 }

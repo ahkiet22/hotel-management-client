@@ -67,12 +67,15 @@ export interface CreateCouponDto {
   code: string;
   discount_type: 'Percentage' | 'Fixed';
   discount_value: number;
+  coupon_status?: 'Active' | 'Inactive' | 'Expired';
   min_booking_amount?: number;
   max_discount_amount?: number;
   start_date: string;
   end_date: string;
   usage_limit?: number;
 }
+
+export interface UpdateCouponDto extends Partial<CreateCouponDto> {}
 
 export interface ApplyCouponDto {
   bookingId: string;
@@ -82,14 +85,18 @@ export interface ApplyCouponDto {
 export interface Coupon {
   id: string;
   code: string;
-  discount_type: string;
+  coupon_status?: string;
+  discount_type: 'Percentage' | 'Fixed' | string;
   discount_value: number;
-  min_booking_amount: number;
-  max_discount_amount: number;
-  start_date: string;
-  end_date: string;
-  usage_limit: number;
-  used_count: number;
+  min_booking_amount?: number;
+  max_discount_amount?: number;
+  start_date?: string;
+  end_date?: string;
+  expired_at?: string;
+  usage_limit?: number;
+  used_count?: number;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface AvailableRoom {

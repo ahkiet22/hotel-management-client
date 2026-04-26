@@ -1,16 +1,16 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { CreateCouponDto, Coupon } from '@core/interfaces/booking.dto';
+import { Coupon, CreateCouponDto } from '@core/interfaces/booking.dto';
 import { BookingService } from '@core/services/booking.service';
 import { ToastService } from '@core/services/toast.service';
-import { LucideAngularModule, Plus, RefreshCw, Ticket, Trash2 } from 'lucide-angular';
+import { LucideAngularModule, Edit, Plus, RefreshCw, Ticket, Trash2 } from 'lucide-angular';
 import { UiConfirmComponent } from '@shared/components/ui-confirm/ui-confirm.component';
+import { CouponFormComponent } from './coupon-form.component';
 
 @Component({
   selector: 'app-coupon-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule, UiConfirmComponent],
+  imports: [CommonModule, LucideAngularModule, UiConfirmComponent, CouponFormComponent],
   templateUrl: './coupon-list.component.html',
 })
 export class CouponListComponent implements OnInit {
@@ -21,21 +21,13 @@ export class CouponListComponent implements OnInit {
   isLoading = signal(true);
   isSaving = signal(false);
 
+  isFormOpen = signal(false);
+  selectedCoupon = signal<Coupon | null>(null);
+
   isConfirmOpen = signal(false);
   couponToDelete = signal<Coupon | null>(null);
 
-  form = signal<CreateCouponDto>({
-    code: '',
-    discount_type: 'Percentage',
-    discount_value: 0,
-    min_booking_amount: undefined,
-    max_discount_amount: undefined,
-    start_date: '',
-    end_date: '',
-    usage_limit: undefined,
-  });
-
-  icons = { Plus, RefreshCw, Ticket, Trash2 };
+  icons = { Edit, Plus, RefreshCw, Ticket, Trash2 };
 
   ngOnInit() {
     this.loadCoupons();
@@ -45,7 +37,7 @@ export class CouponListComponent implements OnInit {
     this.isLoading.set(true);
     this.bookingService.getCoupons().subscribe({
       next: (coupons) => {
-        this.coupons.set(coupons ?? []);
+        this.coupons.set((coupons ?? []).map((coupon) => this.normalizeCoupon(coupon)));
         this.isLoading.set(false);
       },
       error: (err) => {
@@ -55,12 +47,22 @@ export class CouponListComponent implements OnInit {
     });
   }
 
-  updateForm<K extends keyof CreateCouponDto>(key: K, value: CreateCouponDto[K]) {
-    this.form.update((current) => ({ ...current, [key]: value }));
+  openCreateForm() {
+    this.selectedCoupon.set(null);
+    this.isFormOpen.set(true);
   }
 
-  createCoupon() {
-    const form = this.form();
+  openEditForm(coupon: Coupon) {
+    this.selectedCoupon.set(this.normalizeCoupon(coupon));
+    this.isFormOpen.set(true);
+  }
+
+  closeForm() {
+    this.isFormOpen.set(false);
+    this.selectedCoupon.set(null);
+  }
+
+  onSave(form: CreateCouponDto) {
     if (!form.code.trim() || !form.start_date || !form.end_date || form.discount_value <= 0) {
       this.toastService.error('Invalid coupon data', 'Please complete all required fields.');
       return;
@@ -76,16 +78,22 @@ export class CouponListComponent implements OnInit {
     };
 
     this.isSaving.set(true);
-    this.bookingService.createCoupon(payload).subscribe({
+
+    const current = this.selectedCoupon();
+    const request$ = current
+      ? this.bookingService.updateCoupon(current.id, payload)
+      : this.bookingService.createCoupon(payload);
+
+    request$.subscribe({
       next: () => {
         this.isSaving.set(false);
-        this.resetForm();
+        this.closeForm();
         this.loadCoupons();
-        this.toastService.success('Coupon created successfully');
+        this.toastService.success(current ? 'Coupon updated successfully' : 'Coupon created successfully');
       },
       error: (err) => {
         this.isSaving.set(false);
-        this.toastService.error('Failed to create coupon', err?.message);
+        this.toastService.error(current ? 'Failed to update coupon' : 'Failed to create coupon', err?.message);
       },
     });
   }
@@ -115,28 +123,68 @@ export class CouponListComponent implements OnInit {
     });
   }
 
-  getUsageStatus(coupon: Coupon) {
-    if (!coupon.usage_limit) return 'bg-slate-100 text-slate-700 border-slate-200';
-    if (coupon.used_count >= coupon.usage_limit) return 'bg-red-100 text-red-700 border-red-200';
+  getCouponStatusClass(coupon: Coupon) {
+    const status = coupon.coupon_status ?? this.deriveStatus(coupon);
+    if (status === 'Expired') return 'bg-red-100 text-red-700 border-red-200';
+    if (status === 'Inactive') return 'bg-slate-100 text-slate-700 border-slate-200';
     return 'bg-green-100 text-green-700 border-green-200';
   }
 
-  private resetForm() {
-    this.form.set({
-      code: '',
-      discount_type: 'Percentage',
-      discount_value: 0,
-      min_booking_amount: undefined,
-      max_discount_amount: undefined,
-      start_date: '',
-      end_date: '',
-      usage_limit: undefined,
-    });
+  getDiscountLabel(coupon: Coupon): string {
+    const value = this.normalizeNumber(coupon.discount_value);
+    return coupon.discount_type === 'Percentage'
+      ? `${value}%`
+      : new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
+  }
+
+  getDateRangeLabel(coupon: Coupon): string {
+    const start = coupon.start_date ?? coupon.created_at;
+    const end = coupon.end_date ?? coupon.expired_at;
+    if (!start && !end) return 'No date range';
+    return `${this.formatDate(start)} - ${this.formatDate(end)}`;
+  }
+
+  private normalizeCoupon(coupon: Coupon): Coupon {
+    const normalized: Coupon = {
+      ...coupon,
+      discount_value: this.normalizeNumber(coupon.discount_value),
+      min_booking_amount: this.toOptionalNumber(coupon.min_booking_amount),
+      max_discount_amount: this.toOptionalNumber(coupon.max_discount_amount),
+      usage_limit: this.toOptionalNumber(coupon.usage_limit),
+      used_count: this.normalizeNumber(coupon.used_count),
+      start_date: coupon.start_date ?? coupon.created_at?.slice(0, 10),
+      end_date: coupon.end_date ?? coupon.expired_at?.slice(0, 10),
+      coupon_status: coupon.coupon_status ?? this.deriveStatus(coupon),
+    };
+
+    return normalized;
+  }
+
+  private deriveStatus(coupon: Coupon): string {
+    const expiredAt = coupon.end_date ?? coupon.expired_at;
+    if (expiredAt && new Date(expiredAt).getTime() < Date.now()) return 'Expired';
+    return 'Active';
+  }
+
+  private normalizeNumber(value: unknown): number {
+    if (typeof value === 'number') return Number.isFinite(value) ? value : 0;
+    if (typeof value === 'string') {
+      const parsed = Number(value.replace(/,/g, '').trim());
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
+    return 0;
   }
 
   private toOptionalNumber(value: unknown): number | undefined {
     if (value === null || value === undefined || value === '') return undefined;
-    const parsed = Number(value);
+    const parsed = this.normalizeNumber(value);
     return Number.isFinite(parsed) ? parsed : undefined;
+  }
+
+  private formatDate(value?: string): string {
+    if (!value) return '--';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '--';
+    return new Intl.DateTimeFormat('vi-VN').format(date);
   }
 }

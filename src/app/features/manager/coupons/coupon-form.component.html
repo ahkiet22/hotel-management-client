@@ -1,0 +1,96 @@
+<app-ui-modal
+  [isOpen]="isOpen"
+  [title]="isEdit() ? 'Update Coupon' : 'Create Coupon'"
+  [showFooter]="false"
+  (close)="close.emit()"
+>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-5">
+    <div class="grid gap-4 md:grid-cols-2">
+      <div class="space-y-1.5">
+        <label hlmLabel for="coupon-code">Code <span class="text-red-500">*</span></label>
+        <input hlmInput id="coupon-code" formControlName="code" placeholder="SUMMER2026" class="w-full uppercase" />
+        @if (form.get('code')?.invalid && form.get('code')?.touched) {
+          <p class="text-xs text-red-500 font-medium">Coupon code is required.</p>
+        }
+      </div>
+
+      <div class="space-y-1.5">
+        <label hlmLabel for="coupon-status">Status</label>
+        <select
+          id="coupon-status"
+          formControlName="coupon_status"
+          class="w-full h-10 px-3 py-2 rounded-md border border-input bg-background text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        >
+          <option value="Active">Active</option>
+          <option value="Inactive">Inactive</option>
+          <option value="Expired">Expired</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid gap-4 md:grid-cols-2">
+      <div class="space-y-1.5">
+        <label hlmLabel for="coupon-type">Discount Type <span class="text-red-500">*</span></label>
+        <select
+          id="coupon-type"
+          formControlName="discount_type"
+          class="w-full h-10 px-3 py-2 rounded-md border border-input bg-background text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        >
+          <option value="Percentage">Percentage</option>
+          <option value="Fixed">Fixed</option>
+        </select>
+      </div>
+
+      <div class="space-y-1.5">
+        <label hlmLabel for="coupon-value">Discount Value <span class="text-red-500">*</span></label>
+        <input hlmInput id="coupon-value" type="number" min="1" formControlName="discount_value" class="w-full" />
+        @if (form.get('discount_value')?.invalid && form.get('discount_value')?.touched) {
+          <p class="text-xs text-red-500 font-medium">Discount value must be greater than 0.</p>
+        }
+      </div>
+    </div>
+
+    <div class="grid gap-4 md:grid-cols-2">
+      <div class="space-y-1.5">
+        <label hlmLabel for="coupon-start">Start Date <span class="text-red-500">*</span></label>
+        <input hlmInput id="coupon-start" type="date" formControlName="start_date" class="w-full" />
+      </div>
+
+      <div class="space-y-1.5">
+        <label hlmLabel for="coupon-end">End Date <span class="text-red-500">*</span></label>
+        <input hlmInput id="coupon-end" type="date" formControlName="end_date" class="w-full" />
+      </div>
+    </div>
+
+    <div class="grid gap-4 md:grid-cols-2">
+      <div class="space-y-1.5">
+        <label hlmLabel for="coupon-min">Min Booking Amount</label>
+        <input hlmInput id="coupon-min" type="number" min="0" formControlName="min_booking_amount" class="w-full" />
+      </div>
+
+      <div class="space-y-1.5">
+        <label hlmLabel for="coupon-max">Max Discount Amount</label>
+        <input hlmInput id="coupon-max" type="number" min="0" formControlName="max_discount_amount" class="w-full" />
+      </div>
+    </div>
+
+    <div class="space-y-1.5">
+      <label hlmLabel for="coupon-limit">Usage Limit</label>
+      <input hlmInput id="coupon-limit" type="number" min="0" formControlName="usage_limit" class="w-full" />
+    </div>
+
+    <div class="flex justify-end gap-3 pt-2 border-t border-slate-100">
+      <button hlmBtn type="button" variant="ghost" (click)="close.emit()" class="font-bold">
+        Cancel
+      </button>
+      <button
+        hlmBtn
+        type="submit"
+        [disabled]="isSaving"
+        class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2 rounded-xl disabled:opacity-60"
+      >
+        {{ isSaving ? (isEdit() ? 'Saving...' : 'Creating...') : (isEdit() ? 'Save Changes' : 'Create Coupon') }}
+      </button>
+    </div>
+  </form>
+</app-ui-modal>

@@ -22,7 +22,7 @@
     </div>
 
     <nav class="flex-1 overflow-y-auto py-6 px-3 scrollbar-hide space-y-1">
-      <ng-container *ngFor="let item of menuItems">
+      <ng-container *ngFor="let item of menuItems()">
         <a
           *ngIf="!item.children"
           [routerLink]="item.href"
@@ -101,6 +101,7 @@
 
     <div class="p-4 border-t border-white/5 bg-slate-900/50 backdrop-blur-sm">
       <button
+        (click)="onLogout()"
         class="w-full flex items-center p-2.5 rounded-xl text-red-400 hover:bg-red-500/10 transition-all duration-200 group"
       >
         <lucide-icon
@@ -111,7 +112,7 @@
           class="ml-3 font-medium text-[14.5px] transition-all duration-300"
           [class.hidden]="isCollapsed()"
         >
-          Đăng xuất
+          Log out
         </span>
       </button>
     </div>

@@ -11,6 +11,7 @@ import {
   CreateCouponDto, 
   Coupon, 
   QueryBookingDto, 
+  UpdateCouponDto,
   UpdateBookingDto 
 } from '../interfaces/booking.dto';
 export type { 
@@ -20,6 +21,7 @@ export type {
   CreateCouponDto, 
   Coupon, 
   QueryBookingDto, 
+  UpdateCouponDto,
   UpdateBookingDto 
 };
 
@@ -158,6 +160,14 @@ export class BookingService extends BaseService {
 
   getCoupons(): Observable<Coupon[]> {
     return this.http.get<ApiResponse<Coupon[]>>(`${this.baseUrl}api/v1/bookings/coupons`)
+      .pipe(
+        map(res => res.data),
+        catchError(this.handleError)
+      );
+  }
+
+  updateCoupon(id: string, dto: UpdateCouponDto): Observable<any> {
+    return this.http.patch<ApiResponse<any>>(`${this.baseUrl}api/v1/bookings/coupon/${id}`, dto)
       .pipe(
         map(res => res.data),
         catchError(this.handleError)
