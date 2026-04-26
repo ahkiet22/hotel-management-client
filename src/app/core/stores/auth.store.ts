@@ -1,6 +1,7 @@
-import { Injectable, signal, computed, inject } from '@angular/core';
+import { Injectable, signal, computed, inject, Inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { Router } from '@angular/router';
 import { StorageService } from '@core/services/storage.service';
-import { AppRole } from '@core/constants/permissions';
 
 export interface User {
   id: string;
@@ -15,8 +16,11 @@ export interface User {
 })
 export class AuthStore {
   private storageService = inject(StorageService);
+  private router = inject(Router);
   private _user = signal<User | null>(null);
   private _token = signal<string | null>(null);
+
+  constructor(@Inject(PLATFORM_ID) private platformId: object) {}
 
   user = computed(() => this._user());
   token = computed(() => this._token());
@@ -44,5 +48,15 @@ export class AuthStore {
     this._token.set(null);
     this.storageService.remove('accessToken');
     this.storageService.remove('refreshToken');
+  }
+
+  forceLogout() {
+    this._user.set(null);
+    this._token.set(null);
+    this.storageService.clear();
+
+    if (isPlatformBrowser(this.platformId)) {
+      void this.router.navigate(['/login']);
+    }
   }
 }

@@ -1,14 +1,13 @@
-import { inject, PLATFORM_ID } from '@angular/core';
+import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { AuthStore } from '@core/stores/auth.store';
 
 // This is a guard for routes that require authentication
-export const authGuard: CanActivateFn = (route, state) => {
+export const authGuard: CanActivateFn = () => {
   const auth = inject(AuthStore);
   const router = inject(Router);
-  const platformId = inject(PLATFORM_ID);
 
-  if (auth.isAuthenticated() && auth.user()) {
+  if (auth.isAuthenticated()) {
     return true;
   }
 

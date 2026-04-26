@@ -36,6 +36,17 @@
           Login
         </a>
       } @else {
+        @if (canAccessManager()) {
+          <a
+            routerLink="/manager"
+            (click)="closeMenu()"
+            class="flex items-center justify-center border-2 border-slate-200 text-slate-700 rounded-full w-10 h-10 hover:bg-slate-900 hover:border-slate-900 hover:text-white transition-all shrink-0"
+            title="Manager"
+            aria-label="Go to manager"
+          >
+            <lucide-icon [img]="LayoutDashboard" class="w-5 h-5"></lucide-icon>
+          </a>
+        }
         <a
           routerLink="/account/profile"
           (click)="closeMenu()"
@@ -75,6 +86,12 @@
         @if (!auth.isAuthenticated()) {
           <a routerLink="/login" (click)="closeMenu()" class="w-full h-14 rounded-2xl border-2 border-[#7C6A46] text-[#7C6A46] grid place-items-center text-lg font-bold">Login</a>
         } @else {
+          @if (canAccessManager()) {
+            <a routerLink="/manager" (click)="closeMenu()" class="w-full h-14 rounded-2xl bg-slate-900 text-white flex items-center justify-between px-6 text-lg font-bold">
+              <span>Manager</span>
+              <lucide-icon [img]="LayoutDashboard" class="w-5 h-5"></lucide-icon>
+            </a>
+          }
           <a routerLink="/account/history-booking" (click)="closeMenu()" class="w-full h-14 rounded-2xl bg-[#7C6A46]/5 text-[#7C6A46] flex items-center justify-between px-6 text-lg font-bold">
             <span>My Bookings</span>
             <lucide-icon [img]="Star" class="w-5 h-5"></lucide-icon>

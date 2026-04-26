@@ -1,6 +1,7 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { BookingService } from '@core/services/booking.service';
 import { Booking, BookingStatus } from '@core/interfaces/booking.dto';
 import {
@@ -15,7 +16,7 @@ import { ToastService } from '@core/services/toast.service';
 @Component({
   selector: 'app-booking-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule, UiConfirmComponent, PaginationComponent],
+  imports: [CommonModule, FormsModule, RouterLink, LucideAngularModule, UiConfirmComponent, PaginationComponent],
   templateUrl: './booking-list.component.html',
 })
 export class BookingListComponent implements OnInit {

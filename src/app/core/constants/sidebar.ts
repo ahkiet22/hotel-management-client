@@ -4,11 +4,9 @@ import {
   BarChart3,
   BedDouble,
   CalendarCheck,
-  CreditCard,
   LayoutDashboard,
   LucideIconData,
   Settings,
-  Star,
   Ticket,
   Users,
 } from 'lucide-angular';
@@ -61,21 +59,6 @@ export const SIDEBAR_ITEMS: SidebarItem[] = [
     icon: Ticket,
     href: ROUTES.MANAGER.COUPONS,
     permission: PERMISSIONS.MANAGE_BOOKINGS.VIEW,
-  },
-  {
-    title: 'Finance',
-    icon: CreditCard,
-    permission: PERMISSIONS.MANAGE_FINANCE.VIEW,
-    children: [
-      { title: 'Payments', href: ROUTES.MANAGER.PAYMENTS, permission: PERMISSIONS.MANAGE_FINANCE.VIEW },
-      { title: 'Receipts', href: ROUTES.MANAGER.RECEIPTS, permission: PERMISSIONS.MANAGE_FINANCE.VIEW },
-    ],
-  },
-  {
-    title: 'Reviews',
-    icon: Star,
-    href: ROUTES.MANAGER.REVIEWS,
-    permission: PERMISSIONS.MANAGE_REVIEWS.VIEW,
   },
   {
     title: 'Reports',

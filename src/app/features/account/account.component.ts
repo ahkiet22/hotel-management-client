@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { LucideAngularModule, User, History, LogOut } from 'lucide-angular';
 import { AuthService } from '@core/services/auth.service';
 import { AuthStore } from '@core/stores/auth.store';
@@ -71,21 +71,16 @@ export class AccountComponent {
 
   private authService = inject(AuthService);
   private authStore = inject(AuthStore);
-  private router = inject(Router);
-
   logout() {
     this.authService.logout().subscribe({
       next: () => {
-        this.authStore.clearAuth();
-        this.router.navigate(['/login']);
+        this.authStore.forceLogout();
       },
       error: (err) => {
         console.error('Logout error:', err);
         // Still clear local auth state if server fails
-        this.authStore.clearAuth();
-        this.router.navigate(['/login']);
+        this.authStore.forceLogout();
       }
     });
   }
 }
-

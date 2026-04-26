@@ -141,6 +141,13 @@
                       Check-out
                     </button>
                   }
+                  <a
+                    [routerLink]="['/manager/bookings', booking.id]"
+                    class="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 transition-colors"
+                    title="View booking details"
+                  >
+                    <lucide-icon [img]="icons.Eye" class="w-4 h-4"></lucide-icon>
+                  </a>
                   <button
                     (click)="openQrModal(booking)"
                     class="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 transition-colors"

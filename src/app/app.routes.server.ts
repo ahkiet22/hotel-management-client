@@ -6,6 +6,10 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Server,
   },
   {
+    path: 'manager/bookings/:id',
+    renderMode: RenderMode.Server,
+  },
+  {
     path: 'rooms/:id',
     renderMode: RenderMode.Server,
   },

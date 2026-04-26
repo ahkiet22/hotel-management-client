@@ -10,6 +10,7 @@ import { LoginComponent } from './features/login/login.component';
 import { RegisterComponent } from './features/register/register.component';
 import { ForgotPasswordComponent } from './features/forgot-password/forgot-password.component';
 import { publicGuard } from '@core/guards/public.guard';
+import { authGuard } from '@core/guards/auth.guard';
 import { permissionGuard } from '@core/guards/permission.guard';
 import { PERMISSIONS } from '@core/constants/permissions';
 
@@ -42,6 +43,7 @@ export const routes: Routes = [
 
       {
         path: 'account',
+        canActivate: [authGuard],
         loadComponent: () =>
           import('./features/account/account.component').then((m) => m.AccountComponent),
         children: [
@@ -82,11 +84,11 @@ export const routes: Routes = [
   },
   {
     path: 'manager',
+    canActivate: [authGuard],
     loadComponent: () =>
       import('./layouts/manager-layout/manager-layout.component').then(
         (m) => m.ManagerLayoutComponent,
       ),
-    // canActivate: [authGuard],
     children: [
       {
         path: 'dashboard',
@@ -120,27 +122,6 @@ export const routes: Routes = [
           ),
       },
       {
-        path: 'receipts',
-        loadComponent: () =>
-          import('./features/manager/receipts/receipt-list.component').then(
-            (m) => m.ReceiptListComponent,
-          ),
-      },
-      {
-        path: 'payments',
-        loadComponent: () =>
-          import('./features/manager/payments/payment-list.component').then(
-            (m) => m.PaymentListComponent,
-          ),
-      },
-      {
-        path: 'reviews',
-        loadComponent: () =>
-          import('./features/manager/reviews/review-list.component').then(
-            (m) => m.ReviewListComponent,
-          ),
-      },
-      {
         path: 'settings/logs',
         canActivate: [permissionGuard],
         data: { permission: PERMISSIONS.SYSTEM.LOGS },
@@ -154,6 +135,13 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/manager/bookings/booking-list.component').then(
             (m) => m.BookingListComponent,
+          ),
+      },
+      {
+        path: 'bookings/:id',
+        loadComponent: () =>
+          import('./features/manager/bookings/booking-detail.component').then(
+            (m) => m.ManagerBookingDetailComponent,
           ),
       },
       {

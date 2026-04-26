@@ -9,6 +9,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { IS_PUBLIC_ENABLED } from '@core/http/context.http';
 import { AuthService } from '@core/services/auth.service';
 import { StorageService } from '@core/services/storage.service';
+import { AuthStore } from '@core/stores/auth.store';
 import { BehaviorSubject, catchError, filter, switchMap, take, throwError } from 'rxjs';
 
 @Injectable()
@@ -26,6 +27,9 @@ export class AuthInterceptor implements HttpInterceptor {
     return this.injector.get(AuthService);
   }
 
+  private get authStore(): AuthStore {
+    return this.injector.get(AuthStore);
+  }
 
   intercept(req: HttpRequest<any>, next: HttpHandler) {
     // If IS_PUBLIC_ENABLED is true, do not add the Authorization header
@@ -58,9 +62,19 @@ export class AuthInterceptor implements HttpInterceptor {
       return next.handle(request);
     }
 
+    if (this.isRefreshRequest(request.url)) {
+      this.isRefreshing = false;
+      this.refreshTokenSubject.next(null);
+      this.authStore.forceLogout();
+      return throwError(() => new HttpErrorResponse({
+        error: { message: 'Refresh token expired or invalid' },
+        status: 401,
+        statusText: 'Unauthorized',
+        url: request.url,
+      }));
+    }
+
     if (!this.isRefreshing) {
-
-
       this.isRefreshing = true;
       this.refreshTokenSubject.next(null);
 
@@ -72,7 +86,8 @@ export class AuthInterceptor implements HttpInterceptor {
         }),
         catchError((err) => {
           this.isRefreshing = false;
-          this.authService.logout();
+          this.refreshTokenSubject.next(null);
+          this.authStore.forceLogout();
           return throwError(() => err);
         }),
       );
@@ -91,5 +106,9 @@ export class AuthInterceptor implements HttpInterceptor {
         Authorization: `Bearer ${token}`,
       },
     });
+  }
+
+  private isRefreshRequest(url: string): boolean {
+    return url.includes('/api/v1/auth/refresh');
   }
 }

@@ -15,7 +15,6 @@ import {
   CalendarCheck,
   Plus,
   ClipboardList,
-  Wallet,
   Settings2
 } from 'lucide-angular';
 import { forkJoin } from 'rxjs';
@@ -70,10 +69,10 @@ export class DashboardComponent implements OnInit {
       color: 'bg-amber-50 text-amber-600 border-amber-100',
     },
     {
-      title: 'Payments',
-      description: 'Review payment and receipt flow',
-      route: ROUTES.MANAGER.PAYMENTS,
-      icon: Wallet,
+      title: 'Coupons',
+      description: 'Manage booking promotions and discount codes',
+      route: ROUTES.MANAGER.COUPONS,
+      icon: CalendarCheck,
       color: 'bg-violet-50 text-violet-600 border-violet-100',
     },
   ];
@@ -88,7 +87,6 @@ export class DashboardComponent implements OnInit {
     CalendarCheck,
     Plus,
     ClipboardList,
-    Wallet,
     Settings2
   };
 

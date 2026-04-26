@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { AuthStore } from '@core/stores/auth.store';
+import { AppRole } from '@core/constants/permissions';
 import { HlmButton } from '@spartan-ng/helm/button';
-import { User, Menu, X, LucideAngularModule, Star } from 'lucide-angular';
+import { User, Menu, X, LucideAngularModule, Star, LayoutDashboard } from 'lucide-angular';
 
 @Component({
   selector: 'app-main-layout',
@@ -16,7 +17,12 @@ export class MainLayoutComponent {
   readonly Menu = Menu;
   readonly Star = Star;
   readonly X = X;
+  readonly LayoutDashboard = LayoutDashboard;
   auth = inject(AuthStore);
+  canAccessManager = computed(() => {
+    const role = this.auth.user()?.roleName as AppRole | undefined;
+    return role === 'Admin' || role === 'Staff';
+  });
 
   isMenuOpen = signal(false);
 

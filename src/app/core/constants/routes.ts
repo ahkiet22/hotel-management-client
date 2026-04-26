@@ -15,11 +15,6 @@ export const ROUTES = {
     BOOKINGS: '/manager/bookings',
     COUPONS: '/manager/coupons',
 
-    PAYMENTS: '/manager/payments',
-    RECEIPTS: '/manager/receipts',
-
-    REVIEWS: '/manager/reviews',
-
     REPORTS: {
       BOOKINGS: '/manager/reports/bookings',
       OCCUPANCY: '/manager/reports/occupancy',

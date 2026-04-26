@@ -29,7 +29,7 @@ export class App implements OnInit {
           });
         },
         error: () => {
-          this.authStore.clearAuth();
+          this.authStore.forceLogout();
         },
       });
     }

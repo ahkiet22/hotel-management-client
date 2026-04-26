@@ -1,8 +1,7 @@
-import { Component, OnInit, OnDestroy, signal, inject, computed, PLATFORM_ID } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { RoomTypeService } from '@core/services/room-type.service';
 import {
   LucideAngularModule,
@@ -12,17 +11,47 @@ import {
   ChevronRight,
   Info,
   CheckCircle2,
+  Minus,
+  Plus,
+  X,
+  Ticket,
+  Clock3,
+  Eye,
+  ArrowLeft,
 } from 'lucide-angular';
 import { Meta, Title } from '@angular/platform-browser';
 import { AuthStore } from '@core/stores/auth.store';
 import { BookingService } from '@core/services/booking.service';
-import { AvailableRoom } from '@core/interfaces/booking.dto';
+import { AvailableRoom, BookingServiceItemDto, Coupon, CreateBookingDto } from '@core/interfaces/booking.dto';
 import { RoomType } from '@core/interfaces/room-type.dto';
+import { HotelService, ServiceStatus } from '@core/interfaces/service.dto';
+import { HotelServiceService } from '@core/services/hotel-service.service';
+import { ToastService } from '@core/services/toast.service';
+import { Observable, of } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
+
+type EnrichedRoom = AvailableRoom & {
+  roomTypeName: string;
+  basePrice: number;
+  pricePerNight: number;
+  images: string[];
+  typeDescription: string;
+};
+
+type BookingServiceView = {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  type: string;
+  status: string;
+  quantity: number;
+};
 
 @Component({
   selector: 'app-booking-page',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, FormsModule],
+  imports: [CommonModule, LucideAngularModule, FormsModule, RouterLink],
   templateUrl: './booking.component.html',
 })
 export class BookingPageComponent implements OnInit, OnDestroy {
@@ -30,16 +59,17 @@ export class BookingPageComponent implements OnInit, OnDestroy {
     private title: Title,
     private meta: Meta,
   ) {}
+
   private roomTypeService = inject(RoomTypeService);
   private bookingService = inject(BookingService);
+  private hotelServiceService = inject(HotelServiceService);
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private authStore = inject(AuthStore);
-  private platformId = inject(PLATFORM_ID);
+  private toastService = inject(ToastService);
 
-  // Steps: 'selection' | 'personal' | 'payment' | 'success'
-  step = signal<'selection' | 'personal' | 'payment' | 'success'>('selection');
+  step = signal<'selection' | 'services' | 'payment' | 'success'>('selection');
 
-  // Filters
   checkIn = signal<string>('');
   checkOut = signal<string>('');
   adults = signal<number>(1);
@@ -47,37 +77,30 @@ export class BookingPageComponent implements OnInit, OnDestroy {
   selectedRoomTypeId = signal<string>('');
   roomTypes = signal<RoomType[]>([]);
 
-  // Selection
   rooms = signal<AvailableRoom[]>([]);
-  selectedRoomId = signal<string | null>(null);
+  selectedRoomIds = signal<string[]>([]);
   isLoading = signal(true);
   isSubmitting = signal(false);
+  servicesLoading = signal(true);
 
-  // Personal Info form (simplified for demo)
-  customerInfo = {
-    fullName: '',
-    email: '',
-    phone: '',
-    notes: '',
-  };
+  hotelServices = signal<BookingServiceView[]>([]);
+  selectedServiceQuantities = signal<Record<string, number>>({});
+  coupons = signal<Coupon[]>([]);
+  isCouponModalOpen = signal(false);
 
-  // Payment info
   paymentQr = signal<string | null>(null);
   bookingResult = signal<any>(null);
-  pollingInterval: any;
-  requestedStep = signal<'selection' | 'personal' | null>(null);
+  pollingInterval: ReturnType<typeof setInterval> | null = null;
 
-  // Coupon
   couponCode = signal<string>('');
   couponError = signal<string>('');
   couponSuccess = signal<string>('');
   isApplyingCoupon = signal(false);
 
-  // Computed data — enrichedRooms MUST be declared before selectedRoom
-  enrichedRooms = computed(() => {
+  enrichedRooms = computed<EnrichedRoom[]>(() => {
     const types = this.roomTypes();
-    const result = this.rooms().map((room: any) => {
-      const type = types.find((t: any) => t.id === room.roomTypeId);
+    return this.rooms().map((room: any) => {
+      const type = types.find((t) => t.id === room.roomTypeId);
       return {
         ...room,
         roomTypeName: type?.name || room.roomTypeName || 'Standard Room',
@@ -87,24 +110,66 @@ export class BookingPageComponent implements OnInit, OnDestroy {
         typeDescription: type?.description || room.description || '',
       };
     });
-    return result;
   });
 
-  selectedRoom = computed(() => this.enrichedRooms().find((r) => r.id === this.selectedRoomId()) || null);
+  selectedRooms = computed(() => {
+    const ids = new Set(this.selectedRoomIds());
+    return this.enrichedRooms().filter((room) => ids.has(room.id));
+  });
 
-  totalNights = computed(() => {
-    if (!this.checkIn() || !this.checkOut()) return 1;
-    const start = new Date(this.checkIn());
-    const end = new Date(this.checkOut());
+  totalGuests = computed(() => Number(this.adults()) + Number(this.children()));
+
+  totalHours = computed(() => {
+    const start = this.toDate(this.checkIn());
+    const end = this.toDate(this.checkOut());
+    if (!start || !end) return 0;
     const diff = end.getTime() - start.getTime();
-    const nights = Math.ceil(diff / (1000 * 3600 * 24));
-    return nights > 0 ? nights : 1;
+    if (diff <= 0) return 0;
+    return Math.ceil(diff / (1000 * 60 * 60));
   });
 
-  totalPrice = computed(() => {
-    const room = this.selectedRoom();
-    if (!room) return 0;
-    return Number(room.basePrice || 0) * this.totalNights();
+  totalRoomPrice = computed(() => {
+    const hours = this.totalHours();
+    if (hours <= 0) return 0;
+
+    return this.selectedRooms().reduce((sum, room) => sum + this.calculateRoomPrice(room, hours), 0);
+  });
+
+  selectedServices = computed(() => {
+    const quantities = this.selectedServiceQuantities();
+    return this.hotelServices()
+      .filter((service) => (quantities[service.id] ?? 0) > 0)
+      .map((service) => ({
+        ...service,
+        selectedQuantity: quantities[service.id] ?? 0,
+        lineTotal: service.price * (quantities[service.id] ?? 0),
+      }));
+  });
+
+  totalServicePrice = computed(() => {
+    return this.selectedServices().reduce((sum, service) => sum + service.lineTotal, 0);
+  });
+
+  estimatedTotal = computed(() => {
+    return Math.max(this.totalRoomPrice() + this.totalServicePrice(), 0);
+  });
+
+  canProceedToServices = computed(() => {
+    return this.selectedRoomIds().length > 0 && this.totalHours() > 0 && !this.isSubmitting();
+  });
+
+  canSubmit = computed(() => {
+    return this.canProceedToServices() && !this.isSubmitting();
+  });
+
+  availableCoupons = computed(() => {
+    const now = Date.now();
+    return this.coupons().filter((coupon) => {
+      const status = `${coupon.coupon_status ?? ''}`.toLowerCase();
+      const expiredAt = coupon.end_date ?? coupon.expired_at;
+      const isExpired = expiredAt ? new Date(expiredAt).getTime() < now : false;
+      return status !== 'inactive' && status !== 'expired' && !isExpired;
+    });
   });
 
   icons = {
@@ -114,27 +179,32 @@ export class BookingPageComponent implements OnInit, OnDestroy {
     ChevronRight,
     Info,
     CheckCircle2,
+    Minus,
+    Plus,
+    X,
+    Ticket,
+    Clock3,
+    Eye,
+    ArrowLeft,
   };
 
   ngOnInit() {
     this.title.setTitle('Book Your Stay | Paradise Hotel');
-
     this.meta.updateTag({
       name: 'description',
       content:
         'Complete your booking at Paradise Hotel. Secure your stay with the best rooms and services.',
     });
 
-    // Read query params
     this.route.queryParams.subscribe((params) => {
       if (params['roomId']) {
-        this.selectedRoomId.set(params['roomId']);
+        this.selectedRoomIds.set([params['roomId']]);
       }
       if (params['checkIn']) {
-        this.checkIn.set(params['checkIn']);
+        this.checkIn.set(this.normalizeIncomingDateTime(params['checkIn'], '14:00'));
       }
       if (params['checkOut']) {
-        this.checkOut.set(params['checkOut']);
+        this.checkOut.set(this.normalizeIncomingDateTime(params['checkOut'], '12:00'));
       }
       if (params['adults']) {
         this.adults.set(Number(params['adults']));
@@ -145,34 +215,15 @@ export class BookingPageComponent implements OnInit, OnDestroy {
       if (params['typeId']) {
         this.selectedRoomTypeId.set(params['typeId']);
       }
-      if (params['step'] === 'personal' && params['roomId']) {
-        this.requestedStep.set('personal');
-        this.step.set('personal');
-      } else {
-        this.requestedStep.set(null);
-      }
 
       this.ensureDefaultDates();
       this.loadRooms();
     });
 
     this.loadRoomTypes();
-
-    // Check pending booking
-    const pendingId = this.getPendingBookingId();
-    if (pendingId) {
-      this.bookingService.getById(pendingId).subscribe({
-        next: (res: any) => {
-          if (res.status === 'Confirmed') {
-            this.bookingResult.set(res);
-            this.onConfirmBooking(res.id);
-          } else {
-            this.openPaymentStep(res);
-          }
-        },
-        error: () => this.clearPendingBookingId()
-      });
-    }
+    this.loadServices();
+    this.loadCoupons();
+    this.resetCheckoutState();
   }
 
   ngOnDestroy() {
@@ -181,138 +232,253 @@ export class BookingPageComponent implements OnInit, OnDestroy {
 
   loadRooms() {
     this.isLoading.set(true);
-    const capacity = Number(this.adults()) + Number(this.children());
+    this.couponError.set('');
+    this.couponSuccess.set('');
+
+    const capacity = this.totalGuests();
     const typeId = this.selectedRoomTypeId() || undefined;
+    const checkIn = this.toApiDateTime(this.checkIn());
+    const checkOut = this.toApiDateTime(this.checkOut());
 
-    // Format dates with time for API
-    const checkIn = this.checkIn() ? `${this.checkIn()}T14:00:00` : '';
-    const checkOut = this.checkOut() ? `${this.checkOut()}T12:00:00` : '';
-
-    if (!checkIn || !checkOut) {
-       this.isLoading.set(false);
-       return;
+    if (!checkIn || !checkOut || this.totalHours() <= 0) {
+      this.rooms.set([]);
+      this.selectedRoomIds.set([]);
+      this.isLoading.set(false);
+      return;
     }
 
-    this.bookingService
-      .getAvailableRoomTypes({ roomTypeId: typeId, checkIn, checkOut, capacity })
-      .subscribe({
-        next: (data: any) => {
-          const result = Array.isArray(data) ? data : (data?.result || []);
-          this.rooms.set(result);
-          this.isLoading.set(false);
-          
-          // Reset selection if the current selected room is no longer in the list
-          const hasSelectedRoom = result.some((r: any) => r.id === this.selectedRoomId());
-          if (this.selectedRoomId() && !hasSelectedRoom) {
-            this.selectedRoomId.set(null);
-            if (this.requestedStep() === 'personal') {
-              this.step.set('selection');
-            }
-          } else if (hasSelectedRoom && this.requestedStep() === 'personal') {
-            this.step.set('personal');
-          }
-        },
-        error: () => this.isLoading.set(false),
-      });
-  }
-
-  onSelectRoom(id: string) {
-    this.selectedRoomId.set(id);
-    if (this.requestedStep() === 'personal') {
-      this.requestedStep.set(null);
-    }
+    this.bookingService.getAvailableRoomTypes({ roomTypeId: typeId, checkIn, checkOut, capacity }).subscribe({
+      next: (data: any) => {
+        const result = Array.isArray(data) ? data : (data?.result || []);
+        this.rooms.set(result);
+        this.keepOnlyAvailableSelectedRooms(result);
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        this.toastService.error('Failed to load rooms', err?.message);
+        this.rooms.set([]);
+        this.selectedRoomIds.set([]);
+        this.isLoading.set(false);
+      },
+    });
   }
 
   loadRoomTypes() {
     this.roomTypeService.getAllPublic().subscribe({
       next: (res) => {
-        this.roomTypes.set(res.result);
+        this.roomTypes.set(Array.isArray(res?.result) ? res.result : []);
       },
+    });
+  }
+
+  loadServices() {
+    this.servicesLoading.set(true);
+    this.hotelServiceService.getAll({ page: 1, limit: 100 }).subscribe({
+      next: (res) => {
+        const result = Array.isArray(res?.result) ? res.result : [];
+        this.hotelServices.set(result.map((service) => this.normalizeService(service)));
+        this.servicesLoading.set(false);
+      },
+      error: () => {
+        this.hotelServices.set([]);
+        this.servicesLoading.set(false);
+      },
+    });
+  }
+
+  onCheckInChange(value: string) {
+    this.checkIn.set(value);
+    this.loadRooms();
+  }
+
+  onCheckOutChange(value: string) {
+    this.checkOut.set(value);
+    this.loadRooms();
+  }
+
+  onAdultsChange(value: number) {
+    this.adults.set(Number(value));
+    this.loadRooms();
+  }
+
+  onChildrenChange(value: number) {
+    this.children.set(Number(value));
+    this.loadRooms();
+  }
+
+  onRoomTypeChange(value: string) {
+    this.selectedRoomTypeId.set(value);
+    this.loadRooms();
+  }
+
+  loadCoupons() {
+    this.bookingService.getCoupons().subscribe({
+      next: (coupons) => {
+        this.coupons.set(Array.isArray(coupons) ? coupons : []);
+      },
+      error: () => {
+        this.coupons.set([]);
+      },
+    });
+  }
+
+  toggleRoomSelection(roomId: string) {
+    const room = this.enrichedRooms().find((item) => item.id === roomId);
+    if (!room) return;
+
+    const current = this.selectedRoomIds();
+    if (current.includes(roomId)) {
+      this.selectedRoomIds.set(current.filter((id) => id !== roomId));
+      return;
+    }
+
+    const selectedRooms = this.selectedRooms();
+    if (selectedRooms.length > 0 && selectedRooms.some((item) => item.roomTypeId !== room.roomTypeId)) {
+      this.toastService.error('Multiple room types are not supported', 'Please choose rooms from the same room type for one booking.');
+      return;
+    }
+
+    this.selectedRoomIds.set([...current, roomId]);
+    if (!this.selectedRoomTypeId()) {
+      this.selectedRoomTypeId.set(room.roomTypeId);
+    }
+  }
+
+  removeSelectedRoom(roomId: string) {
+    this.selectedRoomIds.update((ids) => ids.filter((id) => id !== roomId));
+  }
+
+  getSelectedServiceQuantity(serviceId: string): number {
+    return this.selectedServiceQuantities()[serviceId] ?? 0;
+  }
+
+  increaseServiceQuantity(service: BookingServiceView) {
+    if (service.quantity === 0) {
+      return;
+    }
+
+    const current = this.getSelectedServiceQuantity(service.id);
+    if (service.quantity !== -1 && current >= service.quantity) {
+      return;
+    }
+
+    this.selectedServiceQuantities.update((state) => ({
+      ...state,
+      [service.id]: current + 1,
+    }));
+  }
+
+  decreaseServiceQuantity(serviceId: string) {
+    const current = this.getSelectedServiceQuantity(serviceId);
+    const next = Math.max(current - 1, 0);
+
+    this.selectedServiceQuantities.update((state) => {
+      const updated = { ...state };
+      if (next === 0) {
+        delete updated[serviceId];
+      } else {
+        updated[serviceId] = next;
+      }
+      return updated;
+    });
+  }
+
+  removeSelectedService(serviceId: string) {
+    this.selectedServiceQuantities.update((state) => {
+      const updated = { ...state };
+      delete updated[serviceId];
+      return updated;
     });
   }
 
   onProcessCheckout() {
-    if (this.step() === 'selection') {
-      this.step.set('personal');
-    } else if (this.step() === 'personal') {
-      this.createBooking();
+    if (!this.authStore.user()) {
+      this.toastService.error('Login required', 'Please login before creating a booking.');
+      this.router.navigate(['/login']);
+      return;
     }
+
+    this.createBooking();
+  }
+
+  goToServicesStep() {
+    if (!this.canProceedToServices()) {
+      return;
+    }
+
+    this.step.set('services');
+  }
+
+  goBackToSelection() {
+    this.step.set('selection');
+  }
+
+  openCouponModal() {
+    this.isCouponModalOpen.set(true);
+  }
+
+  closeCouponModal() {
+    this.isCouponModalOpen.set(false);
+  }
+
+  selectCoupon(code: string) {
+    this.couponCode.set(code);
+    this.isCouponModalOpen.set(false);
   }
 
   createBooking() {
     const user = this.authStore.user();
-    if (!user) {
-      alert('Please login to book a room.');
+    const selectedRooms = this.selectedRooms();
+    if (!user || selectedRooms.length === 0) {
       return;
     }
 
-    this.isSubmitting.set(true);
-    
-    const selectedRoom = this.selectedRoom();
-    if (!selectedRoom) {
-      this.isSubmitting.set(false);
-      return;
-    }
+    const roomTypeId = selectedRooms[0]?.roomTypeId || selectedRooms[0]?.id;
+    const services = this.buildSelectedServicesPayload();
 
-    const bookingData = {
+    const bookingData: CreateBookingDto = {
       customerId: user.id,
-      roomTypeId: selectedRoom.roomTypeId || selectedRoom.id,
-      roomIds: [selectedRoom.id],
-      checkInDate: `${this.checkIn()}T14:00:00`,
-      checkOutDate: `${this.checkOut()}T12:00:00`,
+      roomTypeId,
+      roomIds: selectedRooms.map((room) => room.id),
+      checkInDate: this.toApiDateTime(this.checkIn()),
+      checkOutDate: this.toApiDateTime(this.checkOut()),
+      services: services.length > 0 ? services : undefined,
     };
 
-    this.bookingService.create(bookingData).subscribe({
-      next: (res: any) => {
-        this.setPendingBookingId(res.id);
-        this.bookingService.getById(res.id).subscribe({
-          next: (booking: any) => {
-            this.openPaymentStep(booking);
-            this.isSubmitting.set(false);
-          },
-          error: (err: any) => {
-            console.error('Failed to load booking after create', err);
-            this.isSubmitting.set(false);
-            alert('Booking created but payment data is not ready. Please try again.');
-          },
-        });
-      },
-      error: (err: any) => {
-        console.error('Booking failed', err);
+    this.isSubmitting.set(true);
+    this.couponError.set('');
+    this.couponSuccess.set('');
+
+    this.bookingService.create(bookingData).pipe(
+      switchMap((created) => this.applyDraftCoupon(created.id).pipe(
+        switchMap(() => this.bookingService.getById(created.id)),
+      )),
+    ).subscribe({
+      next: (booking) => {
+        this.openPaymentStep(booking);
         this.isSubmitting.set(false);
-        alert('Booking failed. Please try again.');
-      }
-    });
-  }
-
-  getPaymentQr(booking: any) {
-    this.paymentQr.set(null); // Show loading
-    const amount = Number(booking?.grandTotal ?? booking?.totalRoomPrice ?? 0);
-    const description = `BOOKING_${booking.id}`;
-
-    if (!amount || !booking?.id) {
-      return;
-    }
-
-    this.bookingService.getPaymentQr(amount, description).subscribe({
-      next: (res: string) => {
-        this.paymentQr.set(res);
-      }
+      },
+      error: (err) => {
+        this.toastService.error('Booking failed', err?.message || 'Please try again.');
+        this.isSubmitting.set(false);
+      },
     });
   }
 
   applyCoupon() {
-    if (!this.couponCode() || this.isApplyingCoupon()) return;
+    const booking = this.bookingResult();
+    if (!booking?.id || !this.couponCode() || this.isApplyingCoupon()) return;
+
     this.isApplyingCoupon.set(true);
     this.couponError.set('');
     this.couponSuccess.set('');
-    
-    this.bookingService.applyCoupon({ bookingId: this.bookingResult().id, couponCode: this.couponCode() }).subscribe({
+
+    this.bookingService.applyCoupon({ bookingId: booking.id, couponCode: this.couponCode().trim() }).subscribe({
       next: (res: any) => {
         this.bookingResult.set(res);
-        this.couponSuccess.set('Coupon applied successfully!');
+        this.couponSuccess.set('Coupon applied successfully.');
         this.isApplyingCoupon.set(false);
-        this.getPaymentQr(res); // Regenerate QR for new amount
+        this.getPaymentQr(res);
       },
       error: (err: any) => {
         this.couponError.set(err?.message || 'Invalid or expired coupon');
@@ -338,16 +504,98 @@ export class BookingPageComponent implements OnInit, OnDestroy {
   stopPaymentPolling() {
     if (this.pollingInterval) {
       clearInterval(this.pollingInterval);
+      this.pollingInterval = null;
     }
   }
 
   onConfirmBooking(bookingId: string) {
     this.bookingService.confirm(bookingId).subscribe({
       next: () => {
-        this.clearPendingBookingId();
         this.step.set('success');
       }
     });
+  }
+
+  getPaymentQr(booking: any) {
+    this.paymentQr.set(null);
+    const amount = Number(booking?.grandTotal ?? booking?.totalRoomPrice ?? 0);
+    const description = `BOOKING_${booking.id}`;
+
+    if (!amount || !booking?.id) {
+      return;
+    }
+
+    this.bookingService.getPaymentQr(amount, description).subscribe({
+      next: (res: string) => {
+        this.paymentQr.set(res);
+      }
+    });
+  }
+
+  resetForAnotherBooking() {
+    this.resetCheckoutState();
+    this.step.set('selection');
+    this.bookingResult.set(null);
+    this.paymentQr.set(null);
+    this.stopPaymentPolling();
+    this.loadRooms();
+  }
+
+  getRoomImage(room: EnrichedRoom): string {
+    if (room?.images && Array.isArray(room.images) && room.images.length > 0) {
+      return room.images[0];
+    }
+    return 'assets/images/pic-1.jpg';
+  }
+
+  getRoomPriceLabel(room: EnrichedRoom): string {
+    const hours = this.totalHours();
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(
+      this.calculateRoomPrice(room, hours),
+    );
+  }
+
+  getServiceCapacityLabel(service: BookingServiceView): string {
+    if (service.quantity === -1) return 'Unlimited';
+    if (service.quantity === 0) return 'Unavailable';
+    return `${service.quantity} available`;
+  }
+
+  canIncreaseService(service: BookingServiceView): boolean {
+    if (service.quantity === -1) return true;
+    if (service.quantity === 0) return false;
+    return this.getSelectedServiceQuantity(service.id) < service.quantity;
+  }
+
+  getCouponDiscountLabel(coupon: Coupon): string {
+    const discountValue = Number(coupon.discount_value ?? 0);
+    if (coupon.discount_type === 'Percentage') {
+      return `${discountValue}%`;
+    }
+
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(discountValue);
+  }
+
+  getCouponExpiryLabel(coupon: Coupon): string {
+    const value = coupon.end_date ?? coupon.expired_at;
+    if (!value) return '--';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '--';
+    return new Intl.DateTimeFormat('vi-VN', { dateStyle: 'medium' }).format(date);
+  }
+
+  private applyDraftCoupon(bookingId: string): Observable<unknown> {
+    const code = this.couponCode().trim();
+    if (!code) {
+      return of(null);
+    }
+
+    return this.bookingService.applyCoupon({ bookingId, couponCode: code }).pipe(
+      switchMap(() => {
+        this.couponSuccess.set('Coupon applied successfully.');
+        return of(null);
+      }),
+    );
   }
 
   private openPaymentStep(booking: any) {
@@ -357,53 +605,109 @@ export class BookingPageComponent implements OnInit, OnDestroy {
     this.startPaymentPolling(booking.id);
   }
 
-  private getPendingBookingId(): string | null {
-    if (!isPlatformBrowser(this.platformId)) {
-      return null;
-    }
-
-    return localStorage.getItem('pendingBookingId');
-  }
-
-  private setPendingBookingId(bookingId: string) {
-    if (!isPlatformBrowser(this.platformId)) {
-      return;
-    }
-
-    localStorage.setItem('pendingBookingId', bookingId);
-  }
-
-  private clearPendingBookingId() {
-    if (!isPlatformBrowser(this.platformId)) {
-      return;
-    }
-
-    localStorage.removeItem('pendingBookingId');
-  }
-
   private ensureDefaultDates() {
     if (!this.checkIn()) {
-      const today = new Date();
-      this.checkIn.set(today.toISOString().split('T')[0]);
+      const now = new Date();
+      now.setMinutes(0, 0, 0);
+      now.setHours(now.getHours() + 1);
+      this.checkIn.set(this.toDateTimeLocalValue(now));
     }
 
     if (!this.checkOut()) {
-      const today = new Date();
-      const tomorrow = new Date(today);
-      tomorrow.setDate(today.getDate() + 1);
-      this.checkOut.set(tomorrow.toISOString().split('T')[0]);
+      const end = this.toDate(this.checkIn()) ?? new Date();
+      end.setHours(end.getHours() + 8);
+      this.checkOut.set(this.toDateTimeLocalValue(end));
     }
   }
 
-  goBack() {
-    if (this.step() === 'personal') this.step.set('selection');
-    if (this.step() === 'payment') this.step.set('personal');
+  private keepOnlyAvailableSelectedRooms(availableRooms: any[]) {
+    const availableIds = new Set((availableRooms ?? []).map((room: any) => room.id));
+    this.selectedRoomIds.update((ids) => ids.filter((id) => availableIds.has(id)));
   }
 
-  getRoomImage(room: any): string {
-    if (room?.images && Array.isArray(room.images) && room.images.length > 0) {
-      return room.images[0];
+  private calculateRoomPrice(room: EnrichedRoom, hours: number): number {
+    const normalizedHours = Math.max(hours, 0);
+    if (normalizedHours <= 8) {
+      return normalizedHours * Number(room.basePrice || 0);
     }
-    return 'assets/images/pic-1.jpg';
+
+    const fullBlocks = Math.floor(normalizedHours / 8);
+    const remainder = normalizedHours % 8;
+    return (fullBlocks * Number(room.pricePerNight || 0)) + (remainder * Number(room.basePrice || 0));
+  }
+
+  private toApiDateTime(value: string): string {
+    const date = this.toDate(value);
+    if (!date) return '';
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+  }
+
+  private toDate(value?: string): Date | null {
+    if (!value) return null;
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? null : date;
+  }
+
+  private toDateTimeLocalValue(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  }
+
+  private normalizeIncomingDateTime(value: string, fallbackTime: string): string {
+    if (!value) return '';
+    if (value.includes('T')) {
+      return value.slice(0, 16);
+    }
+    return `${value}T${fallbackTime}`;
+  }
+
+  private normalizeService(item: HotelService & Record<string, any>): BookingServiceView {
+    const rawQuantity: unknown = item?.quantity;
+    const quantity =
+      rawQuantity === null ||
+      rawQuantity === undefined ||
+      (typeof rawQuantity === 'string' && rawQuantity.trim() === '')
+        ? -1
+        : Number(rawQuantity);
+
+    return {
+      id: item?.id ?? '',
+      name: item?.name ?? 'Hotel service',
+      description: item?.description ?? 'Enhance your stay with a curated hotel service.',
+      price: Number(item?.price ?? 0),
+      type: item?.type ?? 'Other',
+      status: item?.status ?? ServiceStatus.INACTIVE,
+      quantity: Number.isFinite(quantity) ? quantity : -1,
+    };
+  }
+
+  private buildSelectedServicesPayload(): BookingServiceItemDto[] {
+    const availableServices = new Set(this.hotelServices().map((service) => service.id));
+
+    return Object.entries(this.selectedServiceQuantities())
+      .map(([serviceId, quantity]) => ({
+        serviceId,
+        quantity: Number(quantity ?? 0),
+      }))
+      .filter((item) => availableServices.has(item.serviceId) && item.quantity > 0);
+  }
+
+  private resetCheckoutState() {
+    this.paymentQr.set(null);
+    this.bookingResult.set(null);
+    this.couponError.set('');
+    this.couponSuccess.set('');
+    this.isApplyingCoupon.set(false);
   }
 }
