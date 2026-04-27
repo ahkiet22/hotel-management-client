@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import {
+  AlertTriangle,
   Calendar,
   CheckCircle,
   ChevronRight,
@@ -14,11 +15,14 @@ import {
   XCircle,
 } from 'lucide-angular';
 import { BookingService, Booking } from '@core/services/booking.service';
+import { BookingStatus } from '@core/interfaces/booking.dto';
+import { ToastService } from '@core/services/toast.service';
+import { UiConfirmComponent } from '@shared/components/ui-confirm/ui-confirm.component';
 
 @Component({
   selector: 'app-history-booking',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule, UiConfirmComponent],
   template: `
     <div class="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col md:flex-row gap-4 justify-between items-center">
@@ -108,12 +112,35 @@ import { BookingService, Booking } from '@core/services/booking.service';
               </div>
             </div>
 
-            <button type="button" class="shrink-0 w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all text-slate-400">
-              <lucide-icon [img]="ChevronRightIcon" class="w-5 h-5"></lucide-icon>
-            </button>
+            <div class="shrink-0 flex items-center gap-2 self-stretch md:self-center">
+              <button
+                *ngIf="booking.status === pendingStatus"
+                type="button"
+                (click)="openCancelConfirm(booking, $event)"
+                [disabled]="isCancelling(booking.id)"
+                class="px-4 py-2 rounded-xl border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-xs font-black uppercase tracking-widest"
+              >
+                {{ isCancelling(booking.id) ? 'Cancelling...' : 'Cancel' }}
+              </button>
+
+              <button type="button" class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all text-slate-400">
+                <lucide-icon [img]="ChevronRightIcon" class="w-5 h-5"></lucide-icon>
+              </button>
+            </div>
           </div>
         </div>
       </div>
+
+      <app-ui-confirm
+        [isOpen]="isCancelConfirmOpen()"
+        title="Cancel Booking"
+        [message]="'Are you sure you want to cancel booking &quot;' + (bookingToCancel()?.shortId ?? '') + '&quot;? This action cannot be undone.'"
+        confirmText="Cancel Booking"
+        cancelText="Keep Booking"
+        variant="danger"
+        (confirmed)="onCancelConfirmed()"
+        (cancelled)="closeCancelConfirm()"
+      ></app-ui-confirm>
     </div>
   `,
   styles: [`
@@ -123,6 +150,7 @@ import { BookingService, Booking } from '@core/services/booking.service';
   `]
 })
 export class HistoryBookingComponent implements OnInit {
+  readonly AlertTriangleIcon = AlertTriangle;
   readonly SearchIcon = Search;
   readonly FilterIcon = Filter;
   readonly HistoryIcon = Calendar;
@@ -131,12 +159,17 @@ export class HistoryBookingComponent implements OnInit {
   readonly ChevronRightIcon = ChevronRight;
   readonly ArrowRightIcon = ChevronRight;
   readonly ClockIcon = Clock;
+  readonly pendingStatus = BookingStatus.PENDING;
 
   private bookingService = inject(BookingService);
   private router = inject(Router);
+  private toastService = inject(ToastService);
 
   bookings = signal<Booking[]>([]);
   filteredBookings = signal<Booking[]>([]);
+  cancellingBookingIds = signal<string[]>([]);
+  isCancelConfirmOpen = signal(false);
+  bookingToCancel = signal<Booking | null>(null);
   isLoading = signal(true);
   searchQuery = '';
   statusFilter = 'All';
@@ -182,6 +215,64 @@ export class HistoryBookingComponent implements OnInit {
 
   openBookingDetail(id: string) {
     this.router.navigate(['/account/history-booking', id]);
+  }
+
+  isCancelling(id: string): boolean {
+    return this.cancellingBookingIds().includes(id);
+  }
+
+  openCancelConfirm(booking: Booking, event: Event) {
+    event.stopPropagation();
+
+    if (booking.status !== BookingStatus.PENDING || this.isCancelling(booking.id)) {
+      return;
+    }
+
+    this.bookingToCancel.set(booking);
+    this.isCancelConfirmOpen.set(true);
+  }
+
+  closeCancelConfirm() {
+    this.isCancelConfirmOpen.set(false);
+    this.bookingToCancel.set(null);
+  }
+
+  onCancelConfirmed() {
+    const booking = this.bookingToCancel();
+    if (!booking || booking.status !== BookingStatus.PENDING || this.isCancelling(booking.id)) {
+      this.closeCancelConfirm();
+      return;
+    }
+
+    this.cancellingBookingIds.update((ids) => [...ids, booking.id]);
+    this.isCancelConfirmOpen.set(false);
+
+    this.bookingService.update(booking.id, { status: BookingStatus.CANCELLED }).subscribe({
+      next: (updatedBooking: any) => {
+        const nextStatus = updatedBooking?.status ?? BookingStatus.CANCELLED;
+
+        this.bookings.update((items) =>
+          items.map((item) =>
+            item.id === booking.id
+              ? {
+                  ...item,
+                  status: nextStatus,
+                  updatedAt: updatedBooking?.updatedAt ?? updatedBooking?.updated_at ?? item.updatedAt,
+                }
+              : item,
+          ),
+        );
+        this.applyFilters();
+        this.toastService.success('Booking cancelled', `Booking ${booking.shortId} has been cancelled.`);
+        this.cancellingBookingIds.update((ids) => ids.filter((id) => id !== booking.id));
+        this.bookingToCancel.set(null);
+      },
+      error: (err) => {
+        this.toastService.error('Failed to cancel booking', err?.message);
+        this.cancellingBookingIds.update((ids) => ids.filter((id) => id !== booking.id));
+        this.bookingToCancel.set(null);
+      },
+    });
   }
 
   getStatusIcon(status: string) {

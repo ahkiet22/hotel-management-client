@@ -85,6 +85,8 @@ export class BookingPageComponent implements OnInit, OnDestroy {
 
   hotelServices = signal<BookingServiceView[]>([]);
   selectedServiceQuantities = signal<Record<string, number>>({});
+  servicesPage = signal(1);
+  readonly servicesPerPage = 4;
   coupons = signal<Coupon[]>([]);
   isCouponModalOpen = signal(false);
 
@@ -148,6 +150,37 @@ export class BookingPageComponent implements OnInit, OnDestroy {
 
   totalServicePrice = computed(() => {
     return this.selectedServices().reduce((sum, service) => sum + service.lineTotal, 0);
+  });
+
+  totalServicePages = computed(() => {
+    const total = this.hotelServices().length;
+    return Math.max(1, Math.ceil(total / this.servicesPerPage));
+  });
+
+  paginatedHotelServices = computed(() => {
+    const currentPage = Math.min(this.servicesPage(), this.totalServicePages());
+    const start = (currentPage - 1) * this.servicesPerPage;
+    return this.hotelServices().slice(start, start + this.servicesPerPage);
+  });
+
+  visibleServicePages = computed(() => {
+    const totalPages = this.totalServicePages();
+    const currentPage = this.servicesPage();
+    const maxVisible = 5;
+
+    if (totalPages <= maxVisible) {
+      return Array.from({ length: totalPages }, (_, index) => index + 1);
+    }
+
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+    let endPage = startPage + maxVisible - 1;
+
+    if (endPage > totalPages) {
+      endPage = totalPages;
+      startPage = endPage - maxVisible + 1;
+    }
+
+    return Array.from({ length: endPage - startPage + 1 }, (_, index) => startPage + index);
   });
 
   estimatedTotal = computed(() => {
@@ -282,10 +315,12 @@ export class BookingPageComponent implements OnInit, OnDestroy {
       next: (res) => {
         const result = Array.isArray(res?.result) ? res.result : [];
         this.hotelServices.set(result.map((service) => this.normalizeService(service)));
+        this.servicesPage.set(1);
         this.servicesLoading.set(false);
       },
       error: () => {
         this.hotelServices.set([]);
+        this.servicesPage.set(1);
         this.servicesLoading.set(false);
       },
     });
@@ -417,6 +452,11 @@ export class BookingPageComponent implements OnInit, OnDestroy {
 
   goBackToSelection() {
     this.step.set('selection');
+  }
+
+  goToServicesPage(page: number) {
+    const nextPage = Math.max(1, Math.min(page, this.totalServicePages()));
+    this.servicesPage.set(nextPage);
   }
 
   openCouponModal() {

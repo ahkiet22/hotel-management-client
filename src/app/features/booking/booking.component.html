@@ -114,7 +114,7 @@
                   </span>
                   <div class="flex items-center gap-2">
                     <a
-                      [routerLink]="['/rooms', room.id]"
+                      [routerLink]="['/rooms', room.roomTypeId]"
                       (click)="$event.stopPropagation()"
                       class="w-9 h-9 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-900 hover:text-white transition-colors flex items-center justify-center"
                       title="View room details"
@@ -189,7 +189,7 @@
             </div>
 
             <div *ngIf="!servicesLoading() && hotelServices().length > 0" class="grid gap-4">
-              <article *ngFor="let service of hotelServices()" class="rounded-3xl border border-slate-100 bg-slate-50 p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <article *ngFor="let service of paginatedHotelServices()" class="rounded-3xl border border-slate-100 bg-slate-50 p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div class="space-y-2">
                   <div class="flex items-center gap-3 flex-wrap">
                     <h4 class="text-base font-black text-slate-900">{{ service.name }}</h4>
@@ -228,6 +228,39 @@
                   </button>
                 </div>
               </article>
+
+              <div *ngIf="totalServicePages() > 1" class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3">
+                <p class="text-[11px] font-bold uppercase tracking-widest text-slate-400">
+                  Page {{ servicesPage() }} / {{ totalServicePages() }}
+                </p>
+                <div class="flex flex-wrap items-center justify-end gap-2 self-end sm:self-auto">
+                  <button
+                    type="button"
+                    (click)="goToServicesPage(servicesPage() - 1)"
+                    [disabled]="servicesPage() === 1"
+                    class="px-4 py-2 rounded-xl border border-slate-200 bg-white text-xs font-black uppercase tracking-widest text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  >
+                    Previous
+                  </button>
+                  <button
+                    *ngFor="let page of visibleServicePages()"
+                    type="button"
+                    (click)="goToServicesPage(page)"
+                    [ngClass]="page === servicesPage() ? 'border-blue-600 bg-blue-600 text-white shadow-lg shadow-blue-200 hover:bg-blue-700' : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-100'"
+                    class="min-w-10 px-3 py-2 rounded-xl border text-xs font-black transition-colors"
+                  >
+                    {{ page }}
+                  </button>
+                  <button
+                    type="button"
+                    (click)="goToServicesPage(servicesPage() + 1)"
+                    [disabled]="servicesPage() === totalServicePages()"
+                    class="px-4 py-2 rounded-xl border border-slate-200 bg-white text-xs font-black uppercase tracking-widest text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>

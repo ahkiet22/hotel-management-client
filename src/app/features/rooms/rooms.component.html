@@ -38,7 +38,7 @@
       </div>
       <div class="flex justify-end">
         <div class="flex items-center gap-4 text-sm font-medium tracking-widest uppercase text-gray-400">
-           <span>Total: {{ rooms.length }} Rooms</span>
+           <span>Total: {{ rooms().length }} Room Types</span>
            <div class="h-4 w-px bg-gray-200"></div>
            <span class="text-amber-600">Best Rates Guaranteed</span>
         </div>
@@ -51,7 +51,7 @@
     <div class="max-w-7xl mx-auto">
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
         
-        <div class="group flex flex-col space-y-6" *ngFor="let room of rooms">
+        <div class="group flex flex-col space-y-6" *ngFor="let room of rooms()">
           <!-- Image Container -->
           <div class="relative aspect-4/5 overflow-hidden rounded-3xl shadow-xl transition-all duration-700 hover:shadow-2xl">
             <img [src]="room.imageUrl" [alt]="room.title" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
@@ -60,7 +60,7 @@
             <div class="absolute top-6 left-6">
                <span [class]="room.isAvailable ? 'bg-white/90 text-green-800' : 'bg-red-50 text-red-800'" 
                      class="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest backdrop-blur-sm shadow-lg">
-                 {{ room.isAvailable ? 'Available Now' : 'Fully Booked' }}
+                 {{ room.isAvailable ? 'Available Now' : 'Not Public' }}
                </span>
             </div>
 
@@ -99,7 +99,7 @@
                   </div>
                </div>
                
-               <a [routerLink]="['/booking']" [queryParams]="{roomId: room.id}" class="inline-block px-8 py-3 bg-gray-900 text-white text-sm font-bold uppercase tracking-widest rounded-full hover:bg-amber-800 transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg group-hover:shadow-amber-900/20">
+               <a [routerLink]="['/booking']" [queryParams]="{typeId: room.id}" class="inline-block px-8 py-3 bg-gray-900 text-white text-sm font-bold uppercase tracking-widest rounded-full hover:bg-amber-800 transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg group-hover:shadow-amber-900/20">
                  Reserve Stay
                </a>
             </div>
@@ -138,4 +138,3 @@
     animation: fade-in 1s ease-out forwards;
   }
 </style>
-

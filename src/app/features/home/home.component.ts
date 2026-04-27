@@ -163,7 +163,12 @@ export class HomePageComponent implements OnInit {
   loadRoomTypes() {
     this.roomTypeService.getAllPublic().subscribe({
       next: (res) => {
-        this.roomTypes.set(Array.isArray(res?.result) ? res.result : []);
+        const roomTypes = Array.isArray(res)
+          ? res
+          : Array.isArray((res as any)?.result)
+            ? (res as any).result
+            : [];
+        this.roomTypes.set(roomTypes);
       },
     });
   }

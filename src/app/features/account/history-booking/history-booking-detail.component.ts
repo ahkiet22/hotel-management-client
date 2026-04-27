@@ -27,9 +27,16 @@ type BookingRoomView = {
   pricePerNight: number;
 };
 
+type BookingServiceView = {
+  name: string;
+  quantity: number;
+  price: number;
+  lineTotal: number;
+};
+
 type BookingDetailView = Booking & {
   rooms: BookingRoomView[];
-  services: any[];
+  services: BookingServiceView[];
 };
 
 @Component({
@@ -188,6 +195,41 @@ type BookingDetailView = Booking & {
             </article>
           </div>
         </div>
+
+        <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-8 space-y-6" *ngIf="booking()?.services?.length">
+          <div class="flex items-center justify-between gap-4">
+            <h2 class="text-xl font-black text-slate-900">Booked Services</h2>
+            <span class="rounded-full bg-amber-50 px-3 py-1 text-xs font-black uppercase tracking-widest text-amber-600">
+              {{ booking()?.services?.length }} item(s)
+            </span>
+          </div>
+
+          <div class="grid gap-4">
+            <article *ngFor="let service of booking()?.services" class="rounded-3xl border border-slate-100 bg-slate-50 p-5">
+              <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                <div class="space-y-2">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                      <lucide-icon [img]="icons.ReceiptText" class="w-5 h-5"></lucide-icon>
+                    </div>
+                    <div>
+                      <p class="font-black text-slate-900">{{ service.name }}</p>
+                      <p class="text-xs font-bold uppercase tracking-widest text-slate-400">Qty {{ service.quantity }}</p>
+                    </div>
+                  </div>
+                  <p class="text-sm text-slate-500 font-medium">
+                    {{ service.price | currency:'VND' }} / item
+                  </p>
+                </div>
+
+                <div class="text-right">
+                  <p class="text-xs font-black uppercase tracking-widest text-slate-400">Line Total</p>
+                  <p class="mt-1 text-lg font-black text-slate-900">{{ service.lineTotal | currency:'VND' }}</p>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
       </div>
     </div>
   `,
@@ -310,7 +352,7 @@ export class HistoryBookingDetailComponent implements OnInit {
       createdAt: item?.createdAt ?? item?.created_at ?? '',
       updatedAt: item?.updatedAt ?? item?.updated_at ?? '',
       rooms: Array.isArray(item?.rooms) ? item.rooms.map((room: any) => this.normalizeRoom(room)) : [],
-      services: Array.isArray(item?.services) ? item.services : [],
+      services: Array.isArray(item?.services) ? item.services.map((service: any) => this.normalizeService(service)) : [],
     };
   }
 
@@ -335,6 +377,18 @@ export class HistoryBookingDetailComponent implements OnInit {
       images: Array.isArray(roomType?.images) ? roomType.images : [],
       capacity: Number(roomType?.capacity ?? 1),
       pricePerNight: Number(roomType?.pricePerNight ?? roomType?.price_per_night ?? 0),
+    };
+  }
+
+  private normalizeService(service: any): BookingServiceView {
+    const quantity = Number(service?.quantity ?? 0);
+    const price = Number(service?.price ?? 0);
+
+    return {
+      name: service?.name ?? 'Hotel service',
+      quantity,
+      price,
+      lineTotal: quantity * price,
     };
   }
 }

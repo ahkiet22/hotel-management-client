@@ -1,7 +1,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { RoomService } from '@core/services/room.service';
 import { RoomTypeService } from '@core/services/room-type.service';
 import {
   ArrowLeft,
@@ -15,20 +14,6 @@ import {
 } from 'lucide-angular';
 
 const FALLBACK_IMAGE = 'assets/images/pic-1.jpg';
-
-interface RoomDetailView {
-  id: string;
-  roomNumber: string;
-  roomTypeId: string;
-  roomTypeName: string;
-  status: string;
-  capacity: number;
-  description: string;
-  basePrice: number;
-  pricePerNight: number;
-  createdAt: string;
-  isPublic: boolean;
-}
 
 interface RoomTypeDetailView {
   id: string;
@@ -49,10 +34,8 @@ interface RoomTypeDetailView {
 })
 export class RoomDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
-  private roomService = inject(RoomService);
   private roomTypeService = inject(RoomTypeService);
 
-  room = signal<RoomDetailView | null>(null);
   roomType = signal<RoomTypeDetailView | null>(null);
   isLoading = signal(true);
   error = signal<string | null>(null);
@@ -70,76 +53,31 @@ export class RoomDetailComponent implements OnInit {
     CheckCircle2,
   };
 
-  roomView = computed(() => {
-    const room = this.room();
-    if (!room) {
-      return null;
-    }
-
-    const roomType = this.roomType();
-
-    return {
-      ...room,
-      roomTypeName: roomType?.name || room.roomTypeName || 'Signature Room',
-      description:
-        roomType?.description ||
-        room.description ||
-        'A refined stay designed for comfort, privacy, and a seamless hotel experience.',
-      images: this.normalizeImages(roomType?.images),
-      basePrice: room.basePrice || roomType?.basePrice || 0,
-      pricePerNight:
-        room.pricePerNight ||
-        roomType?.pricePerNight ||
-        room.basePrice ||
-        roomType?.basePrice ||
-        0,
-      capacity: roomType?.capacity || room.capacity || 1,
-      isPublic: room.isPublic || roomType?.isPublic || false,
-    };
-  });
+  roomView = computed(() => this.roomType());
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {
-      this.error.set('No room ID provided');
+      this.error.set('No room type ID provided');
       this.isLoading.set(false);
       return;
     }
 
-    this.loadRoom(id);
+    this.loadRoomType(id);
   }
 
-  loadRoom(id: string) {
+  loadRoomType(id: string) {
     this.isLoading.set(true);
     this.error.set(null);
-    this.roomType.set(null);
 
-    this.roomService.getById(id).subscribe({
-      next: (rawRoom: any) => {
-        const room = this.normalizeRoom(rawRoom);
-        this.room.set(room);
-
-        if (!room.roomTypeId) {
-          this.syncActiveImage();
-          this.isLoading.set(false);
-          return;
-        }
-
-        this.roomTypeService.getById(room.roomTypeId).subscribe({
-          next: (rawRoomType: any) => {
-            this.roomType.set(this.normalizeRoomType(rawRoomType));
-            this.syncActiveImage();
-            this.isLoading.set(false);
-          },
-          error: (err) => {
-            console.error(err);
-            this.syncActiveImage();
-            this.isLoading.set(false);
-          },
-        });
+    this.roomTypeService.getById(id).subscribe({
+      next: (rawRoomType: any) => {
+        this.roomType.set(this.normalizeRoomType(rawRoomType));
+        this.syncActiveImage();
+        this.isLoading.set(false);
       },
       error: (err) => {
-        this.error.set('Room not found or error loading data');
+        this.error.set('Room type not found or error loading data');
         this.isLoading.set(false);
         console.error(err);
       },
@@ -164,15 +102,15 @@ export class RoomDetailComponent implements OnInit {
   }
 
   getFeatureList(): string[] {
-    const room = this.roomView();
-    if (!room) {
+    const roomType = this.roomView();
+    if (!roomType) {
       return [];
     }
 
     return [
-      `Designed for up to ${room.capacity} guest${room.capacity > 1 ? 's' : ''}`,
-      room.isPublic ? 'Currently listed for public booking' : 'Available by direct reservation request',
-      `Room ${room.roomNumber} is currently ${room.status?.toLowerCase() || 'available'}`,
+      `Designed for up to ${roomType.capacity} guest${roomType.capacity > 1 ? 's' : ''}`,
+      roomType.isPublic ? 'Currently listed for public booking' : 'Available by direct reservation request',
+      `Starts from ${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(roomType.basePrice)}`,
     ];
   }
 
@@ -198,33 +136,13 @@ export class RoomDetailComponent implements OnInit {
     return images.filter((image): image is string => typeof image === 'string' && image.length > 0);
   }
 
-  private normalizeRoom(raw: any): RoomDetailView {
-    return {
-      id: raw?.id ?? '',
-      roomNumber: raw?.roomNumber ?? raw?.room_number ?? 'N/A',
-      roomTypeId: raw?.roomTypeId ?? raw?.room_type_id ?? '',
-      roomTypeName: raw?.roomTypeName ?? raw?.room_type_name ?? '',
-      status: raw?.status ?? 'Unavailable',
-      capacity: Number(raw?.capacity ?? 1),
-      description: raw?.description ?? '',
-      basePrice: Number(raw?.basePrice ?? raw?.base_price ?? 0),
-      pricePerNight: Number(
-        raw?.pricePerNight ??
-          raw?.price_per_night ??
-          raw?.basePrice ??
-          raw?.base_price ??
-          0,
-      ),
-      createdAt: raw?.createdAt ?? raw?.created_at ?? '',
-      isPublic: Boolean(raw?.isPublic ?? raw?.is_public ?? false),
-    };
-  }
-
   private normalizeRoomType(raw: any): RoomTypeDetailView {
     return {
       id: raw?.id ?? '',
       name: raw?.name ?? 'Signature Room',
-      description: raw?.description ?? '',
+      description:
+        raw?.description ??
+        'A refined stay designed for comfort, privacy, and a seamless hotel experience.',
       images: this.normalizeImages(raw?.images),
       basePrice: Number(raw?.basePrice ?? raw?.base_price ?? 0),
       pricePerNight: Number(

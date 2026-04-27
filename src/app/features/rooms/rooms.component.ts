@@ -1,9 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { RouterLink } from '@angular/router';
-import { RoomService } from '@core/services/room.service';
-import { Room } from '@core/interfaces/room.dto';
+import { RoomTypeService } from '@core/services/room-type.service';
 
 export interface RoomView {
   id: string;
@@ -22,6 +21,8 @@ export interface RoomView {
   templateUrl: './rooms.component.html',
 })
 export class RoomsPageComponent implements OnInit {
+  rooms = signal<RoomView[]>([]);
+
   scrollToSection() {
     window.scrollTo({
       top: 700,
@@ -29,13 +30,10 @@ export class RoomsPageComponent implements OnInit {
     });
   }
 
-  rooms: RoomView[] = [];
-
   constructor(
-    private roomService: RoomService,
+    private roomTypeService: RoomTypeService,
     private title: Title,
-    private meta: Meta,
-    private cdr: ChangeDetectorRef
+    private meta: Meta
   ) {}
 
   ngOnInit(): void {
@@ -52,28 +50,35 @@ export class RoomsPageComponent implements OnInit {
       content: 'luxury hotel rooms, boutique suites, paradise hotel booking, premium accommodation',
     });
 
-    this.roomService.getAllPublic({ page: 1, limit: 12 }).subscribe({
+    this.roomTypeService.getAllPublic({ page: 1, limit: 12 }).subscribe({
       next: (data) => {
-        const roomData = data.result;
-        
-        setTimeout(() => {
-          this.rooms = roomData.map((room: any) => {
-            const price = room.basePrice || room.pricePerNight || 0;
-            return {
-              id: room.id,
-              title: room.roomTypeName || `Room ${room.roomNumber}` || 'Luxury Room',
-              price: new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Number(price)),
-              isAvailable: room.status === 'Vacant',
-              imageUrl: room.imageUrl || `https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80`,
-              description: room.description || 'Experience comfort and elegance in our meticulously designed space.',
-              features: ['King Bed', 'Ocean View', 'Free Wi-Fi']
-            };
-          });
-          this.cdr.detectChanges();
-        });
+        const roomData = Array.isArray(data)
+          ? data
+          : Array.isArray((data as any)?.result)
+            ? (data as any).result
+            : [];
+
+        this.rooms.set(roomData.map((roomType: any) => {
+          const price = roomType.base_price || roomType.basePrice || roomType.price_per_night || roomType.pricePerNight || 0;
+          const images = Array.isArray(roomType.images) ? roomType.images : [];
+          return {
+            id: roomType.id,
+            title: roomType.name || 'Luxury Room',
+            price: new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Number(price)),
+            isAvailable: Boolean(roomType.is_public ?? roomType.isPublic ?? true),
+            imageUrl: images[0] || `https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80`,
+            description: roomType.description || 'Experience comfort and elegance in our meticulously designed space.',
+            features: [
+              `${Number(roomType.capacity ?? 1)} Guest${Number(roomType.capacity ?? 1) > 1 ? 's' : ''}`,
+              'Flexible Stay',
+              'Free Wi-Fi',
+            ]
+          };
+        }));
       },
       error: (err) => {
         console.error('Failed to fetch rooms:', err);
+        this.rooms.set([]);
       },
     });
   }

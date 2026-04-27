@@ -1,4 +1,4 @@
-import { Component, computed, effect, signal, inject } from '@angular/core';
+import { Component, OnDestroy, computed, effect, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, Router, NavigationEnd } from '@angular/router';
 import { AuthStore } from '@core/stores/auth.store';
@@ -8,7 +8,9 @@ import {
   LucideAngularModule,
   ChevronDown,
   LogOut,
+  Maximize,
   Menu,
+  Minimize,
   X
 } from 'lucide-angular';
 import { filter } from 'rxjs';
@@ -19,17 +21,20 @@ import { filter } from 'rxjs';
   imports: [CommonModule, RouterOutlet, RouterLink, LucideAngularModule],
   templateUrl: './manager-layout.component.html',
 })
-export class ManagerLayoutComponent {
+export class ManagerLayoutComponent implements OnDestroy {
   auth = inject(AuthStore);
   permissionService = inject(PermissionService);
   isCollapsed = signal(false);
+  isFullscreen = signal(false);
   toggleMap: Record<string, boolean> = {};
   menuItems = computed(() => this.filterMenuItems(SIDEBAR_ITEMS));
 
   icons = {
     ChevronDown,
     LogOut,
+    Maximize,
     Menu,
+    Minimize,
     X
   };
 
@@ -44,6 +49,11 @@ export class ManagerLayoutComponent {
     ).subscribe(() => {
       this.expandActiveMenus();
     });
+
+    if (typeof document !== 'undefined') {
+      document.addEventListener('fullscreenchange', this.handleFullscreenChange);
+      this.syncFullscreenState();
+    }
   }
 
   private filterMenuItems(items: SidebarItem[]): SidebarItem[] {
@@ -91,8 +101,40 @@ export class ManagerLayoutComponent {
     this.isCollapsed.update((state) => !state);
   }
 
+  async toggleFullscreen() {
+    if (typeof document === 'undefined') {
+      return;
+    }
+
+    try {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+      } else {
+        await document.documentElement.requestFullscreen();
+      }
+    } catch (error) {
+      console.error('Failed to toggle fullscreen', error);
+    } finally {
+      this.syncFullscreenState();
+    }
+  }
+
   onLogout() {
     this.auth.clearAuth();
     this.router.navigate(['/login']);
+  }
+
+  ngOnDestroy() {
+    if (typeof document !== 'undefined') {
+      document.removeEventListener('fullscreenchange', this.handleFullscreenChange);
+    }
+  }
+
+  private handleFullscreenChange = () => {
+    this.syncFullscreenState();
+  };
+
+  private syncFullscreenState() {
+    this.isFullscreen.set(typeof document !== 'undefined' && !!document.fullscreenElement);
   }
 }
