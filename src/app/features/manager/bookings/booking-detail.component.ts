@@ -359,7 +359,7 @@ export class ManagerBookingDetailComponent implements OnInit {
     }
 
     this.paymentQr.set(null);
-    this.bookingService.getPaymentQr(amount, `BOOKING_${booking.id}`).subscribe({
+    this.bookingService.getPaymentQr(amount, booking.shortId || booking.id).subscribe({
       next: (qr: string) => this.paymentQr.set(qr),
       error: () => this.paymentQr.set(null),
     });

@@ -100,7 +100,7 @@ export class BookingListComponent implements OnInit {
 
   /** QR Payment */
   openQrModal(booking: Booking) {
-    this.bookingService.getPaymentQr(this.getPayableTotal(booking), `Payment for ${booking.shortId}`).subscribe({
+    this.bookingService.getPaymentQr(this.getPayableTotal(booking), booking.shortId || booking.id).subscribe({
       next: (res) => {
         this.qrImageUrl.set(res); 
         this.isQrModalOpen.set(true);

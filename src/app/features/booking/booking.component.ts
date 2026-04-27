@@ -559,7 +559,7 @@ export class BookingPageComponent implements OnInit, OnDestroy {
   getPaymentQr(booking: any) {
     this.paymentQr.set(null);
     const amount = getBookingPayableTotal(booking);
-    const description = `BOOKING_${booking.id}`;
+    const description = booking?.shortId || booking?.short_id || booking?.id;
 
     if (!amount || !booking?.id) {
       return;
