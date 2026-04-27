@@ -21,7 +21,7 @@ import {
 } from 'lucide-angular';
 import { Meta, Title } from '@angular/platform-browser';
 import { AuthStore } from '@core/stores/auth.store';
-import { BookingService } from '@core/services/booking.service';
+import { BookingService, getBookingPayableTotal, isBookingPaid } from '@core/services/booking.service';
 import { AvailableRoom, BookingServiceItemDto, Coupon, CreateBookingDto } from '@core/interfaces/booking.dto';
 import { RoomType } from '@core/interfaces/room-type.dto';
 import { HotelService, ServiceStatus } from '@core/interfaces/service.dto';
@@ -539,9 +539,10 @@ export class BookingPageComponent implements OnInit, OnDestroy {
     this.pollingInterval = setInterval(() => {
       this.bookingService.getById(bookingId).subscribe({
         next: (booking: any) => {
-          if (booking.status === 'Confirmed') {
+          if (isBookingPaid(booking)) {
             this.stopPaymentPolling();
-            this.onConfirmBooking(bookingId);
+            this.bookingResult.set(booking);
+            this.step.set('success');
           }
         }
       });
@@ -555,17 +556,9 @@ export class BookingPageComponent implements OnInit, OnDestroy {
     }
   }
 
-  onConfirmBooking(bookingId: string) {
-    this.bookingService.confirm(bookingId).subscribe({
-      next: () => {
-        this.step.set('success');
-      }
-    });
-  }
-
   getPaymentQr(booking: any) {
     this.paymentQr.set(null);
-    const amount = Number(booking?.grandTotal ?? booking?.totalRoomPrice ?? 0);
+    const amount = getBookingPayableTotal(booking);
     const description = `BOOKING_${booking.id}`;
 
     if (!amount || !booking?.id) {
@@ -639,6 +632,17 @@ export class BookingPageComponent implements OnInit, OnDestroy {
 
     const expiredAt = coupon.end_date ?? coupon.expired_at;
     return expiredAt ? this.getCouponExpiryTime(expiredAt) >= Date.now() : true;
+  }
+
+  getBookingDiscount(booking: any): number {
+    return Number(booking?.discount ?? 0);
+  }
+
+  getBookingPayableTotal(booking: any): number {
+    return getBookingPayableTotal({
+      grandTotal: Number(booking?.grandTotal ?? booking?.totalRoomPrice ?? 0),
+      discount: this.getBookingDiscount(booking),
+    } as any);
   }
 
   private normalizeCoupon(coupon: Coupon): Coupon {

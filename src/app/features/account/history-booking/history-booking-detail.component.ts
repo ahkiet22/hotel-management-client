@@ -13,7 +13,7 @@ import {
   QrCode,
 } from 'lucide-angular';
 import { forkJoin } from 'rxjs';
-import { BookingService, Booking } from '@core/services/booking.service';
+import { BookingService, Booking, getBookingPayableTotal } from '@core/services/booking.service';
 import { RoomTypeService } from '@core/services/room-type.service';
 
 type BookingRoomView = {
@@ -71,7 +71,7 @@ type BookingDetailView = Booking & {
 
             <div class="rounded-2xl bg-slate-900 px-6 py-5 text-white min-w-60">
               <p class="text-xs font-black uppercase tracking-widest text-slate-400">Grand Total</p>
-              <p class="mt-3 text-3xl font-black">{{ booking()?.grandTotal | currency:'VND' }}</p>
+              <p class="mt-3 text-3xl font-black">{{ getPayableTotal(booking()) | currency:'VND' }}</p>
             </div>
           </div>
         </div>
@@ -99,7 +99,7 @@ type BookingDetailView = Booking & {
               <p class="text-xs font-black uppercase tracking-widest text-slate-400">Booking ID</p>
               <p class="text-lg font-black text-slate-900">{{ booking()?.shortId }}</p>
               <p class="text-xs font-black uppercase tracking-widest text-slate-400 pt-3">Amount</p>
-              <p class="text-2xl font-black text-slate-900">{{ booking()?.grandTotal | currency:'VND' }}</p>
+              <p class="text-2xl font-black text-slate-900">{{ getPayableTotal(booking()) | currency:'VND' }}</p>
             </div>
           </div>
         </div>
@@ -149,6 +149,26 @@ type BookingDetailView = Booking & {
               <div>
                 <p class="text-xs font-black uppercase tracking-widest text-slate-400">Service Total</p>
                 <p class="mt-1 font-bold text-slate-900">{{ booking()?.totalServicePrice | currency:'VND' }}</p>
+              </div>
+            </div>
+
+            <div *ngIf="(booking()?.discount || 0) > 0" class="flex items-start gap-4">
+              <div class="w-11 h-11 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                <lucide-icon [img]="icons.CreditCard" class="w-5 h-5"></lucide-icon>
+              </div>
+              <div>
+                <p class="text-xs font-black uppercase tracking-widest text-slate-400">Discount</p>
+                <p class="mt-1 font-bold text-emerald-600">-{{ booking()?.discount | currency:'VND' }}</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-4">
+              <div class="w-11 h-11 rounded-2xl bg-slate-900 text-white flex items-center justify-center">
+                <lucide-icon [img]="icons.CreditCard" class="w-5 h-5"></lucide-icon>
+              </div>
+              <div>
+                <p class="text-xs font-black uppercase tracking-widest text-slate-400">Payable Total</p>
+                <p class="mt-1 font-bold text-slate-900">{{ getPayableTotal(booking()) | currency:'VND' }}</p>
               </div>
             </div>
 
@@ -317,7 +337,7 @@ export class HistoryBookingDetailComponent implements OnInit {
   }
 
   private loadPaymentQr(booking: BookingDetailView) {
-    const amount = Number(booking?.grandTotal ?? 0);
+    const amount = this.getPayableTotal(booking);
     if (!amount || !booking?.id) {
       return;
     }
@@ -390,5 +410,9 @@ export class HistoryBookingDetailComponent implements OnInit {
       price,
       lineTotal: quantity * price,
     };
+  }
+
+  getPayableTotal(booking: BookingDetailView | null | undefined): number {
+    return getBookingPayableTotal(booking);
   }
 }

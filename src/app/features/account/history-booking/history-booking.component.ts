@@ -14,7 +14,7 @@ import {
   Search,
   XCircle,
 } from 'lucide-angular';
-import { BookingService, Booking } from '@core/services/booking.service';
+import { BookingService, Booking, getBookingPayableTotal } from '@core/services/booking.service';
 import { BookingStatus } from '@core/interfaces/booking.dto';
 import { ToastService } from '@core/services/toast.service';
 import { UiConfirmComponent } from '@shared/components/ui-confirm/ui-confirm.component';
@@ -46,6 +46,7 @@ import { UiConfirmComponent } from '@shared/components/ui-confirm/ui-confirm.com
           >
             <option value="All">All Status</option>
             <option value="Confirmed">Confirmed</option>
+            <option value="Paid">Paid</option>
             <option value="Checked-in">Checked-in</option>
             <option value="Checked-out">Checked-out</option>
             <option value="Cancelled">Cancelled</option>
@@ -107,7 +108,7 @@ import { UiConfirmComponent } from '@shared/components/ui-confirm/ui-confirm.com
 
                 <span class="flex items-center gap-1.5 font-bold text-slate-800 text-sm">
                   <lucide-icon [img]="CreditCardIcon" class="w-4 h-4 text-emerald-500"></lucide-icon>
-                  {{ booking.grandTotal | currency:'VND' }}
+                  {{ getPayableTotal(booking) | currency:'VND' }}
                 </span>
               </div>
             </div>
@@ -277,6 +278,7 @@ export class HistoryBookingComponent implements OnInit {
 
   getStatusIcon(status: string) {
     switch (status) {
+      case 'Paid': return CreditCard;
       case 'Confirmed': return CheckCircle;
       case 'Checked-in': return Clock;
       case 'Checked-out': return CheckCircle;
@@ -287,6 +289,7 @@ export class HistoryBookingComponent implements OnInit {
 
   getStatusStyles(status: string) {
     switch (status) {
+      case 'Paid': return 'bg-blue-50 text-blue-600';
       case 'Confirmed': return 'bg-emerald-50 text-emerald-600';
       case 'Checked-in': return 'bg-blue-50 text-blue-600';
       case 'Checked-out': return 'bg-indigo-50 text-indigo-600';
@@ -297,12 +300,17 @@ export class HistoryBookingComponent implements OnInit {
 
   getStatusBadgeStyles(status: string) {
     switch (status) {
+      case 'Paid': return 'bg-blue-100 text-blue-700';
       case 'Confirmed': return 'bg-emerald-100 text-emerald-700';
       case 'Checked-in': return 'bg-blue-100 text-blue-700';
       case 'Checked-out': return 'bg-indigo-100 text-indigo-700';
       case 'Cancelled': return 'bg-rose-100 text-rose-700';
       default: return 'bg-amber-100 text-amber-700';
     }
+  }
+
+  getPayableTotal(booking: Booking | null | undefined): number {
+    return getBookingPayableTotal(booking);
   }
 
   private normalizeBooking(item: any): Booking {

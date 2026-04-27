@@ -102,10 +102,15 @@
 
               <!-- Amount -->
               <td class="px-6 py-5">
-                <p class="text-sm font-bold text-slate-900">{{ booking.grandTotal | currency:'VND' }}</p>
+                <p class="text-sm font-bold text-slate-900">{{ getPayableTotal(booking) | currency:'VND' }}</p>
                 <p class="text-[11px] text-slate-400 font-medium mt-0.5">
                   Room: {{ booking.totalRoomPrice | currency:'VND' }} / Svc: {{ booking.totalServicePrice | currency:'VND' }}
                 </p>
+                @if (booking.discount > 0) {
+                  <p class="text-[11px] text-emerald-600 font-bold mt-0.5">
+                    Discount: -{{ booking.discount | currency:'VND' }}
+                  </p>
+                }
               </td>
 
               <!-- Status -->

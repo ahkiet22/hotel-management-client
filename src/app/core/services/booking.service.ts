@@ -7,6 +7,7 @@ import { ApiResponse, PaginatedResponse } from '../interfaces/common.dto';
 import { 
   ApplyCouponDto, 
   Booking, 
+  BookingStatus,
   CreateBookingDto, 
   CreateCouponDto, 
   Coupon, 
@@ -24,6 +25,24 @@ export type {
   UpdateCouponDto,
   UpdateBookingDto 
 };
+
+export function getBookingPayableTotal(booking: Partial<Booking> | null | undefined): number {
+  const total = Number(booking?.grandTotal ?? 0);
+  const discount = Number(booking?.discount ?? 0);
+  return Math.max(total - discount, 0);
+}
+
+export function isBookingPaid(booking: Partial<Booking> | null | undefined): boolean {
+  if (!booking) return false;
+
+  const status = `${booking.status ?? ''}`;
+  if (status === BookingStatus.PAID) {
+    return true;
+  }
+
+  const deposit = Number(booking.deposit ?? 0);
+  return deposit >= getBookingPayableTotal(booking);
+}
 
 @Injectable({
   providedIn: 'root'
@@ -44,7 +63,10 @@ export class BookingService extends BaseService {
 
     return this.http.get<ApiResponse<PaginatedResponse<Booking>>>(`${this.baseUrl}api/v1/bookings`, { params })
       .pipe(
-        map(res => res.data),
+        map(res => ({
+          ...res.data,
+          result: Array.isArray(res.data?.result) ? res.data.result.map((item) => this.normalizeBooking(item)) : [],
+        })),
         catchError(this.handleError)
       );
   }
@@ -52,7 +74,7 @@ export class BookingService extends BaseService {
   getMyBookings(): Observable<Booking[]> {
     return this.http.get<ApiResponse<Booking[]>>(`${this.baseUrl}api/v1/bookings/my-bookings`)
       .pipe(
-        map(res => res.data),
+        map(res => Array.isArray(res.data) ? res.data.map((item) => this.normalizeBooking(item)) : []),
         catchError(this.handleError)
       );
   }
@@ -60,7 +82,7 @@ export class BookingService extends BaseService {
   override getById(id: string): Observable<Booking> {
     return this.http.get<ApiResponse<Booking>>(`${this.baseUrl}api/v1/bookings/${id}`)
       .pipe(
-        map(res => res.data),
+        map(res => this.normalizeBooking(res.data)),
         catchError(this.handleError)
       );
   }
@@ -151,7 +173,7 @@ export class BookingService extends BaseService {
 
   // Coupon methods
   createCoupon(dto: CreateCouponDto): Observable<any> {
-    return this.http.post<ApiResponse<any>>(`${this.baseUrl}api/v1/bookings/coupon`, dto)
+    return this.http.post<ApiResponse<any>>(`${this.baseUrl}api/v1/bookings/coupon`, this.toCouponPayload(dto))
       .pipe(
         map(res => res.data),
         catchError(this.handleError)
@@ -167,7 +189,7 @@ export class BookingService extends BaseService {
   }
 
   updateCoupon(id: string, dto: UpdateCouponDto): Observable<any> {
-    return this.http.patch<ApiResponse<any>>(`${this.baseUrl}api/v1/bookings/coupon/${id}`, dto)
+    return this.http.patch<ApiResponse<any>>(`${this.baseUrl}api/v1/bookings/coupons/${id}`, this.toCouponPayload(dto))
       .pipe(
         map(res => res.data),
         catchError(this.handleError)
@@ -183,10 +205,55 @@ export class BookingService extends BaseService {
   }
 
   deleteCoupon(id: string): Observable<any> {
-    return this.http.delete<ApiResponse<any>>(`${this.baseUrl}api/v1/bookings/coupon/${id}`)
+    return this.http.delete<ApiResponse<any>>(`${this.baseUrl}api/v1/bookings/coupons/${id}`)
       .pipe(
         map(res => res.data),
         catchError(this.handleError)
       );
+  }
+
+  private toCouponPayload(dto: Partial<CreateCouponDto>) {
+    return {
+      code: dto.code,
+      discountType: dto.discount_type,
+      discountValue: Number(dto.discount_value ?? 0),
+      couponStatus: dto.coupon_status,
+      minBookingAmount: dto.min_booking_amount,
+      maxDiscountAmount: dto.max_discount_amount,
+      startDate: dto.start_date,
+      endDate: dto.end_date,
+      usageLimit: dto.usage_limit,
+    };
+  }
+
+  private normalizeBooking(item: any): Booking {
+    const booking: Booking = {
+      id: item?.id ?? '',
+      shortId: item?.shortId ?? item?.short_id ?? '',
+      customerId: item?.customerId ?? item?.customer_id ?? '',
+      customerName: item?.customerName ?? item?.customer_name,
+      customerEmail: item?.customerEmail ?? item?.customer_email,
+      customerPhone: item?.customerPhone ?? item?.customer_phone,
+      staffId: item?.staffId ?? item?.staff_id,
+      staffName: item?.staffName ?? item?.staff_name,
+      checkInDate: item?.checkInDate ?? item?.check_in_date ?? '',
+      checkOutDate: item?.checkOutDate ?? item?.check_out_date ?? '',
+      actualCheckIn: item?.actualCheckIn ?? item?.actual_check_in,
+      actualCheckOut: item?.actualCheckOut ?? item?.actual_check_out,
+      totalRoomPrice: Number(item?.totalRoomPrice ?? item?.total_room_price ?? 0),
+      totalServicePrice: Number(item?.totalServicePrice ?? item?.total_service_price ?? 0),
+      discount: Number(item?.discount ?? 0),
+      grandTotal: Number(item?.grandTotal ?? item?.grand_total ?? 0),
+      deposit: Number(item?.deposit ?? 0),
+      status: (item?.status ?? BookingStatus.PENDING) as BookingStatus,
+      createdAt: item?.createdAt ?? item?.created_at ?? '',
+      updatedAt: item?.updatedAt ?? item?.updated_at ?? '',
+    };
+
+    if (isBookingPaid(booking)) {
+      booking.status = BookingStatus.PAID;
+    }
+
+    return booking;
   }
 }
