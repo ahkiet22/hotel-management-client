@@ -167,9 +167,14 @@ export class BookingPageComponent implements OnInit, OnDestroy {
     return this.coupons().filter((coupon) => {
       const status = `${coupon.coupon_status ?? ''}`.toLowerCase();
       const expiredAt = coupon.end_date ?? coupon.expired_at;
-      const isExpired = expiredAt ? new Date(expiredAt).getTime() < now : false;
+      const isExpired = expiredAt ? this.getCouponExpiryTime(expiredAt) < now : false;
       return status !== 'inactive' && status !== 'expired' && !isExpired;
     });
+  });
+
+  displayedCoupons = computed(() => {
+    const activeCoupons = this.availableCoupons();
+    return activeCoupons.length > 0 ? activeCoupons : this.coupons();
   });
 
   icons = {
@@ -314,7 +319,8 @@ export class BookingPageComponent implements OnInit, OnDestroy {
   loadCoupons() {
     this.bookingService.getCoupons().subscribe({
       next: (coupons) => {
-        this.coupons.set(Array.isArray(coupons) ? coupons : []);
+        const normalizedCoupons = Array.isArray(coupons) ? coupons.map((coupon) => this.normalizeCoupon(coupon)) : [];
+        this.coupons.set(normalizedCoupons);
       },
       error: () => {
         this.coupons.set([]);
@@ -414,6 +420,7 @@ export class BookingPageComponent implements OnInit, OnDestroy {
   }
 
   openCouponModal() {
+    this.loadCoupons();
     this.isCouponModalOpen.set(true);
   }
 
@@ -579,9 +586,67 @@ export class BookingPageComponent implements OnInit, OnDestroy {
   getCouponExpiryLabel(coupon: Coupon): string {
     const value = coupon.end_date ?? coupon.expired_at;
     if (!value) return '--';
-    const date = new Date(value);
+    const date = this.parseCouponDate(value, true);
     if (Number.isNaN(date.getTime())) return '--';
     return new Intl.DateTimeFormat('vi-VN', { dateStyle: 'medium' }).format(date);
+  }
+
+  isCouponSelectable(coupon: Coupon): boolean {
+    const status = `${coupon.coupon_status ?? this.deriveCouponStatus(coupon)}`.toLowerCase();
+    if (status === 'inactive' || status === 'expired') {
+      return false;
+    }
+
+    const expiredAt = coupon.end_date ?? coupon.expired_at;
+    return expiredAt ? this.getCouponExpiryTime(expiredAt) >= Date.now() : true;
+  }
+
+  private normalizeCoupon(coupon: Coupon): Coupon {
+    return {
+      ...coupon,
+      discount_value: this.normalizeNumber(coupon.discount_value),
+      min_booking_amount: this.toOptionalNumber(coupon.min_booking_amount),
+      max_discount_amount: this.toOptionalNumber(coupon.max_discount_amount),
+      usage_limit: this.toOptionalNumber(coupon.usage_limit),
+      used_count: this.normalizeNumber(coupon.used_count),
+      coupon_status: coupon.coupon_status ?? this.deriveCouponStatus(coupon),
+    };
+  }
+
+  private deriveCouponStatus(coupon: Coupon): string {
+    const expiredAt = coupon.end_date ?? coupon.expired_at;
+    if (expiredAt && this.getCouponExpiryTime(expiredAt) < Date.now()) return 'Expired';
+    return 'Active';
+  }
+
+  private getCouponExpiryTime(value: string): number {
+    return this.parseCouponDate(value, true).getTime();
+  }
+
+  private parseCouponDate(value: string, endOfDay = false): Date {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      const [year, month, day] = value.split('-').map(Number);
+      return endOfDay
+        ? new Date(year, month - 1, day, 23, 59, 59, 999)
+        : new Date(year, month - 1, day);
+    }
+
+    return new Date(value);
+  }
+
+  private normalizeNumber(value: unknown): number {
+    if (typeof value === 'number') return Number.isFinite(value) ? value : 0;
+    if (typeof value === 'string') {
+      const parsed = Number(value.replace(/,/g, '').trim());
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
+    return 0;
+  }
+
+  private toOptionalNumber(value: unknown): number | undefined {
+    if (value === null || value === undefined || value === '') return undefined;
+    const parsed = this.normalizeNumber(value);
+    return Number.isFinite(parsed) ? parsed : undefined;
   }
 
   private applyDraftCoupon(bookingId: string): Observable<unknown> {

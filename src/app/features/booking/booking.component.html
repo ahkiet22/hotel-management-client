@@ -297,11 +297,11 @@
               <div class="grid grid-cols-2 gap-3 pb-3 border-b border-white/10">
                 <div class="space-y-1">
                   <p class="text-[10px] font-black uppercase tracking-widest text-slate-500">Check-in</p>
-                  <p class="font-bold text-[12px] leading-snug break-words">{{ checkIn() ? (checkIn() | date:'dd/MM HH:mm') : 'Select time' }}</p>
+                  <p class="font-bold text-[12px] leading-snug wrap-break-word">{{ checkIn() ? (checkIn() | date:'dd/MM HH:mm') : 'Select time' }}</p>
                 </div>
                 <div class="space-y-1">
                   <p class="text-[10px] font-black uppercase tracking-widest text-slate-500">Check-out</p>
-                  <p class="font-bold text-[12px] leading-snug break-words">{{ checkOut() ? (checkOut() | date:'dd/MM HH:mm') : 'Select time' }}</p>
+                  <p class="font-bold text-[12px] leading-snug wrap-break-word">{{ checkOut() ? (checkOut() | date:'dd/MM HH:mm') : 'Select time' }}</p>
                 </div>
               </div>
 
@@ -472,17 +472,23 @@
           </button>
         </div>
 
-        <div *ngIf="availableCoupons().length === 0" class="rounded-2xl border border-dashed border-slate-200 p-8 text-center text-slate-500 font-medium">
-          No active coupons available right now.
+        <div *ngIf="coupons().length === 0" class="rounded-2xl border border-dashed border-slate-200 p-8 text-center text-slate-500 font-medium">
+          No coupons available right now.
         </div>
 
-        <div *ngIf="availableCoupons().length > 0" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
-          <article *ngFor="let coupon of availableCoupons()" class="rounded-3xl border border-slate-100 bg-slate-50 p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div *ngIf="coupons().length > 0" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+          <article *ngFor="let coupon of displayedCoupons()" class="rounded-3xl border border-slate-100 bg-slate-50 p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div class="space-y-2">
               <div class="flex items-center gap-3 flex-wrap">
                 <h4 class="text-lg font-black text-slate-900">{{ coupon.code }}</h4>
                 <span class="px-3 py-1 rounded-full bg-white border border-slate-200 text-[10px] font-black uppercase tracking-widest text-slate-500">
                   {{ getCouponDiscountLabel(coupon) }}
+                </span>
+                <span
+                  *ngIf="!isCouponSelectable(coupon)"
+                  class="px-3 py-1 rounded-full bg-red-50 border border-red-100 text-[10px] font-black uppercase tracking-widest text-red-500"
+                >
+                  Unavailable
                 </span>
               </div>
               <p class="text-sm text-slate-500 font-medium">
@@ -496,7 +502,8 @@
             <button
               type="button"
               (click)="selectCoupon(coupon.code)"
-              class="px-5 py-3 rounded-2xl bg-blue-600 text-white font-black uppercase tracking-widest text-xs hover:bg-blue-700 transition-colors"
+              [disabled]="!isCouponSelectable(coupon)"
+              class="px-5 py-3 rounded-2xl bg-blue-600 text-white font-black uppercase tracking-widest text-xs hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Use Code
             </button>
