@@ -14,7 +14,7 @@ import {
   Search,
   XCircle,
 } from 'lucide-angular';
-import { BookingService, Booking, getBookingPayableTotal } from '@core/services/booking.service';
+import { BookingService, Booking, getBookingPayableTotal, isBookingPaid } from '@core/services/booking.service';
 import { BookingStatus } from '@core/interfaces/booking.dto';
 import { ToastService } from '@core/services/toast.service';
 import { UiConfirmComponent } from '@shared/components/ui-confirm/ui-confirm.component';
@@ -314,7 +314,8 @@ export class HistoryBookingComponent implements OnInit {
   }
 
   private normalizeBooking(item: any): Booking {
-    return {
+    const status = `${item?.status ?? BookingStatus.PENDING}`;
+    const booking: Booking = {
       id: item?.id ?? '',
       shortId: item?.shortId ?? item?.short_id ?? '',
       customerId: item?.customerId ?? item?.customer_id ?? '',
@@ -332,9 +333,19 @@ export class HistoryBookingComponent implements OnInit {
       discount: Number(item?.discount ?? 0),
       grandTotal: Number(item?.grandTotal ?? item?.grand_total ?? 0),
       deposit: Number(item?.deposit ?? 0),
-      status: item?.status ?? 'Pending',
+      status: status as BookingStatus,
       createdAt: item?.createdAt ?? item?.created_at ?? '',
       updatedAt: item?.updatedAt ?? item?.updated_at ?? '',
     };
+
+    if (
+      booking.status !== BookingStatus.CANCELLED &&
+      booking.status !== BookingStatus.CHECKED_IN &&
+      booking.status !== BookingStatus.CHECKED_OUT
+    ) {
+      booking.status = isBookingPaid(booking) ? BookingStatus.PAID : BookingStatus.PENDING;
+    }
+
+    return booking;
   }
 }

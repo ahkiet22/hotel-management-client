@@ -13,7 +13,8 @@ import {
   QrCode,
 } from 'lucide-angular';
 import { forkJoin } from 'rxjs';
-import { BookingService, Booking, getBookingPayableTotal } from '@core/services/booking.service';
+import { BookingService, Booking, getBookingPayableTotal, isBookingPaid } from '@core/services/booking.service';
+import { BookingStatus } from '@core/interfaces/booking.dto';
 import { RoomTypeService } from '@core/services/room-type.service';
 
 type BookingRoomView = {
@@ -76,7 +77,7 @@ type BookingDetailView = Booking & {
           </div>
         </div>
 
-        <div *ngIf="booking()?.status === 'Pending'" class="bg-white rounded-3xl border border-slate-100 shadow-sm p-8 space-y-6">
+        <div *ngIf="shouldShowPaymentQr(booking())" class="bg-white rounded-3xl border border-slate-100 shadow-sm p-8 space-y-6">
           <div class="flex items-start gap-4">
             <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
               <lucide-icon [img]="icons.QrCode" class="w-6 h-6"></lucide-icon>
@@ -295,7 +296,7 @@ export class HistoryBookingDetailComponent implements OnInit {
     const normalizedBooking = this.normalizeBooking(rawBooking);
     const roomTypeIds = [...new Set(normalizedBooking.rooms.map((room) => room.roomTypeId).filter(Boolean))];
 
-    if (normalizedBooking.status === 'Pending') {
+    if (this.shouldShowPaymentQr(normalizedBooking)) {
       this.loadPaymentQr(normalizedBooking);
     }
 
@@ -350,7 +351,8 @@ export class HistoryBookingDetailComponent implements OnInit {
   }
 
   private normalizeBooking(item: any): BookingDetailView {
-    return {
+    const status = `${item?.status ?? BookingStatus.PENDING}`;
+    const booking: BookingDetailView = {
       id: item?.id ?? '',
       shortId: item?.shortId ?? item?.short_id ?? '',
       customerId: item?.customerId ?? item?.customer_id ?? '',
@@ -368,12 +370,22 @@ export class HistoryBookingDetailComponent implements OnInit {
       discount: Number(item?.discount ?? 0),
       grandTotal: Number(item?.grandTotal ?? item?.grand_total ?? 0),
       deposit: Number(item?.deposit ?? 0),
-      status: item?.status ?? 'Pending',
+      status: status as BookingStatus,
       createdAt: item?.createdAt ?? item?.created_at ?? '',
       updatedAt: item?.updatedAt ?? item?.updated_at ?? '',
       rooms: Array.isArray(item?.rooms) ? item.rooms.map((room: any) => this.normalizeRoom(room)) : [],
       services: Array.isArray(item?.services) ? item.services.map((service: any) => this.normalizeService(service)) : [],
     };
+
+    if (
+      booking.status !== BookingStatus.CANCELLED &&
+      booking.status !== BookingStatus.CHECKED_IN &&
+      booking.status !== BookingStatus.CHECKED_OUT
+    ) {
+      booking.status = isBookingPaid(booking) ? BookingStatus.PAID : BookingStatus.PENDING;
+    }
+
+    return booking;
   }
 
   private normalizeRoom(room: any): BookingRoomView {
@@ -414,5 +426,21 @@ export class HistoryBookingDetailComponent implements OnInit {
 
   getPayableTotal(booking: BookingDetailView | null | undefined): number {
     return getBookingPayableTotal(booking);
+  }
+
+  shouldShowPaymentQr(booking: BookingDetailView | null | undefined): boolean {
+    if (!booking) {
+      return false;
+    }
+
+    if (
+      booking.status === BookingStatus.CANCELLED ||
+      booking.status === BookingStatus.CHECKED_IN ||
+      booking.status === BookingStatus.CHECKED_OUT
+    ) {
+      return false;
+    }
+
+    return !isBookingPaid(booking);
   }
 }
