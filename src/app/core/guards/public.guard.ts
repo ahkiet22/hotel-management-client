@@ -6,6 +6,7 @@ import { AuthStore } from '@core/stores/auth.store';
 export const publicGuard: CanActivateFn = () => {
   const authService = inject(AuthStore);
   const router = inject(Router);
+  authService.initialize();
 
   if (authService.isAuthenticated()) {
     return router.parseUrl('/');

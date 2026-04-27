@@ -7,6 +7,7 @@ import {
   CheckCircle2,
   CreditCard,
   LucideAngularModule,
+  RefreshCw,
   ReceiptText,
   User,
   BedDouble,
@@ -16,6 +17,7 @@ import { forkJoin } from 'rxjs';
 import { BookingService, Booking, getBookingPayableTotal, isBookingPaid } from '@core/services/booking.service';
 import { BookingStatus } from '@core/interfaces/booking.dto';
 import { RoomTypeService } from '@core/services/room-type.service';
+import { ToastService } from '@core/services/toast.service';
 
 type BookingRoomView = {
   id: string;
@@ -53,6 +55,18 @@ type BookingDetailView = Booking & {
         <lucide-icon [img]="icons.ArrowLeft" class="w-4 h-4"></lucide-icon>
         Back to booking history
       </a>
+
+      <div class="flex justify-end">
+        <button
+          type="button"
+          (click)="refreshBooking()"
+          [disabled]="isRefreshing() || isLoading()"
+          class="inline-flex h-11 items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-700 shadow-sm transition-all hover:border-blue-200 hover:text-blue-600 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          <lucide-icon [img]="icons.RefreshCw" class="w-4 h-4" [class.animate-spin]="isRefreshing()"></lucide-icon>
+          {{ isRefreshing() ? 'Refreshing...' : 'Refresh' }}
+        </button>
+      </div>
 
       <div *ngIf="isLoading()" class="bg-white rounded-3xl border border-slate-100 text-center shadow-sm py-20 space-y-4">
         <div class="w-12 h-12 mx-auto border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
@@ -259,16 +273,19 @@ export class HistoryBookingDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private bookingService = inject(BookingService);
   private roomTypeService = inject(RoomTypeService);
+  private toastService = inject(ToastService);
 
   booking = signal<BookingDetailView | null>(null);
   paymentQr = signal<string | null>(null);
   isLoading = signal(true);
+  isRefreshing = signal(false);
 
   icons = {
     ArrowLeft,
     Calendar,
     CheckCircle2,
     CreditCard,
+    RefreshCw,
     ReceiptText,
     User,
     BedDouble,
@@ -276,18 +293,35 @@ export class HistoryBookingDetailComponent implements OnInit {
   };
 
   ngOnInit(): void {
+    this.fetchBooking(true);
+  }
+
+  refreshBooking(): void {
+    this.fetchBooking(false);
+  }
+
+  private fetchBooking(showLoading: boolean) {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {
       this.isLoading.set(false);
+      this.isRefreshing.set(false);
       return;
+    }
+
+    if (showLoading) {
+      this.isLoading.set(true);
+    } else {
+      this.isRefreshing.set(true);
     }
 
     this.bookingService.getById(id).subscribe({
       next: (booking: any) => {
         this.loadBookingDetail(booking);
       },
-      error: () => {
+      error: (err) => {
         this.isLoading.set(false);
+        this.isRefreshing.set(false);
+        this.toastService.error('Failed to refresh booking', err?.message);
       },
     });
   }
@@ -303,6 +337,7 @@ export class HistoryBookingDetailComponent implements OnInit {
     if (roomTypeIds.length === 0) {
       this.booking.set(normalizedBooking);
       this.isLoading.set(false);
+      this.isRefreshing.set(false);
       return;
     }
 
@@ -329,10 +364,12 @@ export class HistoryBookingDetailComponent implements OnInit {
           }),
         });
         this.isLoading.set(false);
+        this.isRefreshing.set(false);
       },
       error: () => {
         this.booking.set(normalizedBooking);
         this.isLoading.set(false);
+        this.isRefreshing.set(false);
       },
     });
   }
@@ -351,7 +388,6 @@ export class HistoryBookingDetailComponent implements OnInit {
   }
 
   private normalizeBooking(item: any): BookingDetailView {
-    const status = `${item?.status ?? BookingStatus.PENDING}`;
     const booking: BookingDetailView = {
       id: item?.id ?? '',
       shortId: item?.shortId ?? item?.short_id ?? '',
@@ -370,19 +406,15 @@ export class HistoryBookingDetailComponent implements OnInit {
       discount: Number(item?.discount ?? 0),
       grandTotal: Number(item?.grandTotal ?? item?.grand_total ?? 0),
       deposit: Number(item?.deposit ?? 0),
-      status: status as BookingStatus,
+      status: (item?.status ?? BookingStatus.PENDING) as BookingStatus,
       createdAt: item?.createdAt ?? item?.created_at ?? '',
       updatedAt: item?.updatedAt ?? item?.updated_at ?? '',
       rooms: Array.isArray(item?.rooms) ? item.rooms.map((room: any) => this.normalizeRoom(room)) : [],
       services: Array.isArray(item?.services) ? item.services.map((service: any) => this.normalizeService(service)) : [],
     };
 
-    if (
-      booking.status !== BookingStatus.CANCELLED &&
-      booking.status !== BookingStatus.CHECKED_IN &&
-      booking.status !== BookingStatus.CHECKED_OUT
-    ) {
-      booking.status = isBookingPaid(booking) ? BookingStatus.PAID : BookingStatus.PENDING;
+    if (isBookingPaid(booking)) {
+      booking.status = BookingStatus.PAID;
     }
 
     return booking;

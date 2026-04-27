@@ -19,6 +19,7 @@ export class AuthStore {
   private router = inject(Router);
   private _user = signal<User | null>(null);
   private _token = signal<string | null>(null);
+  private _initialized = false;
 
   constructor(@Inject(PLATFORM_ID) private platformId: object) {}
 
@@ -27,6 +28,11 @@ export class AuthStore {
   isAuthenticated = computed(() => !!this._token());
 
   initialize() {
+    if (this._initialized) {
+      return;
+    }
+
+    this._initialized = true;
     const token = this.storageService.get<string>('accessToken');
     if (token) {
       this._token.set(token);
@@ -46,6 +52,7 @@ export class AuthStore {
   clearAuth() {
     this._user.set(null);
     this._token.set(null);
+    this._initialized = true;
     this.storageService.remove('accessToken');
     this.storageService.remove('refreshToken');
   }
@@ -53,6 +60,7 @@ export class AuthStore {
   forceLogout() {
     this._user.set(null);
     this._token.set(null);
+    this._initialized = true;
     this.storageService.clear();
 
     if (isPlatformBrowser(this.platformId)) {

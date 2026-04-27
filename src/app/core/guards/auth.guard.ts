@@ -6,6 +6,7 @@ import { AuthStore } from '@core/stores/auth.store';
 export const authGuard: CanActivateFn = () => {
   const auth = inject(AuthStore);
   const router = inject(Router);
+  auth.initialize();
 
   if (auth.isAuthenticated()) {
     return true;
