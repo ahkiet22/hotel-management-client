@@ -8,9 +8,6 @@ import { PERMISSIONS, ROLE_PERMISSIONS, PermissionType } from '../constants/perm
 export class PermissionService {
   private authStore = inject(AuthStore);
 
-  /**
-   * Check if user has a specific permission
-   */
   hasPermission(permission: PermissionType): boolean {
     const user = this.authStore.user();
     if (!user) return false;

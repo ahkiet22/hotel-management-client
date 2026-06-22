@@ -11,7 +11,7 @@ import { Meta } from '@core/interfaces';
 export class PaginationComponent {
   @Input({ required: true }) meta!: Meta;
   @Output() pageChange = new EventEmitter<number>();
-
+  
   get shouldShow(): boolean {
     return this.meta.totalPages > 1;
   }

@@ -1,29 +1,30 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { BaseService } from './base.service';
 import { ApiResponse, PaginatedResponse } from '../interfaces/common.dto';
-import { 
-  ApplyCouponDto, 
-  Booking, 
+import {
+  ApplyCouponDto,
+  Booking,
   BookingStatus,
-  CreateBookingDto, 
-  CreateCouponDto, 
-  Coupon, 
-  QueryBookingDto, 
+  CreateBookingDto,
+  CreateCouponDto,
+  Coupon,
+  QueryBookingDto,
   UpdateCouponDto,
-  UpdateBookingDto 
+  UpdateBookingDto,
 } from '../interfaces/booking.dto';
-export type { 
-  ApplyCouponDto, 
-  Booking, 
-  CreateBookingDto, 
-  CreateCouponDto, 
-  Coupon, 
-  QueryBookingDto, 
+import { IS_PUBLIC_ENABLED } from '@core/http/context.http';
+export type {
+  ApplyCouponDto,
+  Booking,
+  CreateBookingDto,
+  CreateCouponDto,
+  Coupon,
+  QueryBookingDto,
   UpdateCouponDto,
-  UpdateBookingDto 
+  UpdateBookingDto,
 };
 
 export function getBookingPayableTotal(booking: Partial<Booking> | null | undefined): number {
@@ -45,7 +46,7 @@ export function isBookingPaid(booking: Partial<Booking> | null | undefined): boo
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class BookingService extends BaseService {
   protected override readonly endpoint = 'api/v1/bookings';
@@ -61,77 +62,80 @@ export class BookingService extends BaseService {
       if (query.checkOutDate) params = params.set('checkOutDate', query.checkOutDate);
     }
 
-    return this.http.get<ApiResponse<PaginatedResponse<Booking>>>(`${this.baseUrl}api/v1/bookings`, { params })
+    return this.http
+      .get<ApiResponse<PaginatedResponse<Booking>>>(`${this.baseUrl}api/v1/bookings`, { params })
       .pipe(
-        map(res => ({
+        map((res) => ({
           ...res.data,
-          result: Array.isArray(res.data?.result) ? res.data.result.map((item) => this.normalizeBooking(item)) : [],
+          result: Array.isArray(res.data?.result)
+            ? res.data.result.map((item) => this.normalizeBooking(item))
+            : [],
         })),
-        catchError(this.handleError)
+        catchError(this.handleError),
       );
   }
 
   getMyBookings(): Observable<Booking[]> {
-    return this.http.get<ApiResponse<Booking[]>>(`${this.baseUrl}api/v1/bookings/my-bookings`)
-      .pipe(
-        map(res => Array.isArray(res.data) ? res.data.map((item) => this.normalizeBooking(item)) : []),
-        catchError(this.handleError)
-      );
+    return this.http.get<ApiResponse<Booking[]>>(`${this.baseUrl}api/v1/bookings/my-bookings`).pipe(
+      map((res) =>
+        Array.isArray(res.data) ? res.data.map((item) => this.normalizeBooking(item)) : [],
+      ),
+      catchError(this.handleError),
+    );
   }
 
   override getById(id: string): Observable<Booking> {
-    return this.http.get<ApiResponse<Booking>>(`${this.baseUrl}api/v1/bookings/${id}`)
-      .pipe(
-        map(res => this.normalizeBooking(res.data)),
-        catchError(this.handleError)
-      );
+    return this.http.get<ApiResponse<Booking>>(`${this.baseUrl}api/v1/bookings/${id}`).pipe(
+      map((res) => this.normalizeBooking(res.data)),
+      catchError(this.handleError),
+    );
   }
 
   override create(data: CreateBookingDto): Observable<any> {
-    return this.http.post<ApiResponse<any>>(`${this.baseUrl}api/v1/bookings`, data)
-      .pipe(
-        map(res => res.data),
-        catchError(this.handleError)
-      );
+    return this.http.post<ApiResponse<any>>(`${this.baseUrl}api/v1/bookings`, data).pipe(
+      map((res) => res.data),
+      catchError(this.handleError),
+    );
   }
 
   override update(id: string, data: UpdateBookingDto): Observable<any> {
-    return this.http.patch<ApiResponse<any>>(`${this.baseUrl}api/v1/bookings/${id}`, data)
-      .pipe(
-        map(res => res.data),
-        catchError(this.handleError)
-      );
+    return this.http.patch<ApiResponse<any>>(`${this.baseUrl}api/v1/bookings/${id}`, data).pipe(
+      map((res) => res.data),
+      catchError(this.handleError),
+    );
   }
 
   override delete(id: string): Observable<any> {
-    return this.http.delete<ApiResponse<any>>(`${this.baseUrl}api/v1/bookings/${id}`)
-      .pipe(
-        map(res => res.data),
-        catchError(this.handleError)
-      );
+    return this.http.delete<ApiResponse<any>>(`${this.baseUrl}api/v1/bookings/${id}`).pipe(
+      map((res) => res.data),
+      catchError(this.handleError),
+    );
   }
 
   confirm(id: string): Observable<any> {
-    return this.http.patch<ApiResponse<any>>(`${this.baseUrl}api/v1/bookings/confirm/${id}`, {})
+    return this.http
+      .patch<ApiResponse<any>>(`${this.baseUrl}api/v1/bookings/confirm/${id}`, {})
       .pipe(
-        map(res => res.data),
-        catchError(this.handleError)
+        map((res) => res.data),
+        catchError(this.handleError),
       );
   }
 
   checkIn(id: string): Observable<any> {
-    return this.http.patch<ApiResponse<any>>(`${this.baseUrl}api/v1/bookings/check-in/${id}`, {})
+    return this.http
+      .patch<ApiResponse<any>>(`${this.baseUrl}api/v1/bookings/check-in/${id}`, {})
       .pipe(
-        map(res => res.data),
-        catchError(this.handleError)
+        map((res) => res.data),
+        catchError(this.handleError),
       );
   }
 
   checkOut(id: string): Observable<any> {
-    return this.http.patch<ApiResponse<any>>(`${this.baseUrl}api/v1/bookings/check-out/${id}`, {})
+    return this.http
+      .patch<ApiResponse<any>>(`${this.baseUrl}api/v1/bookings/check-out/${id}`, {})
       .pipe(
-        map(res => res.data),
-        catchError(this.handleError)
+        map((res) => res.data),
+        catchError(this.handleError),
       );
   }
 
@@ -146,16 +150,19 @@ export class BookingService extends BaseService {
     let httpParams = new HttpParams()
       .set('checkIn', params.checkIn)
       .set('checkOut', params.checkOut);
-    
+
     if (params.roomTypeId) httpParams = httpParams.set('roomTypeId', params.roomTypeId);
     if (params.capacity) httpParams = httpParams.set('capacity', params.capacity.toString());
     if (params.page) httpParams = httpParams.set('page', params.page.toString());
     if (params.limit) httpParams = httpParams.set('limit', params.limit.toString());
 
-    return this.http.get<ApiResponse<PaginatedResponse<any>>>(`${this.baseUrl}api/v1/bookings/available`, { params: httpParams })
+    return this.http
+      .get<
+        ApiResponse<PaginatedResponse<any>>
+      >(`${this.baseUrl}api/v1/bookings/available`, { params: httpParams })
       .pipe(
-        map(res => res.data),
-        catchError(this.handleError)
+        map((res) => res.data),
+        catchError(this.handleError),
       );
   }
 
@@ -163,53 +170,57 @@ export class BookingService extends BaseService {
     const params = new HttpParams()
       .set('amount', amount.toString())
       .set('description', description);
-    
-    return this.http.get<ApiResponse<any>>(`${this.baseUrl}api/v1/bookings/qr`, { params })
-      .pipe(
-        map(res => res.data),
-        catchError(this.handleError)
-      );
+
+    return this.http.get<ApiResponse<any>>(`${this.baseUrl}api/v1/bookings/qr`, { params }).pipe(
+      map((res) => res.data),
+      catchError(this.handleError),
+    );
   }
 
   // Coupon methods
   createCoupon(dto: CreateCouponDto): Observable<any> {
-    return this.http.post<ApiResponse<any>>(`${this.baseUrl}api/v1/bookings/coupon`, this.toCouponPayload(dto))
+    return this.http
+      .post<ApiResponse<any>>(`${this.baseUrl}api/v1/bookings/coupon`, this.toCouponPayload(dto))
       .pipe(
-        map(res => res.data),
-        catchError(this.handleError)
+        map((res) => res.data),
+        catchError(this.handleError),
       );
   }
 
   getCoupons(): Observable<Coupon[]> {
-    return this.http.get<ApiResponse<Coupon[]>>(`${this.baseUrl}api/v1/bookings/coupons`)
+    return this.http
+      .get<
+        ApiResponse<Coupon[]>
+      >(`${this.baseUrl}api/v1/bookings/coupons`, { context: new HttpContext().set(IS_PUBLIC_ENABLED, true) })
       .pipe(
-        map(res => res.data),
-        catchError(this.handleError)
+        map((res) => res.data),
+        catchError(this.handleError),
       );
   }
 
   updateCoupon(id: string, dto: UpdateCouponDto): Observable<any> {
-    return this.http.patch<ApiResponse<any>>(`${this.baseUrl}api/v1/bookings/coupons/${id}`, this.toCouponPayload(dto))
+    return this.http
+      .patch<
+        ApiResponse<any>
+      >(`${this.baseUrl}api/v1/bookings/coupons/${id}`, this.toCouponPayload(dto))
       .pipe(
-        map(res => res.data),
-        catchError(this.handleError)
+        map((res) => res.data),
+        catchError(this.handleError),
       );
   }
 
   applyCoupon(dto: ApplyCouponDto): Observable<any> {
-    return this.http.post<ApiResponse<any>>(`${this.baseUrl}api/v1/bookings/coupon/use`, dto)
-      .pipe(
-        map(res => res.data),
-        catchError(this.handleError)
-      );
+    return this.http.post<ApiResponse<any>>(`${this.baseUrl}api/v1/bookings/coupon/use`, dto).pipe(
+      map((res) => res.data),
+      catchError(this.handleError),
+    );
   }
 
   deleteCoupon(id: string): Observable<any> {
-    return this.http.delete<ApiResponse<any>>(`${this.baseUrl}api/v1/bookings/coupons/${id}`)
-      .pipe(
-        map(res => res.data),
-        catchError(this.handleError)
-      );
+    return this.http.delete<ApiResponse<any>>(`${this.baseUrl}api/v1/bookings/coupons/${id}`).pipe(
+      map((res) => res.data),
+      catchError(this.handleError),
+    );
   }
 
   private toCouponPayload(dto: Partial<CreateCouponDto>) {

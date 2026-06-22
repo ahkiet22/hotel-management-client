@@ -62,7 +62,7 @@ export class BookingListComponent implements OnInit {
     this.loadBookings();
   }
 
-  /** Confirm a Pending booking → Confirmed */
+  /** Confirm a Pending booking -> Confirmed */
   confirmBooking(booking: Booking) {
     this.bookingService.confirm(booking.id).subscribe({
       next: () => {

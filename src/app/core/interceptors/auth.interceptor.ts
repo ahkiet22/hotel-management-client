@@ -15,7 +15,7 @@ import { BehaviorSubject, catchError, filter, switchMap, take, throwError } from
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
   private isRefreshing = false;
-  private refreshTokenSubject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
+  private tokenRefreshSubject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
 
   constructor(
     private injector: Injector,
@@ -64,7 +64,7 @@ export class AuthInterceptor implements HttpInterceptor {
 
     if (this.isRefreshRequest(request.url)) {
       this.isRefreshing = false;
-      this.refreshTokenSubject.next(null);
+      this.tokenRefreshSubject.next(null);
       this.authStore.forceLogout();
       return throwError(() => new HttpErrorResponse({
         error: { message: 'Refresh token expired or invalid' },
@@ -76,25 +76,25 @@ export class AuthInterceptor implements HttpInterceptor {
 
     if (!this.isRefreshing) {
       this.isRefreshing = true;
-      this.refreshTokenSubject.next(null);
+      this.tokenRefreshSubject.next(null);
 
       return this.authService.refresh().pipe(
         switchMap((response) => {
           this.isRefreshing = false;
           this.storageService.set('accessToken', response.accessToken);
-          this.refreshTokenSubject.next(response.accessToken);
+          this.tokenRefreshSubject.next(response.accessToken);
           return next.handle(this.addTokenHeader(request, response.accessToken));
         }),
         catchError((err) => {
           this.isRefreshing = false;
-          this.refreshTokenSubject.next(null);
+          this.tokenRefreshSubject.next(null);
           this.authStore.forceLogout();
           return throwError(() => err);
         }),
       );
     }
 
-    return this.refreshTokenSubject.pipe(
+    return this.tokenRefreshSubject.pipe(
       filter((token) => token !== null),
       take(1),
       switchMap((token) => next.handle(this.addTokenHeader(request, token))),
